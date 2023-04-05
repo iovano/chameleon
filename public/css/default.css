@@ -1,0 +1,24 @@
+html {
+    min-height: 100%; /* Look, it's not fixed anymore! */
+
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    background: rgb(40,40,60);
+    background: linear-gradient(180deg, rgba(40,40,60,1) 0%, rgba(21,9,11,1) 62%, rgba(0,0,0,1) 95%);
+    flex-grow: 1;
+    color: #fff;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+h1, h2, h3 {
+    color: #fff;
+}
+canvas {
+    border: none;
+}
+.highlight {
+    color: #faf;
+    font-weight: 400;
+}

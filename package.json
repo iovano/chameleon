@@ -1,0 +1,19 @@
+{
+  "name": "@iovano/chameleon",
+  "version": "0.1.0",
+  "main": "app.js",
+  "keywords": ["clipping","path","mask"],
+  "homepage": "https://iovano.de/chameleon/",
+  "repository": {
+    "url": "https://github.com/iovano/chameleon.git",
+    "type": "git"
+  },
+  "exports": {
+    "./Gallery": "./public/js/classes/Gallery.js",
+    "./DotGain": "./public/js/classes/DotGain.js",
+    "./js/": "./public/js/classes/",
+    "./css/": "./public/css/"
+  },
+  "author": "Timor Kodal",
+  "license": "MIT"
+}
