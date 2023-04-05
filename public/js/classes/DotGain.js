@@ -7,7 +7,7 @@ class DotGain extends Gallery {
     canvasContainer = undefined;
     debugMask = false;
     imageSlots = ["currentImage", "previousImage"]
-    direction = 90;
+    direction = "random";
 
     init() {
         super.init();
@@ -16,12 +16,14 @@ class DotGain extends Gallery {
     update() {
         super.update();
         let cFrame = (this.frame - 1) % 200;
-        let x = this.width - cFrame * this.grid;
-        let y = this.height - cFrame * this.grid;
+        let x = - this.grid * 4;
+        let y = Math.max(this.height, this.width) - cFrame * this.grid;
+        let direction = this.currentDirection;
+
         if (this.suspended) {
-            this.clipPath.style.transform = "translate("+this.width+"px, "+this.height+"px)";
-        } else if (cFrame < 81) {
-            this.clipPath.style.transform = "translate("+x+"px, "+y+"px)";
+            this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
+        } else if (y > - this.clipPath.getBBox().height / 2) {
+            this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
         }
         if (cFrame === 0 && !this.suspended) {
             this.currentImage ++;
@@ -40,13 +42,15 @@ class DotGain extends Gallery {
         } else if (this.canvas instanceof HTMLElement) {
             if (event.target === this.getImage(1)) {
                 if (!this.debugMask) {
-                    this.getImage(1).setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
+                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
                 this.getImage(1).setAttributeNS(null, "visibility", "visible");
+                this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
+                console.log(this.currentDirection);
             } else if (event.target === this.getImage(0)) {
                 this.getImage(1).setAttributeNS(null, "href", this.images[this.currentImage % this.images.length]);    
                 if (!this.debugMask) {
-                    this.getImage(1).setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
+                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
                 this.getImage(1).setAttributeNS(null, "visibility", "visible");
             }
@@ -57,7 +61,7 @@ class DotGain extends Gallery {
         let current = this.getImage(1);
         let previous = this.getImage(0);
         if (current.getAttributeNS(null, "href")) {
-            current.removeAttributeNS(null, "clip-path");
+            document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
             previous.setAttributeNS(null, "href", current.getAttributeNS(null, "href"));
         } else {
             current.setAttributeNS(null, "href", this.images[this.currentImage % this.images.length]);    
@@ -65,46 +69,46 @@ class DotGain extends Gallery {
     }
     createClipPath(clipPathId = undefined) {
         let clipPath = document.createElementNS(this.svgNS, this.debugMask ? "g" : "clipPath");
-        let fillUp = [];
         let w = this.width;
         let h = this.height;
         let cols = w / this.grid;
         let rows = h / this.grid;
         let maxRadius = this.grid * Math.PI / 4;
-
-        for (let y = 1; y <= rows * 4; y += 1) {
-            for (let x = 1; x <= cols * 4; x += 1) {
-                let radius = maxRadius * x / cols * y / rows;
-                if (radius >= maxRadius) {
-                    /* collect boundary coordinates of 100% coverage  */
-                    fillUp.push([(x - 1) * this.grid, (y - 1) * this.grid]);
-                    break;
-                }
-                if (radius < 1) {
+        let r,x,y;
+        for (y = 0; y <= Math.max(cols,rows) * 2; y += 1) {
+            for (x = 0; x <= Math.max(cols,rows) * 2; x += 1) {
+                r = y / 4;
+                if (r < 1) {
                     continue;
+                }
+                if (r > maxRadius) {
+                    break;
                 }
                 /* draw dotgain circle and append to mask group */
                 let circle = document.createElementNS(this.svgNS, "circle");
                 circle.setAttribute("cx", x * this.grid);
                 circle.setAttribute("cy", y * this.grid);
-                circle.setAttribute("r", radius < maxRadius ? radius : maxRadius);
+                circle.setAttribute("r", r < maxRadius ? r : maxRadius);
                 circle.setAttribute("fill", "white");
                 circle.setAttribute("stroke", "none");        
                 clipPath.appendChild(circle);
             }
-        }
-        /* add final coordinate to close full coverage path */
-        fillUp.push([cols*4*this.grid,rows*4*this.grid]);
-        let d = 'M '+fillUp[0][0]+' '+fillUp[0][1];
-        for(let i = 1; i < fillUp.length; i++) {
-            d += ' L'+fillUp[i][0]+' '+fillUp[i][1];
+            if (r > maxRadius) {
+                break;
+            }
+
         }
         /* create full coverage mask section path with previously collected coordinates */
-        let filler = document.createElementNS(this.svgNS, "path");
-        filler.setAttributeNS(null, "d", d);  
+        let filler = document.createElementNS(this.svgNS, "rect");
+        filler.setAttributeNS(null, "x", 0);
+        filler.setAttributeNS(null, "y", (y - 1) * this.grid);
+        filler.setAttributeNS(null, "width", w*4 + this.grid * 2);
+        filler.setAttributeNS(null, "height", h*4 + this.grid * 2);
         filler.setAttributeNS(null, "stroke", "none");
         filler.setAttributeNS(null, "fill", "red");
         clipPath.appendChild(filler);
+
+        clipPath.style.transformOrigin = "center center";
 
         /* define id as clip path target */
         if (!this.debugMask) {
@@ -125,16 +129,24 @@ class DotGain extends Gallery {
 
 
         for (let i=0;i<this.imageSlots.length;i++) {
+            let imageGroup = document.createElementNS(this.svgNS, "g");
             let image = document.createElementNS(this.svgNS, "image");
+            imageGroup.id = 'imageGroup'+i;
             image.id = 'imageSlot'+i;
             image.setAttributeNS(null, "visibility", "visible");
             image.onload = (event) => this.onImageLoaded(event);
-            svg.appendChild(image);
+            let background = document.createElementNS(this.svgNS, "rect");
+            background.setAttributeNS(null, 'width', this.width);
+            background.setAttributeNS(null, 'height', this.height);
+            background.setAttributeNS(null, 'fill', 'black');
+            imageGroup.appendChild(background);
+            imageGroup.appendChild(image);
+            svg.appendChild(imageGroup);
         }
 
         /* append clipPath */
         svg.appendChild(clipPath);
-
+        
         svg.style.position = "absolute";
         svg.style.zIndex = 10;
         this.canvasContainer = svg;

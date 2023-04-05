@@ -13,6 +13,7 @@ let images = ['images/example.png','images/example2.jpg','images/example3.jpg'];
       gallery = new DotGain(canvas);
     }
     gallery.addImages(images);
+    gallery.direction = "random";
     gallery.init();
     gallery.run();
   }

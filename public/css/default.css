@@ -22,3 +22,7 @@ canvas {
     color: #faf;
     font-weight: 400;
 }
+#gallery image {
+    width: auto;
+    height: 100%;
+}
