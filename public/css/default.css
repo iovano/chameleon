@@ -25,3 +25,52 @@ canvas {
 #gallery  svg .imageGroup image {
     height: 100%;
 }
+
+.controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+    z-index: 100;
+    transition: 0.5s;
+}
+.controls div.button {
+    position: absolute;
+    top: 50%;
+    width: 4em;
+    height: 4em;
+    cursor: pointer;
+    background: rgba(0,0,0,1);
+    opacity: 0.5;
+}
+.controls div.button.left {
+    left: 10em;
+}
+.controls div.button.right {
+    right: 10em;
+}
+.controls div.left div.icon {
+    transform: rotate(90deg);
+}
+.controls div.right div.icon {
+    transform: rotate(270deg);
+}
+.controls div.more.icon {
+    padding: 0;
+    margin: 0 !important;
+    width: 44px;
+    height: 24px;
+
+}
+
+.controls div.icon.more::before {
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    content: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4 L22 20 L40 4' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E");
+}
+.controls div.button:hover {
+    opacity: 1;
+}

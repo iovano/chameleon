@@ -20,6 +20,13 @@ class Gallery {
             this.addImages(images);
         }
     }
+    navigate(delta = undefined) {
+        this.currentImage += parseInt(delta || 1);
+        this.currentImage = (this.currentImage + this.images.length) % this.images.length;
+        if (this.onNavigate) {
+            this.onNavigate(delta);
+        }
+    }
     setWidth(width) {
         this.width = width;
     }

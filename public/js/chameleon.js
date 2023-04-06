@@ -17,11 +17,18 @@ let images = ['images/example.png','images/example2.jpg','images/example3.jpg'];
     gallery.init();
     gallery.run();
   }
+  function move(delta) {
+    gallery.navigate(delta);
+  }
   window.startTheme = start;
   document.addEventListener("DOMContentLoaded", function () {
     start('standard');
     document.querySelectorAll('button.topic').forEach(
       button =>
         button.addEventListener("click", () => start(button.dataset.topic))
+    );
+    document.querySelectorAll('.controls .button').forEach(
+      button =>
+        button.addEventListener("click", () => move(button.dataset.add))
     );
   });

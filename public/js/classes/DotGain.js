@@ -27,11 +27,15 @@ class DotGain extends Gallery {
             this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
         }
         if (cFrame === 0 && !this.suspended) {
-            this.currentImage ++;
-            this.currentImage = this.currentImage % this.images.length;
-            this.suspended = true;
-            this.showImage();
+            this.navigate();
         }
+    }
+    navigate(delta = undefined) {
+        super.navigate(delta);
+        this.suspended = true;
+        console.log("show image #"+this.currentImage);
+        this.showImage();
+        this.frame = 2;
     }
     getImage(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
