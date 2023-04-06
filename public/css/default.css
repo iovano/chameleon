@@ -22,7 +22,6 @@ canvas {
     color: #faf;
     font-weight: 400;
 }
-#gallery image {
-    width: auto;
+#gallery  svg .imageGroup image {
     height: 100%;
 }

@@ -8,6 +8,7 @@ class DotGain extends Gallery {
     debugMask = false;
     imageSlots = ["currentImage", "previousImage"]
     direction = "random";
+    alignImages = {x: 0.5, y: 0.5}; // 0 = left, 0.5 = center, 1 = right
 
     init() {
         super.init();
@@ -40,13 +41,15 @@ class DotGain extends Gallery {
             const ctx = this.canvas.getContext("2d");
             ctx.drawImage(event.target,0,0);
         } else if (this.canvas instanceof HTMLElement) {
+            event.target.setAttributeNS(null, "x", (this.width - event.target.getBBox().width) * this.alignImages.x);
+            event.target.setAttributeNS(null, "y", (this.height - event.target.getBBox().height) * this.alignImages.y);
+
             if (event.target === this.getImage(1)) {
                 if (!this.debugMask) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
                 this.getImage(1).setAttributeNS(null, "visibility", "visible");
                 this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
-                console.log(this.currentDirection);
             } else if (event.target === this.getImage(0)) {
                 this.getImage(1).setAttributeNS(null, "href", this.images[this.currentImage % this.images.length]);    
                 if (!this.debugMask) {
@@ -132,6 +135,7 @@ class DotGain extends Gallery {
             let imageGroup = document.createElementNS(this.svgNS, "g");
             let image = document.createElementNS(this.svgNS, "image");
             imageGroup.id = 'imageGroup'+i;
+            imageGroup.setAttributeNS(null, 'class', 'imageGroup');
             image.id = 'imageSlot'+i;
             image.setAttributeNS(null, "visibility", "visible");
             image.onload = (event) => this.onImageLoaded(event);
