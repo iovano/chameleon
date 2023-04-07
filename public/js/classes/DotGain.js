@@ -1,6 +1,8 @@
 import Gallery from "./Gallery.js";
 class DotGain extends Gallery {
     grid = 25;
+    clipPathTransitionSteps = 50;
+    clipPathTransitionSpeed = 4;
     clipPath = undefined;
     clipPathId = "clipPathMask";
     maskedImage = undefined;
@@ -25,7 +27,7 @@ class DotGain extends Gallery {
     updateClipPathTransition() {
         let cFrame = (this.frame - 1);
         let x = - this.grid * 4;
-        let y = Math.max(this.height, this.width) - cFrame * this.grid;
+        let y = Math.max(this.height, this.width) - cFrame * this.grid * this.clipPathTransitionSpeed;
         let direction = this.currentDirection;
         this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
         if (!this.suspended && y < - this.clipPath.getBBox().height / 2) {
@@ -104,7 +106,7 @@ class DotGain extends Gallery {
         let r,x,y;
         for (y = 0; y <= Math.max(cols,rows) * 2; y += 1) {
             for (x = 0; x <= Math.max(cols,rows) * 2; x += 1) {
-                r = y / 4;
+                r = y * maxRadius / (this.clipPathTransitionSteps || 10);
                 if (r < 1) {
                     continue;
                 }
