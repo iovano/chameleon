@@ -138,7 +138,7 @@ class DotGain extends Gallery {
         this.clipPathNetSize = {width: w * 4 + this.grid * 2, height: (y-1) * this.grid};
         /* create full coverage mask section path with previously collected coordinates */
         let filler = document.createElementNS(this.svgNS, "rect");
-        filler.setAttributeNS(null, "x", 0);
+        filler.setAttributeNS(null, "x", -w);
         filler.setAttributeNS(null, "y", (y - 1) * this.grid);
         filler.setAttributeNS(null, "width", w*4 + this.grid * 2);
         filler.setAttributeNS(null, "height", h*4 + this.grid * 2);
