@@ -59,9 +59,6 @@ class Gallery {
         }
     }
     dispatchEvent(eventName, payload, ...args) {
-        if (!payload.context) {
-            payload['context'] = this;
-        }
         if (typeof this[eventName] === 'function') {
             this[eventName](payload, args);
         }
