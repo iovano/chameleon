@@ -4,7 +4,7 @@ class Gallery {
     loadedImages = [];
     previousImage = undefined;
     currentImageNum = 0;
-    duration = 300;
+    duration = 200; /* slideshow duration in frames */
     idleTime = undefined;
     canvas = undefined;
     frame = 0;
@@ -13,6 +13,7 @@ class Gallery {
     lazyLoad = false;
     suspended = false;
     mask = undefined;
+    fps = 20; /* canvas update frequency (frames per second) */
     constructor(canvas, images = undefined, width = undefined, height = undefined) {
         this.canvas = canvas;
         this.width = width || this.canvas.clientWidth || this.canvas.width || 800;
@@ -73,7 +74,7 @@ class Gallery {
      */
     run() {
         this.update();
-        setTimeout(() => {if (this.run) this.run()}, 20)
+        setTimeout(() => {if (this.run) this.run()}, 1000 / (this.fps || 20))
     }
     addImages(images, lazyLoad = undefined) {
         if (lazyLoad !== undefined) {
