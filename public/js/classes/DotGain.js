@@ -39,9 +39,9 @@ class DotGain extends Gallery {
         this.dispatchEvent("onNavigation", {target: delta});
         super.navigate(delta);
         this.suspended = true;
-        this.showImage();
         this.frame = 0;
         this.idleTime = undefined;
+        this.showImage();
     }
     getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
@@ -82,8 +82,9 @@ class DotGain extends Gallery {
         let current = this.getImageSlot(1);
         let previous = this.getImageSlot(0);
         if (current.getAttributeNS(null, "href")) {
-            /* copy previous image from main to background image slot */
+            /* deactivate clip path for foreground image */            
             document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
+            /* copy previous image from main to background image slot */
             previous.setAttributeNS(null, "href", current.getAttributeNS(null, "href"));
         } else {
             let img = this.getCurrentImage();
