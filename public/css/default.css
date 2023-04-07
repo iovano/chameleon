@@ -95,13 +95,14 @@ canvas {
     height: 4em;
     cursor: pointer;
     background: rgba(0,0,0,1);
+    border-radius: 50%;
     opacity: 0.5;
 }
 .controls div.button.left {
-    left: 10em;
+    left: 2em;
 }
 .controls div.button.right {
-    right: 10em;
+    right: 2em;
 }
 .controls div.left div.icon {
     transform: rotate(90deg);
@@ -111,7 +112,8 @@ canvas {
 }
 .controls div.more.icon {
     padding: 0;
-    margin: 0 !important;
+    padding: 0;
+    margin: 20px 10px;
     width: 44px;
     height: 24px;
 
