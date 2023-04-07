@@ -40,7 +40,7 @@ class DotGain extends Gallery {
         super.navigate(delta);
         this.suspended = true;
         this.showImage();
-        this.frame = 2;
+        this.frame = 0;
         this.idleTime = undefined;
     }
     getImageSlot(index = undefined) {
@@ -66,6 +66,7 @@ class DotGain extends Gallery {
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
                 this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
+                this.suspended = false;
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
                 let img = this.getCurrentImage();
@@ -75,7 +76,6 @@ class DotGain extends Gallery {
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
             }
-            this.suspended = false;
         }
     }
     showImage(index = undefined) {
