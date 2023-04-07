@@ -17,23 +17,25 @@ class DotGain extends Gallery {
     }
     update() {
         super.update();
+        this.updateClipPathTransition();
+        if (this.idleTime > this.duration && !this.suspended) {
+            this.navigate("+1");
+        }
+    }
+    updateClipPathTransition() {
         let cFrame = (this.frame - 1);
         let x = - this.grid * 4;
         let y = Math.max(this.height, this.width) - cFrame * this.grid;
         let direction = this.currentDirection;
+        this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
+        if (!this.suspended && y < - this.clipPath.getBBox().height / 2) {
+            if (this.idleTime === undefined) {
+                document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
+                this.dispatchEvent("onTransitionEnd", {image: this.getCurrentImage()});
+                this.idleTime = 0;
+            }
+        }
 
-        if (this.suspended) {
-            this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
-        } else if (y > - this.clipPath.getBBox().height / 2) {
-            this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
-            this.idleTime = undefined;
-        } else if (this.idleTime === undefined) {
-            this.idleTime = 0;
-            this.dispatchEvent("onTransitionEnd", {image: this.getCurrentImage()});
-        }
-        if (this.idleTime > this.duration && !this.suspended) {
-            this.navigate("+1");
-        }
     }
     navigate(delta = undefined) {
         this.dispatchEvent("onNavigation", {target: delta});
@@ -41,6 +43,7 @@ class DotGain extends Gallery {
         this.suspended = true;
         this.frame = 0;
         this.idleTime = undefined;
+        this.updateClipPathTransition();
         this.showImage();
     }
     getImageSlot(index = undefined) {
