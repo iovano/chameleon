@@ -13,10 +13,11 @@ class DotGain extends Gallery {
     init() {
         super.init();
         this.createCanvas();
+        this.navigate(0);
     }
     update() {
         super.update();
-        let cFrame = (this.frame - 1) % 200;
+        let cFrame = (this.frame - 1);
         let x = - this.grid * 4;
         let y = Math.max(this.height, this.width) - cFrame * this.grid;
         let direction = this.currentDirection;
@@ -25,22 +26,32 @@ class DotGain extends Gallery {
             this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
         } else if (y > - this.clipPath.getBBox().height / 2) {
             this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
+            this.idleTime = undefined;
+        } else if (this.idleTime === undefined) {
+            this.idleTime = 0;
+            this.dispatchEvent("onTransitionEnd", {image: this.getCurrentImage()});
         }
-        if (cFrame === 0 && !this.suspended) {
-            this.navigate();
+        if (this.idleTime > this.duration && !this.suspended) {
+            this.navigate("+1");
         }
     }
     navigate(delta = undefined) {
+        this.dispatchEvent("onNavigation", {target: delta});
         super.navigate(delta);
         this.suspended = true;
-        console.log("show image #"+this.currentImage);
         this.showImage();
         this.frame = 2;
+        this.idleTime = undefined;
     }
-    getImage(index = undefined) {
+    getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
     }
-    onImageLoaded(event) {
+    /* internal event listeners */
+    _onImageLoad(event, image) {
+        if (event.target === this.getImageSlot(1)) {
+            /* only dispatch event */
+            this.dispatchEvent("onImageLoad", {event: event, image: image});
+        }
         if (this.canvas instanceof HTMLCanvasElement) {
             const ctx = this.canvas.getContext("2d");
             ctx.drawImage(event.target,0,0);
@@ -48,30 +59,35 @@ class DotGain extends Gallery {
             event.target.setAttributeNS(null, "x", (this.width - event.target.getBBox().width) * this.alignImages.x);
             event.target.setAttributeNS(null, "y", (this.height - event.target.getBBox().height) * this.alignImages.y);
 
-            if (event.target === this.getImage(1)) {
+            if (event.target === this.getImageSlot(1)) {
+                /* active/current image (foreground) */
                 if (!this.debugMask) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
-                this.getImage(1).setAttributeNS(null, "visibility", "visible");
+                this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
                 this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
-            } else if (event.target === this.getImage(0)) {
-                this.getImage(1).setAttributeNS(null, "href", this.images[this.currentImage % this.images.length]);    
+            } else if (event.target === this.getImageSlot(0)) {
+                /* inactive/previous image (background) */
+                let img = this.getCurrentImage();
+                this.getImageSlot(1).setAttributeNS(null, "href", img?.src || img);    
                 if (!this.debugMask) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
-                this.getImage(1).setAttributeNS(null, "visibility", "visible");
+                this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
             }
             this.suspended = false;
         }
     }
     showImage(index = undefined) {
-        let current = this.getImage(1);
-        let previous = this.getImage(0);
+        let current = this.getImageSlot(1);
+        let previous = this.getImageSlot(0);
         if (current.getAttributeNS(null, "href")) {
+            /* copy previous image from main to background image slot */
             document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
             previous.setAttributeNS(null, "href", current.getAttributeNS(null, "href"));
         } else {
-            current.setAttributeNS(null, "href", this.images[this.currentImage % this.images.length]);    
+            let img = this.getCurrentImage();
+            current.setAttributeNS(null, "href", img?.src || img);    
         }
     }
     createClipPath(clipPathId = undefined) {
@@ -136,36 +152,48 @@ class DotGain extends Gallery {
 
 
         for (let i=0;i<this.imageSlots.length;i++) {
+            /* create image group (containing image + background) for each image slot */
             let imageGroup = document.createElementNS(this.svgNS, "g");
-            let image = document.createElementNS(this.svgNS, "image");
             imageGroup.id = 'imageGroup'+i;
             imageGroup.setAttributeNS(null, 'class', 'imageGroup');
+
+            /* create placeholder image element */
+            let image = document.createElementNS(this.svgNS, "image");            
             image.id = 'imageSlot'+i;
             image.setAttributeNS(null, "visibility", "visible");
-            image.onload = (event) => this.onImageLoaded(event);
+            /* assign internal onload - handler for image */
+            image.onload = (event) => this._onImageLoad(event, this.getCurrentImage());
+
+            /* create background */
             let background = document.createElementNS(this.svgNS, "rect");
             background.setAttributeNS(null, 'width', this.width);
             background.setAttributeNS(null, 'height', this.height);
             background.setAttributeNS(null, 'fill', 'black');
+
+            /* append elements to svg canvas */
             imageGroup.appendChild(background);
             imageGroup.appendChild(image);
             svg.appendChild(imageGroup);
         }
 
-        /* append clipPath */
-        svg.appendChild(clipPath);
-        
+        /* svg canvas layout */
         svg.style.position = "absolute";
         svg.style.zIndex = 10;
+
+        /* append clipPath */
+        svg.appendChild(clipPath);
+
+        this.dispatchEvent("onCanvasCreated", {canvas: svg, clipPath: clipPath, context: context});
+
         this.canvasContainer = svg;
         if (context instanceof HTMLCanvasElement) {
             context.getContext("2d").drawImage(svg,0,0);
         } else {
+            /* create div element, append svg canvas container and add it to gallery context element */
             let div = document.createElement('div')
             div.appendChild(svg);
             context.appendChild(div);
             this.clipPath = clipPath;
-
         }
     }
 }
