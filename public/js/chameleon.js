@@ -4,7 +4,7 @@ let gallery;
 let images = [
   {src: 'images/example.png', title: '<h2>Hohe Tatra</h2>', 'location': 'High Tatra | Slovakia', 'date': '2021-07-06'},
   {src: 'images/example2.jpg', title: '<h2>Monteverde</h2><h3></h3>', 'location': 'Gomera | Canary Islands'},
-  {src: 'images/example3.jpg'}
+  {src: 'images/example3.jpg', title: '<h2>Wetterleuchten am Zalew Wióry</h2>', 'location': 'Poland', link: '<a href="https://www.flickr.com/photos/timor-kodal/51343261551/in/datetaken-public/" target="_blank">link</a>'}
   ];
   function start(theme) {
     const canvas = document.getElementById("gallery");
@@ -36,13 +36,17 @@ let images = [
     function showImageInfo(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
         element.classList.remove('hide');
+        let y = gallery.canvas.offsetTop + (gallery.canvasContainer.clientHeight + gallery.canvasContainer.getBBox().height) / 2
+        element.setAttribute('style', 'top: '+y+'px;');
       })
       document.querySelectorAll('.infoOverlay .imageInfo').forEach((element) => {
         element.classList.remove('hide');
         let list = {...payload.image};
         delete list?.src;
         if (typeof list === 'string' || list instanceof String || Object.keys(list).length === 0) {
-            element.replaceChildren(document.createElement('span').innerHTML = 'No Information available');
+            let span = document.createElement('span');
+            span.classList.add('noInfo');
+            element.replaceChildren(span.innerHTML = "No Information available");
           } else {
             let ul = document.createElement('ul');
             for (let key in list) {
