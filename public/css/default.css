@@ -10,12 +10,12 @@ body {
     flex-grow: 1;
     color: #fff;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    transition: 0.5s;
 
 }
 a:link, a:visited {
     color: rgba(155,155,155,0.5);
     text-decoration: none;
+    transition: 0.5s;
 }
 a:hover {
     color: rgba(155,155,155,0.8);
@@ -84,7 +84,7 @@ canvas {
     left: 50%;
     z-index: 200;
     opacity: 1;
-    transition: 1s;
+    transition: background-color 1s, opacity 1s;
     transform: translate(-50%, 0%);
     color: rgba(155,155,155,0.5);
 }
@@ -182,4 +182,12 @@ canvas {
 }
 .controls div.button:hover {
     opacity: 1;
+}
+
+@media(max-height: 500px) {
+    header {
+        visibility: hidden;
+        display: none !important;
+    } 
+
 }
