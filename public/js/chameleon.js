@@ -74,6 +74,8 @@ let images = [
   }
   function move(delta) {
     gallery.navigate(delta);
+    gallery.currentDirection = delta === "-1" ? 90 : 270; /* temporarily change transition direction via "currentDirection". */
+    // gallery.direction = "random" /* in order to change direction permanently, change "direction"-parameter instead */
   }
   window.startTheme = start;
   document.addEventListener("DOMContentLoaded", function () {

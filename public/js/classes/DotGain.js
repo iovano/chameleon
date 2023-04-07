@@ -45,6 +45,7 @@ class DotGain extends Gallery {
         this.suspended = true;
         this.frame = 0;
         this.idleTime = undefined;
+        this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
         this.updateClipPathTransition();
         this.showImage();
     }
@@ -70,7 +71,6 @@ class DotGain extends Gallery {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#"+this.clipPathId+")");
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
-                this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
                 this.suspended = false;
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
