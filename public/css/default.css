@@ -31,17 +31,22 @@ header {
 }
 header h1,h2,h3 {
     display: inline;
+    font-size: 1em;
     padding: 0;
     margin: 0;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.2);
 }
 header .buttons {
-    padding: 0.5em 0;
+    font-size: 0.6em;
 }
 header button {
-    background: rgba(180,180,180,0.5);
+    background: rgba(180,180,180,0.3);
     border: none;
     border-radius: 0.25em;
+    cursor: pointer;
+}
+header button:hover {
+    background: rgba(180,180,180,0.8);
 }
 canvas {
     border: none;
