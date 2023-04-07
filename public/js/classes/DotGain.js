@@ -3,6 +3,7 @@ class DotGain extends Gallery {
     grid = 25;
     clipPathTransitionSteps = 50;
     clipPathTransitionSpeed = 4;
+    clipPathTransitionDuration 
     clipPath = undefined;
     clipPathId = "clipPathMask";
     maskedImage = undefined;
@@ -25,18 +26,25 @@ class DotGain extends Gallery {
         }
     }
     updateClipPathTransition() {
-        let cFrame = (this.frame - 1);
-        let x = - this.grid * 4;
-        let y = Math.max(this.height, this.width) - cFrame * this.grid * this.clipPathTransitionSpeed;
-        let direction = this.currentDirection;
-        this.clipPath.style.transform = "rotate("+direction+"deg) translate("+x+"px, "+y+"px)";
-        if (!this.suspended && y < - this.clipPath.getBBox().height / 2) {
-            if (this.idleTime === undefined) {
+        let parameters = {
+            frame: this.frame -1, 
+            x: - this.grid * 4, 
+            y: Math.max(this.height, this.width) - (this.frame - 1) * this.grid * this.clipPathTransitionSpeed, 
+            limitY: - this.height - this.clipPathNetSize.height,
+            direction: this.currentDirection,
+            suspended: this.suspended,
+            idleTime: this.idleTime
+        };
+        this.dispatchEvent('onTransitionStart', parameters);
+        if (!parameters.suspended && parameters.y < parameters.limitY) {
+            parameters.y = parameters.limitY;
+            if (parameters.idleTime === undefined) {
                 document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
                 this.dispatchEvent("onTransitionEnd", {image: this.getCurrentImage()});
                 this.idleTime = 0;
             }
         }
+        this.clipPath.style.transform = "rotate("+parameters.direction+"deg) translate("+parameters.x+"px, "+parameters.y+"px)";
 
     }
     navigate(delta = undefined) {
@@ -127,6 +135,7 @@ class DotGain extends Gallery {
             }
 
         }
+        this.clipPathNetSize = {width: w * 4 + this.grid * 2, height: (y-1) * this.grid};
         /* create full coverage mask section path with previously collected coordinates */
         let filler = document.createElementNS(this.svgNS, "rect");
         filler.setAttributeNS(null, "x", 0);
