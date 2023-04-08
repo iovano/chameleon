@@ -11,9 +11,9 @@ let images = [
     if (gallery) {
       gallery.destroy();
     }    
-    if (theme == 'Sstandard') {
+    if (theme == 'standard') {
       gallery = new Gallery(canvas);
-    } else  {
+    } else {
       gallery = new DotGain(canvas);
     }
     gallery.addImages(images);
@@ -27,6 +27,7 @@ let images = [
     // gallery.onCanvasCreated(canvasObject);
     // gallery.onTransitionStart = (transition) => {gallery.currentDirection += (gallery.getCurrentImageNum() % 2 == 0) ? 1 : -1;}
     // etc.
+
     function onImageLoad(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
         element.classList.add('hide');
@@ -36,8 +37,6 @@ let images = [
     function showImageInfo(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
         element.classList.remove('hide');
-        let y = gallery.canvas.offsetTop + (gallery.canvasContainer.clientHeight + gallery.canvasContainer.getBBox().height) / 2
-        element.setAttribute('style', 'top: '+y+'px;');
       })
       document.querySelectorAll('.infoOverlay .imageInfo').forEach((element) => {
         element.classList.remove('hide');

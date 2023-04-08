@@ -65,6 +65,15 @@ canvas {
     color: #faf;
     font-weight: 400;
 }
+#gallery {
+    height: 100%;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+}
 #gallery svg {
     display: inline-block;
     width: 100%;
