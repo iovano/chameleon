@@ -30,10 +30,12 @@ let images = [
 
     /* set event listeners */
     addEventListener('resize', onResize);
-    screen.orientation.addEventListener("change", onResize);
+
+    window.addEventListener("orientationchange", onResize);
+    //screen.orientation.addEventListener("change", onResize); /* TODO: CHECK WHY RESIZE DOES NOT WORK ON iOS */
 
     gallery.direction = "random";
-    gallery.init();
+    onResize();
     gallery.run();
 
     function onResize(event = null) {
