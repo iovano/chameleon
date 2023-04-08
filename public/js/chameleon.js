@@ -33,7 +33,7 @@ let images = [
     screen.orientation.addEventListener("change", onResize);
 
     gallery.direction = "random";
-    onResize();
+    gallery.init();
     gallery.run();
 
     function onResize(event = null) {
