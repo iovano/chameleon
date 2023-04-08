@@ -29,7 +29,6 @@ let images = [
     // etc.
 
     /* set event listeners */
-    gallery.onImageLoad = onImageLoad;
     addEventListener('resize', onResize);
     screen.orientation.addEventListener("change", onResize);
 
@@ -37,12 +36,6 @@ let images = [
     onResize();
     gallery.run();
 
-    function onImageLoad(payload, ...args) {
-      document.querySelectorAll('.infoOverlay').forEach((element) => {
-        element.classList.add('hide');
-      })
-      setTimeout(() => showImageInfo(payload, args), 2000);
-    }
     function onResize(event = null) {
         var scale = 'scale(1)';
         document.body.style.webkitTransform =  scale;
@@ -52,42 +45,6 @@ let images = [
           gallery.init();
         }
         window.scrollTo(0,0);
-    }
-    function showImageInfo(payload, ...args) {
-      document.querySelectorAll('.infoOverlay').forEach((element) => {
-        element.classList.remove('hide');
-      })
-      document.querySelectorAll('.infoOverlay .imageInfo').forEach((element) => {
-        element.classList.remove('hide');
-        let list = {...payload.image};
-        delete list?.src;
-        if (typeof list === 'string' || list instanceof String || Object.keys(list).length === 0) {
-            let span = document.createElement('span');
-            span.classList.add('noInfo');
-            element.replaceChildren(span.innerHTML = "No Information available");
-          } else {
-            let ul = document.createElement('ul');
-            for (let key in list) {
-              let li = document.createElement('li');
-              li.classList.add(key);
-              let div = document.createElement('div');
-              div.classList.add('label');
-              let span = document.createElement('span');
-              span.innerHTML = key;
-              div.appendChild(span);
-              li.appendChild(div);
-              div = document.createElement('div');
-              div.classList.add('value');
-              span = document.createElement('span');
-              span.innerHTML = payload.image[key];
-              div.appendChild(span);
-              li.appendChild(div);
-              ul.appendChild(li);  
-            }
-            element.replaceChildren(ul);
-          }
-        }
-      );
     }
   }
   function move(delta) {

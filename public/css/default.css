@@ -76,71 +76,74 @@ canvas {
 }
 #gallery svg {
     display: inline-block;
-    width: 100%;
-    height: 100%;
 }
-#gallery  svg .imageGroup image {
+#gallery svg .imageGroup image {
     width: 100%;
     height: 100%;
 
 }
-.infoOverlay.hide {
+#gallery .canvasContainer {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+.canvasContainer .infoBox.hide {
     opacity: 0;
 }
-.infoOverlay {
+.canvasContainer .infoBox {
     position: absolute;
-    bottom: 5em;
+    bottom: 0.5em;
     left: 50%;
+    transform: translate(-50%, 0%);
     z-index: 200;
     opacity: 1;
     transition: background-color 1s, opacity 1s;
-    transform: translate(-50%, 0%);
     color: rgba(155,155,155,0.5);
 }
-.infoOverlay > .imageInfo {
+#gallery .infoBox > .imageInfo {
     padding: 1em;
     min-height: 2em;
-    transform: translate(0, -100%);
     border-radius: 0.25em;
     background: rgba(0,0,0,0.5);
     position: relative;
 }
-.infoOverlay h1,h2,h3 {
-    margin: 0;
-    padding: 0;
-    color: rgba(255,255,255,0.8);
-}
-.infoOverlay div.label {
-    width: 3em;
-    text-align: right;
-    vertical-align: center;
-    padding-right: 0.5em;
-}
-.infoOverlay div.value {
-    width: auto;
-}
-.infoOverlay > .info > .label {
-    display: none;
-}
-.infoOverlay .label > span {
-    border-radius: 0.2em;
-    font-size: 0.6em;
-    padding: 0.1em 0.25em;
-    background: rgba(0,0,0,0.8);
-}
-.infoOverlay ul {
+#gallery .infoBox ul {
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
     padding: 0;
     max-width: 25em;
 }
-.infoOverlay ul > li {
+#gallery .infoBox ul > li {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 
 }
+#gallery .infoBox h1,h2,h3 {
+    margin: 0;
+    padding: 0;
+    color: rgba(255,255,255,0.8);
+}
+#gallery .infoBox div.label {
+    width: 3em;
+    text-align: right;
+    vertical-align: center;
+    padding-right: 0.5em;
+}
+#gallery .infoBox div.value {
+    width: auto;
+}
+#gallery .infoBox > .info > .label {
+    display: none;
+}
+#gallery .infoBox .label > span {
+    border-radius: 0.2em;
+    font-size: 0.6em;
+    padding: 0.1em 0.25em;
+    background: rgba(0,0,0,0.8);
+}
+
 
 .controls {
     position: absolute;
