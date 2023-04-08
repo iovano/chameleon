@@ -28,11 +28,28 @@ let images = [
     // gallery.onTransitionStart = (transition) => {gallery.currentDirection += (gallery.getCurrentImageNum() % 2 == 0) ? 1 : -1;}
     // etc.
 
+    /* set event listeners */
+    gallery.onImageLoad = onImageLoad;
+    addEventListener('resize', onResize);
+
+    gallery.direction = "random";
+    onResize();
+    gallery.run();
+
     function onImageLoad(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
         element.classList.add('hide');
       })
       setTimeout(() => showImageInfo(payload, args), 2000);
+    }
+    function onResize(event = null) {
+        var scale = 'scale(1)';
+        document.body.style.webkitTransform =  scale;
+        document.body.style.msTransform =   scale;
+        document.body.style.transform = scale;
+        if (gallery) {
+          gallery.init();
+        }
     }
     function showImageInfo(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
@@ -70,19 +87,6 @@ let images = [
         }
       );
     }
-    /* set event listeners */
-    gallery.onImageLoad = onImageLoad;
-    addEventListener('resize', (event) => {
-      var scale = 'scale(1)';
-      document.body.style.webkitTransform =  scale;
-      document.body.style.msTransform =   scale;
-      document.body.style.transform = scale;
-      gallery.init();
-    });
-
-    gallery.direction = "random";
-    gallery.init();
-    gallery.run();
   }
   function move(delta) {
     gallery.navigate(delta);
