@@ -1,14 +1,12 @@
 import Gallery from "./Gallery.js";
 class DotGain extends Gallery {
     grid = 25;
-    clipPathTransitionSteps = 50;
+    transitionDuration = 50;
     clipPathTransitionSpeed = 4;
-    clipPathTransitionDuration 
     clipPath = undefined;
     clipPathId = "clipPathMask";
     maskedImage = undefined;
     debugMask = false;
-
     updateClipPathTransition() {
         let parameters = {
             frame: this.frame -1, 
@@ -19,7 +17,7 @@ class DotGain extends Gallery {
             suspended: this.suspended,
             idleTime: this.idleTime
         };
-        this.dispatchEvent('onTransitionStart', parameters);
+        this.dispatchEvent('onTransition', parameters);
         if (!parameters.suspended && parameters.y < parameters.limitY) {
             parameters.y = parameters.limitY;
             this._onTransitionEnd();
@@ -40,7 +38,7 @@ class DotGain extends Gallery {
         let r,x,y;
         for (y = 0; y <= Math.max(cols,rows) * 2; y += 1) {
             for (x = 0; x <= Math.max(cols,rows) * 2; x += 1) {
-                r = y * maxRadius / (this.clipPathTransitionSteps || 10);
+                r = y * maxRadius / (this.transitionDuration || 10);
                 if (r < 1) {
                     continue;
                 }
