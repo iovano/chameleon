@@ -70,7 +70,15 @@ let images = [
         }
       );
     }
+    /* set event listeners */
     gallery.onImageLoad = onImageLoad;
+    addEventListener('resize', (event) => {
+      var scale = 'scale(1)';
+      document.body.style.webkitTransform =  scale;
+      document.body.style.msTransform =   scale;
+      document.body.style.transform = scale;
+      gallery.init();
+    });
 
     gallery.direction = "random";
     gallery.init();
