@@ -20,13 +20,16 @@ class Gallery {
 
     fps = 20; /* canvas update frequency (frames per second) */
     constructor(canvas, images = undefined, width = undefined, height = undefined) {
-        this.canvas = canvas;
-        this.width = width || this.canvas.clientWidth || this.canvas.width || document.clientWidth || 800;
-        this.height = height || this.canvas.clientHeight || this.canvas.height || document.clientHeight || 600;
-        console.debug("canvas size: "+(this.width + "x" + this.height));
-        if (images) {
+        if (images && this.images.length === 0) {
             this.addImages(images);
         }
+        if (width !== undefined) {
+            this.width = width;
+        }
+        if (height !== undefined) {
+            this.height = height;
+        }
+        this.canvas = canvas;
     }
     destroy() {
         this.canvas.removeChild(this.canvasContainer);
@@ -63,9 +66,18 @@ class Gallery {
     setHeight(height) {
         this.height = height;
     }
-    init() {
+    init(resize = true) {
+        if (resize === true || !this.width && !this.height) {
+            this.width = this.canvas.clientWidth || this.canvas.width || document.clientWidth || 800;
+            this.height = this.canvas.clientHeight || this.canvas.height || document.clientHeight || 600;    
+        }
+        console.debug("canvas size: "+(this.width + "x" + this.height));
+        if (this.canvasContainer) {
+            /* remove existing canvasContainer first */
+            this.canvas.removeChild(this.canvasContainer);
+        }
         this.createCanvas();
-        this.navigate(0);
+        this.navigate(this.currentImageNum);
     }
     update() {
         if (!this.suspended) {
