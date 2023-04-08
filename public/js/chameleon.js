@@ -51,6 +51,7 @@ let images = [
         if (gallery) {
           gallery.init();
         }
+        window.scrollTo(0,0);
     }
     function showImageInfo(payload, ...args) {
       document.querySelectorAll('.infoOverlay').forEach((element) => {
