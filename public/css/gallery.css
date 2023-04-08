@@ -10,6 +10,9 @@ body {
     color: #fff;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+body.noCursor {
+    cursor: none;
+}
 
 canvas {
     border: none;
@@ -34,8 +37,6 @@ canvas {
     width: 100%;
     height: 100%;
 }
-#gallery svg .imageGroup {
-}
 #gallery .canvasContainer {
     position: relative;
     overflow: hidden;
@@ -54,9 +55,8 @@ canvas {
     transition: background-color 1s, opacity 1s;
     color: rgba(155,155,155,0.5);
 }
-#gallery .infoBox > .imageInfo {
+#gallery .infoBox > .imageInfo, #gallery .infoBox .noInfo {
     padding: 1em;
-    min-height: 2em;
     border-radius: 0.25em;
     background: rgba(0,0,0,0.5);
     position: relative;

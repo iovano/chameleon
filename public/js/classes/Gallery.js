@@ -30,6 +30,7 @@ class Gallery {
     mask = undefined;
     canvasContainer = undefined;
     imageInfoBox = undefined;
+    filmStrip = undefined;
 
     constructor(canvas, images = undefined, width = undefined, height = undefined) {
         if (images && this.images.length === 0) {
@@ -89,6 +90,7 @@ class Gallery {
             /* remove existing canvasContainer first */
             this.canvas.removeChild(this.canvasContainer);
         }
+        document.addEventListener('mousemove', (event) => this._onMouseMove(event));
         this.createCanvas();
         this.navigate(this.currentImageNum);
     }
@@ -98,6 +100,12 @@ class Gallery {
             if (this.idleTime !== undefined) this.idleTime++;
         }
         this.updateClipPathTransition();
+        if (this.idleTime >= 100) {
+            if (this.idleTime === 100) {
+                this._onIdle();
+            }
+            this.imageInfoBox.classList.add('hide');
+        }
         if (this.idleTime > this.duration && !this.suspended) {
             this.navigate("+1");
         }
@@ -137,6 +145,16 @@ class Gallery {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
     }
     /* internal event listeners */
+    _onIdle() {
+        this.dispatchEvent('onIdle', {idle: this.idleTime});
+    }
+    _onMouseMove() {
+        if (this.idleTime !== undefined && this.idleTime > 0) {
+            this.dispatchEvent('onIdleEnd', {idle: this.idleTime});
+            this.imageInfoBox.classList.remove('hide');
+            this.idleTime = 0;
+        }
+    }
     _onTransitionEnd() {
         if (this.idleTime === undefined) {
             this.dispatchEvent("onTransitionEnd", { image: this.getCurrentImage() });
@@ -246,6 +264,12 @@ class Gallery {
         div.appendChild(infobox);
         this.imageInfoBox = infobox;
 
+        /* create and append film strip */
+        let filmStrip = document.createElement("div");
+        filmStrip.classList.add('filmstrip','hide');
+        div.appendChild(filmStrip);
+        this.filmStrip = filmStrip;
+
         /* add svg to container/canvas */
         if (context instanceof HTMLCanvasElement) {
             context.getContext("2d").drawImage(svg, 0, 0);
@@ -258,13 +282,15 @@ class Gallery {
     showImageInfo() {
         let el = this.imageInfoBox;
         el.classList.remove('hide');
-        let list = {...this.getCurrentImage()};
-        delete list?.src;
+        let list = this.getCurrentImage();
         if (typeof list === 'string' || list instanceof String || Object.keys(list).length === 0) {
-            let span = document.createElement('span');
-            span.classList.add('noInfo');
-            el.replaceChildren(span.innerHTML = "No Information available");
+            let div = document.createElement('div');
+            div.classList.add('noInfo');
+            div.innerHTML = "No Information available";
+            el.replaceChildren(div);
         } else {
+            list = {...this.getCurrentImage()};
+            delete list?.src;
             let ul = document.createElement('ul');
             ul.classList.add('imageInfo');
             for (let key in list) {
