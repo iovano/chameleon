@@ -31,6 +31,7 @@ let images = [
     /* set event listeners */
     gallery.onImageLoad = onImageLoad;
     addEventListener('resize', onResize);
+    screen.orientation.addEventListener("change", onResize);
 
     gallery.direction = "random";
     onResize();
