@@ -25,7 +25,7 @@ let images = [
     // gallery.onImageLoad(event);
     // gallery.onTransisitionEnd(image);
     // gallery.onCanvasCreated(canvasObject);
-    // gallery.onTransitionStart = (transition) => {gallery.currentDirection += (gallery.getCurrentImageNum() % 2 == 0) ? 1 : -1;}
+    // gallery.onTransition = (transition) => {gallery.currentDirection += (gallery.getCurrentImageNum() % 2 == 0) ? 1 : -1;}
     // etc.
 
     /* set event listeners */
