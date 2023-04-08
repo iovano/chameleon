@@ -1,9 +1,12 @@
+import stylesheet from '../../css/gallery.css' assert { type: 'css' };
+document.adoptedStyleSheets = [stylesheet];
 class Gallery {
     /* namespaces */
     svgNS = "http://www.w3.org/2000/svg";
 
     /* gallery settings */
     duration = 200; /* slideshow duration in frames */
+    transitionDuration = 20;
     width = undefined;
     height = undefined;
     lazyLoad = false;
@@ -19,7 +22,6 @@ class Gallery {
     /* gallery image storage */
     images = [];
     loadedImages = [];
-    imageSlots = ["currentImage", "previousImage"]
     previousImage = undefined;
     currentImageNum = 0;
 
@@ -101,7 +103,12 @@ class Gallery {
         }
     }
     updateClipPathTransition() {
-        if (this.idleTime === undefined) {
+        if (this.suspended && this.frame !== 0) {
+            document.getElementById('imageGroup1').setAttributeNS(null,"opacity",1);
+        } else if (this.frame <= this.transitionDuration && !this.suspended) {
+            document.getElementById('imageGroup1').setAttributeNS(null,"opacity",(this.frame)/(this.transitionDuration || 10));
+        }
+        if (this.idleTime === undefined && this.frame > this.transitionDuration) {
             this._onTransitionEnd();
         }
     }
@@ -126,6 +133,9 @@ class Gallery {
         }
         this.images = images;
     }
+    getImageSlot(index = undefined) {
+        return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
+    }
     /* internal event listeners */
     _onTransitionEnd() {
         if (this.idleTime === undefined) {
@@ -133,43 +143,6 @@ class Gallery {
             this.idleTime = 0;
         }
     }
-    _onImageLoad(event, image = null) {
-
-        document.querySelectorAll('.infoOverlay').forEach((element) => {
-            element.classList.add('hide');
-        })
-        setTimeout(() => this.showImageInfo(), 2000);
-
-        this.dispatchEvent("onImageLoad", { event: event, image: image });
-        if (this.canvas instanceof HTMLCanvasElement) {
-            const ctx = this.canvas.getContext("2d");
-            ctx.drawImage(event.target, 0, 0);
-        } else if (this.canvas instanceof HTMLElement) {
-            let image = document.createElementNS(this.svgNS, "image");
-            image.setAttributeNS(null, "href", event.target.src);
-            image.setAttributeNS(null, "clip-path", "url(#clipPathMask)");
-            ctx.addChild(image);
-        }
-        this.suspended = false;
-    }
-    showImage(index = undefined) {
-        this.suspended = true;
-        if (this.images) {
-            let img = new Image(this.width, this.height);
-            let cImg = this.getCurrentImage();
-            img.src = cImg?.src || cImg;
-            img.style.position = "absolute";
-            img.style.top = 0;
-            img.style.left = 0;
-            img.style.zIndex = 5;
-            img.onload = (event) => this._onImageLoad(event, { currentImage: cImg });
-            return img;
-        }
-    }
-    getImageSlot(index = undefined) {
-        return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
-    }
-    /* internal event listeners */
     _onImageLoad(event, image) {
         setTimeout(() => this.showImageInfo(), 2000);
         if (event.target === this.getImageSlot(1)) {
@@ -185,23 +158,24 @@ class Gallery {
 
             if (event.target === this.getImageSlot(1)) {
                 /* active/current image (foreground) */
-                if (!this.debugMask) {
+                if (!this.debugMask && this.clipPath) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
                 this.suspended = false;
+                this.updateClipPathTransition();
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
                 let img = this.getCurrentImage();
                 this.getImageSlot(1).setAttributeNS(null, "href", img?.src || img);
-                if (!this.debugMask) {
+                if (!this.debugMask && this.clipPath) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
             }
         }
     }
-    showImage(index = undefined) {
+    showImage() {
         let current = this.getImageSlot(1);
         let previous = this.getImageSlot(0);
         if (current.getAttributeNS(null, "href")) {
@@ -211,6 +185,7 @@ class Gallery {
             previous.setAttributeNS(null, "href", current.getAttributeNS(null, "href"));
         } else {
             let img = this.getCurrentImage();
+            current.setAttributeNS(null, "visibility", "hidden");
             current.setAttributeNS(null, "href", img?.src || img);
         }
     }
@@ -224,7 +199,7 @@ class Gallery {
         let svg = document.createElementNS(this.svgNS, "svg");
         svg.setAttribute("viewBox", "0 0 " + w + " " + h);
 
-        for (let i = 0; i < this.imageSlots.length; i++) {
+        for (let i = 0; i < 2; i++) {
             /* create image group (containing image + background) for each image slot */
             let imageGroup = document.createElementNS(this.svgNS, "g");
             imageGroup.id = 'imageGroup' + i;
