@@ -3,22 +3,19 @@ import Gallery from './classes/Gallery.js'
 let gallery;
 let albums = [
   {
-    name: 'Album One',
-    description: 'fancy album 1 description',
+    title: 'Osteuropa',
+    description: 'Bilder von Reisen nach Osteuropa',
     images: [
   {src: 'images/example.png', title: '<h2>Hohe Tatra</h2>', 'location': 'High Tatra | Slovakia', 'date': '2021-07-06'},
-  {src: 'images/example2.jpg', title: '<h2>Monteverde</h2><h3></h3>', 'location': 'Gomera | Canary Islands'},
   {src: 'images/example3.jpg', title: '<h2>Wetterleuchten am Zalew Wióry</h2>', 'location': 'Poland', link: '<a href="https://www.flickr.com/photos/timor-kodal/51343261551/in/datetaken-public/" target="_blank">link</a>'},
-  'images/FoKo-WEuro-22-0028.jpg','images/FoKo-WEuro-22-0048.jpg','images/FoKo-WEuro-22-0109.jpg','images/FoKo-WEuro-22-0261.jpg','images/FoKo-WEuro-22-9940.jpg','images/Osteuropa-2021-7574.jpg'
+  'images/Osteuropa-2021-7574.jpg',
+  
   ]},
   {
-    name: 'Album Two',
-    description: 'fancy album 2 description',
-    images: [
-    {src: 'images/example.png', title: '<h2>Hohe Tatra</h2>', 'location': 'High Tatra | Slovakia', 'date': '2021-07-06'},
-    {src: 'images/example2.jpg', title: '<h2>Monteverde</h2><h3></h3>', 'location': 'Gomera | Canary Islands'},
-    {src: 'images/example3.jpg', title: '<h2>Wetterleuchten am Zalew Wióry</h2>', 'location': 'Poland', link: '<a href="https://www.flickr.com/photos/timor-kodal/51343261551/in/datetaken-public/" target="_blank">link</a>'},
-    'images/FoKo-WEuro-22-0028.jpg','images/FoKo-WEuro-22-0048.jpg','images/FoKo-WEuro-22-0109.jpg','images/FoKo-WEuro-22-0261.jpg','images/FoKo-WEuro-22-9940.jpg','images/Osteuropa-2021-7574.jpg'
+    title: 'Spanien',
+    description: 'Reisefotos vom spanischen Festland und den Kanaren',
+    images: [{src: 'images/example2.jpg', title: '<h2>Monteverde</h2><h3></h3>', 'location': 'Gomera | Canary Islands'},
+    'images/FoKo-WEuro-22-0028.jpg','images/FoKo-WEuro-22-0048.jpg','images/FoKo-WEuro-22-0109.jpg','images/FoKo-WEuro-22-0261.jpg','images/FoKo-WEuro-22-9940.jpg'
     ]}
   ];
   function start(theme) {
@@ -64,6 +61,9 @@ let albums = [
     }
     onResize();
     gallery.run();
+    gallery.onNavigation = function (payload) {
+      gallery.currentDirection = {'-1': 90, '+1': 270}[payload.target] || gallery.currentDirection;
+    }
 
     function onResize(event = null) {
         var scale = 'scale(1)';
@@ -78,7 +78,6 @@ let albums = [
   }
   function move(delta) {
     gallery.navigate(delta);
-    gallery.currentDirection = delta === "-1" ? 90 : 270; /* temporarily change transition direction via "currentDirection". */
     // gallery.direction = "random" /* in order to change direction permanently, change "direction"-parameter instead */
   }
   window.startTheme = start;

@@ -53,37 +53,51 @@ class Gallery {
         this.canvas = undefined;
         this.run = undefined;
     }
-    navigate(target = "+1") {
-        this.dispatchEvent("onNavigation", { target: target });
+    navigate(targetImage = "+1", targetAlbum = "+0") {
         /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
-        this.setCurrentImageNum(parseInt(target) + ((typeof target === 'string' || target instanceof String) && ["+", "-"].indexOf((target || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
+        this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
+        this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
         this.imageInfoBox.classList.add('hide');
         this.suspended = true;
         this.frame = 0;
         this.idleTime = undefined;
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
+        this.dispatchEvent("onNavigation", { target: targetImage });
         this.updateClipPathTransition();
         this.showImage();
         this.filmStrip.select(this.currentImageNum);
     }
     getCurrentImage() {
-        return this.getCurrentAlbumImages()[this.currentImageNum];
+        return this.getAlbumImages()[this.currentImageNum];
     }
     getImage(idx) {
-        return this.getCurrentAlbumImages()[idx];
+        return this.getAlbumImages()[idx];
     }
-    setCurrentAlbumNum(albumNum, imageNum = 0) {
-        this.currentAlbumNum = albumNum;
-        this.currentImageNum = imageNum;
+    setCurrentAlbumNum(albumNum, imageNum = undefined) {
+        if (albumNum !== this.currentAlbumNum) {
+            this.currentAlbumNum = (albumNum % this.images.length) < 0 ? (albumNum % this.images.length) + this.images.length : albumNum % this.images.length;
+            this.updateFilmStrip();
+        }
+        if (imageNum && imageNum !== this.currentImageNum) {
+            this.setCurrentImageNum(imageNum);
+        }
+    }
+    getAlbum(index = undefined) {
+        return this.images[index || this.currentAlbumNum];
+    }
+    getAlbumInfo(index = undefined) {
+        let info = {...this.images[index || this.currentAlbumNum]};
+        delete info.images;
+        return info;
     }
     getCurrentAlbumNum() {
         return this.currentAlbumNum;
     }
-    getCurrentAlbumImages() {
-        return this.images[this.currentAlbumNum]?.images || this.images?.images || this.images;
+    getAlbumImages(index = undefined) {
+        return this.images[index || this.currentAlbumNum]?.images || this.images?.images || this.images;
     }
     setCurrentImageNum(newIndex) {
-        let images = this.getCurrentAlbumImages();
+        let images = this.getAlbumImages();
         /* set currentImage and normalize its value (i.e. make sure it is positive and within range of existing image amount) */
         this.currentImageNum = (newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length;
     }
@@ -137,6 +151,11 @@ class Gallery {
             this._onTransitionEnd();
         }
     }
+    updateFilmStrip() {
+        this.filmStrip.setImages(this.getAlbumImages());
+        this.filmStrip.setInfo(this.getAlbumInfo());
+        this.filmStrip.render();
+    }
     dispatchEvent(eventName, payload, ...args) {
         if (typeof this[eventName] === 'function') {
             this[eventName](payload, args);
@@ -170,7 +189,10 @@ class Gallery {
         switch (event.key) {
             case 'ArrowRight': this.navigate('+1'); break;
             case 'ArrowLeft': this.navigate('-1'); break;
+            case 'ArrowUp': this.navigate(0, '-1'); break;
+            case 'ArrowDown': this.navigate(0, '+1'); break;
         }
+        this.idleTime = 0;
     }
     _onMouseMove() {
         if (this.idleTime !== undefined && this.idleTime > 0) {
@@ -289,11 +311,10 @@ class Gallery {
         this.imageInfoBox = infobox;
 
         /* create and append film strip */
-        let filmStrip = document.createElement("div");
-        filmStrip.classList.add('filmStrip','hide');
-        div.appendChild(filmStrip);
-        this.filmStrip = new FilmStrip(filmStrip, this.getCurrentAlbumImages());
+        this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
+        this.filmStrip.classList.add('filmStrip','hide');
         this.filmStrip.onClick = (event, selectedImage) => {this.navigate(selectedImage);}
+        div.appendChild(this.filmStrip);
 
         /* add svg to container/canvas */
         if (context instanceof HTMLCanvasElement) {

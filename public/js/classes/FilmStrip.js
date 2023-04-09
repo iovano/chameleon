@@ -2,16 +2,27 @@ import css from '../../css/filmstrip.css' assert { type: 'css' };
 
 document.adoptedStyleSheets.push(css);
 
-class FilmStrip {
+class FilmStrip extends HTMLElement {
     images = [];
-    container = null;
+    info = undefined;
     selectedImageNum = undefined;
     list = undefined;
     listElements = [];
-    constructor(container, images, selectedImageNum = undefined) {
-        this.container = container;
+    constructor(images = undefined, info = undefined, selectedImageNum = undefined) {
+        super();
+        this.setImages(images);
+        this.setInfo(info);
+        this.render(selectedImageNum);
+    }
+    setImages(images) {
         this.images = images;
-        this.show(selectedImageNum);
+    }
+    setInfo(info) {
+        console.log(info);
+        this.info = info;
+    }
+    getInfo() {
+        return this.info;
     }
     select(selectedImageNum) {
         if (this.selectedImageNum !== undefined) {
@@ -34,16 +45,16 @@ class FilmStrip {
         }
         this.select(selectedImage);
     }
-    show(selectedImageNum = undefined) {
+    render(selectedImageNum = undefined) {
         if (selectedImageNum) {
             this.selectedImageNum = selectedImageNum;
         }
         let div = document.createElement('div');
         div.classList.add('filmStripContainer');
         let ul = document.createElement('ul');
-        if (this.title) {
+        if (this.info?.title) {
             let span = document.createElement('span');
-            span.innerHTML = this.title;    
+            span.innerHTML = this.info.title;    
             div.appendChild(span);
         }
         for(let i = 0;i < this.images.length; i++) {
@@ -63,8 +74,10 @@ class FilmStrip {
             ul.appendChild(li);
         }
         div.appendChild(ul);
-        this.container.replaceChildren(div);
+        this.replaceChildren(div);
         this.list = ul;
     }
 }
+customElements.define('film-strip',FilmStrip);
+
 export default FilmStrip;
