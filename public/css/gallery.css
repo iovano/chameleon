@@ -82,10 +82,14 @@ canvas {
     flex-direction: row;
     flex-wrap: wrap;
 }
-#gallery .infoBox h1,h2,h3 {
+#gallery .infoBox h1,h2,h3, .imageInfo .title div.value span {
     margin: 0;
     padding: 0;
     color: rgba(255,255,255,0.8);
+}
+.infoBox .imageInfo .title div.value span {
+    font-size: 1.2em;
+    font-weight: bolder;
 }
 #gallery .infoBox div.label {
     width: 3em;
