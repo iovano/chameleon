@@ -18,7 +18,6 @@ class FilmStrip extends HTMLElement {
         this.images = images;
     }
     setInfo(info) {
-        console.log(info);
         this.info = info;
     }
     getInfo() {
@@ -54,7 +53,10 @@ class FilmStrip extends HTMLElement {
         let ul = document.createElement('ul');
         if (this.info?.title) {
             let span = document.createElement('span');
-            span.innerHTML = this.info.title;    
+            span.innerHTML = this.info.title;
+            if (this.info?.description) {
+                span.setAttribute('title', this.info.description);
+            }    
             div.appendChild(span);
         }
         for(let i = 0;i < this.images.length; i++) {
@@ -69,6 +71,9 @@ class FilmStrip extends HTMLElement {
             img.addEventListener("click", (event) => this._onClick(event, i))
             img.width = 40;
             img.height = 40;
+            if (this.images[i]?.title) {
+                img.setAttribute('title', this.images[i].title);
+            }    
             li.appendChild(img);
             this.listElements[i] = li;
             ul.appendChild(li);
