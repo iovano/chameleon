@@ -107,6 +107,7 @@ class Gallery {
             this.canvas.removeChild(this.canvasContainer);
         }
         document.addEventListener('mousemove', (event) => this._onMouseMove(event));
+        document.addEventListener('keyup', (event) => this._onKeyUp(event));
         this.createCanvas();
         this.navigate(this.currentImageNum);
     }
@@ -163,6 +164,13 @@ class Gallery {
     /* internal event listeners */
     _onIdle() {
         this.dispatchEvent('onIdle', {idle: this.idleTime});
+    }
+    _onKeyUp(event) {
+        this.dispatchEvent('onKeyUp', {event: event});
+        switch (event.key) {
+            case 'ArrowRight': this.navigate('+1'); break;
+            case 'ArrowLeft': this.navigate('-1'); break;
+        }
     }
     _onMouseMove() {
         if (this.idleTime !== undefined && this.idleTime > 0) {
