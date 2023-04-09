@@ -17,15 +17,11 @@ class FilmStrip {
         if (this.selectedImageNum !== undefined) {
             this.listElements[this.selectedImageNum].classList.remove('selected');
         }
-        let scroll = {x1: this.list.scrollLeft, x2: parseInt(this.list.scrollLeft)+parseInt(this.list.clientWidth)};
-        let item = {x1: this.listElements[selectedImageNum].offsetLeft, x2: this.listElements[selectedImageNum].offsetLeft+this.listElements[selectedImageNum].clientWidth};
-        if (item.x2 > scroll.x2) {
-            this.list.scrollTo(scroll.x1 + item.x2 - scroll.x2, 0);
-        }
-        if (item.x1 < scroll.x1) {
-            this.list.scrollTo(selectedImageNum * this.listElements[selectedImageNum].clientWidth, 0);
-        }
-        console.log(item.x1);
+        let itemsVisible = this.list.clientWidth / this.listElements[selectedImageNum].clientWidth || 1;
+        let itemWidth = this.listElements[selectedImageNum].clientWidth;
+        let paddingOffset = this.listElements[0].offsetLeft;
+        let item = {x1: this.listElements[selectedImageNum].offsetLeft, x2: this.listElements[selectedImageNum].offsetLeft+itemWidth};
+        this.list.scrollTo((selectedImageNum - itemsVisible / 2 + 1) * itemWidth - paddingOffset, 0);
         this.listElements[selectedImageNum].classList.add('selected');
         this.selectedImageNum = selectedImageNum;
 
