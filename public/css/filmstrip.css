@@ -27,22 +27,27 @@
 }
 #gallery .canvasContainer .filmStrip ul li {
     display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-color: rgba(255,255,255,0.4);
+    background-image: url("data:image/svg+xml,%3Csvg id='kodal-filmstrip' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 117 107'%3E%3Cg id='Ebene_2-2'%3E%3Cpath d='m0,0v107h117V0H0Zm106.5,8c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm-14.71,0c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5Zm7,92c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm14.71,0c0,1.1-.9,2-2,2h-3c-1.1,0-2-.9-2-2v-5c0-1.1.9-2,2-2h3c1.1,0,2,.9,2,2v5Zm2.5-8H1V16h115v76Z'/%3E%3C/g%3E%3C/svg%3E");
+    padding: 8px 0px 4px 0px;
+    border: 1px solid black;
+    border-left: 0.5px solid black;
+
 }
 
 #gallery .canvasContainer .filmStrip ul li img {
     transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
     background-color: rgba(0,0,0,0.8);
-    padding: 0.1em;
+    padding: 0;
+    width: 46px;
+    height: 40px;
     cursor: pointer;
     opacity: 0.5;
-    border-top: 0.1em dotted rgba(255,255,255,0.5);
-    border-right: 0.1em solid rgba(0,0,0,1);
-    border-bottom: 0.1em dotted rgba(255,255,255,0.5);
-    border-left: 0.1em solid rgba(0,0,0,1);
-    filter: invert(0.1);
 }
 #gallery .canvasContainer .filmStrip ul li img:hover, #gallery .canvasContainer .filmStrip ul li.selected img {
-    border: 0.1em solid rgba(255,255,255,1);
     opacity: 1;
     filter: invert(0);
 }

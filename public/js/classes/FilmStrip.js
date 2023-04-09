@@ -69,8 +69,6 @@ class FilmStrip extends HTMLElement {
             let img = document.createElement('img');
             img.src = this.images[i]?.src || this.images[i];
             img.addEventListener("click", (event) => this._onClick(event, i))
-            img.width = 40;
-            img.height = 40;
             if (this.images[i]?.title) {
                 img.setAttribute('title', this.images[i].title);
             }    
