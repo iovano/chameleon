@@ -17,10 +17,12 @@ class FilmStrip {
         if (this.selectedImageNum !== undefined) {
             this.listElements[this.selectedImageNum].classList.remove('selected');
         }
-        let itemsVisible = this.list.clientWidth / this.listElements[selectedImageNum].clientWidth || 1;
-        let itemWidth = this.listElements[selectedImageNum].clientWidth;
+        let el = this.listElements[selectedImageNum];
+        let itemsVisible = this.list.clientWidth / el.clientWidth || 1;
+        let itemWidth = el.clientWidth;
         let paddingOffset = this.listElements[0].offsetLeft;
-        let item = {x1: this.listElements[selectedImageNum].offsetLeft, x2: this.listElements[selectedImageNum].offsetLeft+itemWidth};
+        let item = {x1: el.offsetLeft, x2: el.offsetLeft+itemWidth};
+        
         this.list.scrollTo((selectedImageNum - itemsVisible / 2 + 1) * itemWidth - paddingOffset, 0);
         this.listElements[selectedImageNum].classList.add('selected');
         this.selectedImageNum = selectedImageNum;
@@ -36,7 +38,14 @@ class FilmStrip {
         if (selectedImageNum) {
             this.selectedImageNum = selectedImageNum;
         }
+        let div = document.createElement('div');
+        div.classList.add('filmStripContainer');
         let ul = document.createElement('ul');
+        if (this.title) {
+            let span = document.createElement('span');
+            span.innerHTML = this.title;    
+            div.appendChild(span);
+        }
         for(let i = 0;i < this.images.length; i++) {
             let li = document.createElement('li');
             if (this.selectedImageNum === i) {
@@ -53,7 +62,8 @@ class FilmStrip {
             this.listElements[i] = li;
             ul.appendChild(li);
         }
-        this.container.replaceChildren(ul);
+        div.appendChild(ul);
+        this.container.replaceChildren(div);
         this.list = ul;
     }
 }

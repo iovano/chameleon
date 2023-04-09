@@ -1,6 +1,7 @@
 import FilmStrip from './FilmStrip.js';
 
 import css from '../../css/gallery.css' assert { type: 'css' };
+import TagsUL from './TagsUL.js';
 document.adoptedStyleSheets.push(css);
 class Gallery {
     /* namespaces */
@@ -26,6 +27,7 @@ class Gallery {
     loadedImages = [];
     previousImage = undefined;
     currentImageNum = 0;
+    currentAlbumNum = 0;
 
     /* canvas elements */
     canvas = undefined;
@@ -35,8 +37,8 @@ class Gallery {
     filmStrip = undefined;
 
     constructor(canvas, images = undefined, width = undefined, height = undefined) {
-        if (images && this.images.length === 0) {
-            this.addImages(images);
+        if (images) {
+            this.setImages(images);
         }
         if (width !== undefined) {
             this.width = width;
@@ -65,14 +67,25 @@ class Gallery {
         this.filmStrip.select(this.currentImageNum);
     }
     getCurrentImage() {
-        return this.images[this.currentImageNum];
+        return this.getCurrentAlbumImages()[this.currentImageNum];
     }
     getImage(idx) {
-        return this.images[idx];
+        return this.getCurrentAlbumImages()[idx];
+    }
+    setCurrentAlbumNum(albumNum, imageNum = 0) {
+        this.currentAlbumNum = albumNum;
+        this.currentImageNum = imageNum;
+    }
+    getCurrentAlbumNum() {
+        return this.currentAlbumNum;
+    }
+    getCurrentAlbumImages() {
+        return this.images[this.currentAlbumNum]?.images || this.images?.images || this.images;
     }
     setCurrentImageNum(newIndex) {
+        let images = this.getCurrentAlbumImages();
         /* set currentImage and normalize its value (i.e. make sure it is positive and within range of existing image amount) */
-        this.currentImageNum = (newIndex % this.images.length) < 0 ? (newIndex % this.images.length) + this.images.length : newIndex % this.images.length;
+        this.currentImageNum = (newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length;
     }
     getCurrentImageNum() {
         return this.currentImageNum;
@@ -138,7 +151,7 @@ class Gallery {
         this.update();
         setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
     }
-    addImages(images, lazyLoad = undefined) {
+    setImages(images, lazyLoad = undefined) {
         if (lazyLoad !== undefined) {
             this.lazyLoad = lazyLoad;
         }
@@ -271,7 +284,7 @@ class Gallery {
         let filmStrip = document.createElement("div");
         filmStrip.classList.add('filmStrip','hide');
         div.appendChild(filmStrip);
-        this.filmStrip = new FilmStrip(filmStrip, this.images);
+        this.filmStrip = new FilmStrip(filmStrip, this.getCurrentAlbumImages());
         this.filmStrip.onClick = (event, selectedImage) => {this.navigate(selectedImage);}
 
         /* add svg to container/canvas */
@@ -295,25 +308,8 @@ class Gallery {
         } else {
             list = {...this.getCurrentImage()};
             delete list?.src;
-            let ul = document.createElement('ul');
+            let ul = new TagsUL(list);
             ul.classList.add('imageInfo');
-            for (let key in list) {
-                let li = document.createElement('li');
-                li.classList.add(key);
-                let div = document.createElement('div');
-                div.classList.add('label');
-                let span = document.createElement('span');
-                span.innerHTML = key;
-                div.appendChild(span);
-                li.appendChild(div);
-                div = document.createElement('div');
-                div.classList.add('value');
-                span = document.createElement('span');
-                span.innerHTML = list[key];
-                div.appendChild(span);
-                li.appendChild(div);
-                ul.appendChild(li);
-            }
             el.replaceChildren(ul);
         }
     }

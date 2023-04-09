@@ -65,22 +65,22 @@ canvas {
 }
 #gallery .infoBox > .imageInfo, #gallery .infoBox .noInfo {
     padding: 1em;
+    display: inline-block;
     border-radius: 0.25em;
     background: rgba(0,0,0,0.5);
     position: relative;
 }
-#gallery .infoBox ul {
+#gallery .infoBox tags-ul {
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
     padding: 0;
     max-width: 25em;
 }
-#gallery .infoBox ul > li {
+#gallery .infoBox tags-ul > li {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-
 }
 #gallery .infoBox h1,h2,h3 {
     margin: 0;
