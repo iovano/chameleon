@@ -22,6 +22,9 @@ class Gallery {
     idleTime = undefined;
     frame = 0;
 
+    /* internal control variables */
+    keysPressed = []
+
     /* gallery image storage */
     images = [];
     loadedImages = [];
@@ -122,6 +125,7 @@ class Gallery {
         }
         document.addEventListener('mousemove', (event) => this._onMouseMove(event));
         document.addEventListener('keyup', (event) => this._onKeyUp(event));
+        document.addEventListener('keydown', (event) => this._onKeyDown(event));
         this.createCanvas();
         this.navigate(this.currentImageNum);
     }
@@ -184,22 +188,38 @@ class Gallery {
     _onIdle() {
         this.dispatchEvent('onIdle', {idle: this.idleTime});
     }
+    _onKeyDown(event) {
+        this.dispatchEvent('onKeyDown', {event: event});
+        if (this.keysPressed.indexOf(event.key) === -1) {            
+            this.keysPressed.push(event.key);
+        }
+        console.log(this.keysPressed);
+    }
     _onKeyUp(event) {
         this.dispatchEvent('onKeyUp', {event: event});
+        if (this.keysPressed.indexOf('Shift') === -1) {
+            /* Shift key can be used for "silent" navigation, i.e. with muted controls */
+            this._onIdleEnd();
+        }
+        if (this.keysPressed.indexOf(event.key) !== -1) {            
+            this.keysPressed.splice(this.keysPressed.indexOf(event.key),1);
+        }
         switch (event.key) {
             case 'ArrowRight': this.navigate('+1'); break;
             case 'ArrowLeft': this.navigate('-1'); break;
             case 'ArrowUp': this.navigate(0, '-1'); break;
             case 'ArrowDown': this.navigate(0, '+1'); break;
         }
-        this.idleTime = 0;
     }
-    _onMouseMove() {
+    _onIdleEnd() {
         if (this.idleTime !== undefined && this.idleTime > 0) {
             this.dispatchEvent('onIdleEnd', {idle: this.idleTime});
             this.imageInfoBox.classList.remove('hide');
-            this.idleTime = 0;
+            this.idleTime = 0;    
         }
+    }
+    _onMouseMove() {
+        this._onIdleEnd();
     }
     _onTransitionEnd() {
         if (this.idleTime === undefined) {
