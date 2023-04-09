@@ -11,6 +11,8 @@
   "exports": {
     "./Gallery": "./public/js/classes/Gallery.js",
     "./DotGain": "./public/js/classes/DotGain.js",
+    "./FilmStrip": "./public/js/classes/FilmStrip.js",
+    "./TagsUL": "./public/js/classes/TagsUL.js",
     "./js/": "./public/js/classes/",
     "./css/": "./public/css/"
   },
