@@ -4,7 +4,6 @@ body {
     flex-grow: 1;
     color: #fff;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-
 }
 a:link, a:visited {
     color: rgba(155,155,155,0.5);
@@ -53,18 +52,9 @@ header button:hover {
     background: rgba(180,180,180,0.8);
 }
 
-.controls {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    color: #fff;
-    z-index: 100;
-    transition: 0.5s;
-}
 .controls div.button {
     position: absolute;
+    z-index: 105;
     top: 50%;
     width: 4em;
     height: 4em;
@@ -74,9 +64,11 @@ header button:hover {
     opacity: 0.5;
 }
 .controls div.button.left {
+    top: 50%;
     left: 2em;
 }
 .controls div.button.right {
+    top: 50%;
     right: 2em;
 }
 .controls div.left div.icon {

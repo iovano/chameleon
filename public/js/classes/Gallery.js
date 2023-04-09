@@ -1,5 +1,7 @@
-import stylesheet from '../../css/gallery.css' assert { type: 'css' };
-document.adoptedStyleSheets = [stylesheet];
+import FilmStrip from './FilmStrip.js';
+
+import css from '../../css/gallery.css' assert { type: 'css' };
+document.adoptedStyleSheets.push(css);
 class Gallery {
     /* namespaces */
     svgNS = "http://www.w3.org/2000/svg";
@@ -60,6 +62,7 @@ class Gallery {
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
         this.updateClipPathTransition();
         this.showImage();
+        this.filmStrip.select(this.currentImageNum);
     }
     getCurrentImage() {
         return this.images[this.currentImageNum];
@@ -266,9 +269,10 @@ class Gallery {
 
         /* create and append film strip */
         let filmStrip = document.createElement("div");
-        filmStrip.classList.add('filmstrip','hide');
+        filmStrip.classList.add('filmStrip','hide');
         div.appendChild(filmStrip);
-        this.filmStrip = filmStrip;
+        this.filmStrip = new FilmStrip(filmStrip, this.images);
+        this.filmStrip.onClick = (event, selectedImage) => {this.navigate(selectedImage);}
 
         /* add svg to container/canvas */
         if (context instanceof HTMLCanvasElement) {

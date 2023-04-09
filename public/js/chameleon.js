@@ -39,11 +39,13 @@ let images = [
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
       document.querySelector('header').classList.add('hide');
+      document.querySelector('#gallery .canvasContainer .filmStrip').classList.add('hide');
       document.querySelectorAll('.controls').forEach((element) => {element.classList.add('hide');})
       document.body.classList.add('noCursor');
     }
     gallery.onIdleEnd = (idleTime) => {
       document.querySelector('header').classList.remove('hide');
+      document.querySelector('#gallery .canvasContainer .filmStrip').classList.remove('hide');
       document.querySelectorAll('.controls').forEach((element) => {element.classList.remove('hide');})
       document.body.classList.remove('noCursor');
     }

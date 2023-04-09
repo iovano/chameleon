@@ -1,0 +1,61 @@
+#gallery .canvasContainer .filmStrip {
+    z-index: 500;
+    position: absolute;
+    top: 3em;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 400;
+    opacity: 1;
+    transition: background-color 1s, opacity 1s;
+    color: rgba(155,155,155,0.5);
+    padding: 0.5em;
+    border-radius: 0.25em;
+    background: rgba(0,0,0,0.5);
+    max-height: 3em;
+    max-width: 50%;
+}
+#gallery .canvasContainer .filmStrip ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    list-style-type: none;
+    list-style-position: outside;
+    overflow-x: auto;
+    margin: 0;
+    padding: 0;
+    max-width: 20em;
+}
+#gallery .canvasContainer .filmStrip ul li {
+    display: inline-block;
+}
+#gallery .canvasContainer .filmStrip ul li img {
+    background-color: rgba(0,0,0,0.8);
+    padding: 0.1em;
+    cursor: pointer;
+    opacity: 0.5;
+    border-top: 0.1em dotted rgba(255,255,255,0.5);
+    border-right: 0.1em solid rgba(0,0,0,1);
+    border-bottom: 0.1em dotted rgba(255,255,255,0.5);
+    border-left: 0.1em solid rgba(0,0,0,1);
+}
+#gallery .canvasContainer .filmStrip ul li img:hover, #gallery .canvasContainer .filmStrip ul li.selected img {
+    border: 0.1em solid rgba(255,255,255,1);
+    opacity: 1;
+}
+
+#gallery .canvasContainer .filmStrip.hide {
+    opacity: 0;
+}
+::-webkit-scrollbar {
+    width: 0.25em;
+    height: 0.25em;
+    transition: 0.5s;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+  
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
