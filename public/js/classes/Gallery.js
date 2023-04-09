@@ -193,7 +193,6 @@ class Gallery {
         if (this.keysPressed.indexOf(event.key) === -1) {            
             this.keysPressed.push(event.key);
         }
-        console.log(this.keysPressed);
     }
     _onKeyUp(event) {
         this.dispatchEvent('onKeyUp', {event: event});
