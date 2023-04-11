@@ -28,7 +28,15 @@ let albums = [
     } else {
       gallery = new DotGain(canvas);
     }
-    gallery.setImages(albums);
+    gallery.loadAlbums('/data/albums.json').then(data => {
+      gallery.setImages(data);
+      console.debug(data);
+      onResize();
+      gallery.run();
+  })
+    
+    //gallery.setImages(albums);
+
     // in order to listen to all events from the gallery, you can implement "eventHandler" and digest events yourself:
     // gallery.eventHandler = (event, payload, args) => {console.log(event);console.log(payload);console.log(args);}
     
@@ -59,8 +67,6 @@ let albums = [
       document.querySelectorAll('.controls').forEach((element) => {element.classList.remove('hide');})
       document.body.classList.remove('noCursor');
     }
-    onResize();
-    gallery.run();
     gallery.onNavigation = function (payload) {
       gallery.currentDirection = {'-1': 90, '+1': 270}[payload.target] || gallery.currentDirection;
     }

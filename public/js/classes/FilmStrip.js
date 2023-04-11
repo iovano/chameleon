@@ -67,7 +67,11 @@ class FilmStrip extends HTMLElement {
                 li.classList.remove('selected');
             }
             let img = document.createElement('img');
-            img.src = this.images[i]?.src || this.images[i];
+            if (this.images[i]?.size && Array.isArray(this.images[i].size)) {
+                img.src = this.images[i].size[this.images[i].size.length -1];
+            } else {
+                img.src = this.images[i]?.src || this.images[i];
+            }
             img.addEventListener("click", (event) => this._onClick(event, i))
             if (this.images[i]?.title) {
                 img.setAttribute('title', this.images[i].title);

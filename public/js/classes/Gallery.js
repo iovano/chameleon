@@ -89,7 +89,7 @@ class Gallery {
         return this.images[index || this.currentAlbumNum];
     }
     getAlbumInfo(index = undefined) {
-        let info = {...this.images[index || this.currentAlbumNum]};
+        let info = { ...this.images[index || this.currentAlbumNum] };
         delete info.images;
         return info;
     }
@@ -97,7 +97,10 @@ class Gallery {
         return this.currentAlbumNum;
     }
     getAlbumImages(index = undefined) {
-        return this.images[index || this.currentAlbumNum]?.images || this.images?.images || this.images;
+        return this.images[index || this.currentAlbumNum]?.photos || this.images?.photos || this.photos || this.images[index || this.currentAlbumNum]?.images || this.images?.images || this.images;
+    }
+    getImageSrc(img, size = 0) {
+        return img?.src || img?.size[size] || img;
     }
     setCurrentImageNum(newIndex) {
         let images = this.getAlbumImages();
@@ -147,9 +150,9 @@ class Gallery {
     }
     updateClipPathTransition() {
         if (this.suspended && this.frame !== 0) {
-            document.getElementById('imageGroup1').setAttributeNS(null,"opacity",1);
+            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
         } else if (this.frame <= this.transitionDuration && !this.suspended) {
-            document.getElementById('imageGroup1').setAttributeNS(null,"opacity",(this.frame)/(this.transitionDuration || 10));
+            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.frame) / (this.transitionDuration || 10));
         }
         if (this.idleTime === undefined && this.frame > this.transitionDuration) {
             this._onTransitionEnd();
@@ -174,6 +177,14 @@ class Gallery {
     run() {
         this.update();
         setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
+
+    }
+    loadAlbums(filename = '/data/albums.json') {
+        return fetch(filename)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
     setImages(images, lazyLoad = undefined) {
         if (lazyLoad !== undefined) {
@@ -186,22 +197,22 @@ class Gallery {
     }
     /* internal event listeners */
     _onIdle() {
-        this.dispatchEvent('onIdle', {idle: this.idleTime});
+        this.dispatchEvent('onIdle', { idle: this.idleTime });
     }
     _onKeyDown(event) {
-        this.dispatchEvent('onKeyDown', {event: event});
-        if (this.keysPressed.indexOf(event.key) === -1) {            
+        this.dispatchEvent('onKeyDown', { event: event });
+        if (this.keysPressed.indexOf(event.key) === -1) {
             this.keysPressed.push(event.key);
         }
     }
     _onKeyUp(event) {
-        this.dispatchEvent('onKeyUp', {event: event});
+        this.dispatchEvent('onKeyUp', { event: event });
         if (this.keysPressed.indexOf('Shift') === -1) {
             /* Shift key can be used for "silent" navigation, i.e. with muted controls */
             this._onIdleEnd();
         }
-        if (this.keysPressed.indexOf(event.key) !== -1) {            
-            this.keysPressed.splice(this.keysPressed.indexOf(event.key),1);
+        if (this.keysPressed.indexOf(event.key) !== -1) {
+            this.keysPressed.splice(this.keysPressed.indexOf(event.key), 1);
         }
         switch (event.key) {
             case 'ArrowRight': this.navigate('+1'); break;
@@ -212,9 +223,9 @@ class Gallery {
     }
     _onIdleEnd() {
         if (this.idleTime !== undefined && this.idleTime > 0) {
-            this.dispatchEvent('onIdleEnd', {idle: this.idleTime});
+            this.dispatchEvent('onIdleEnd', { idle: this.idleTime });
             this.imageInfoBox.classList.remove('hide');
-            this.idleTime = 0;    
+            this.idleTime = 0;
         }
     }
     _onMouseMove() {
@@ -250,7 +261,7 @@ class Gallery {
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
                 let img = this.getCurrentImage();
-                this.getImageSlot(1).setAttributeNS(null, "href", img?.src || img);
+                this.getImageSlot(1).setAttributeNS(null, "href", this.getImageSrc(img));
                 if (!this.debugMask && this.clipPath) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
                 }
@@ -269,7 +280,7 @@ class Gallery {
         } else {
             let img = this.getCurrentImage();
             current.setAttributeNS(null, "visibility", "hidden");
-            current.setAttributeNS(null, "href", img?.src || img);
+            current.setAttributeNS(null, "href", this.getImageSrc(img));
         }
     }
     createCanvas() {
@@ -325,14 +336,14 @@ class Gallery {
 
         /* create and append infoBox Overlay */
         let infobox = document.createElement("div");
-        infobox.classList.add('infoBox','hide');
+        infobox.classList.add('infoBox', 'hide');
         div.appendChild(infobox);
         this.imageInfoBox = infobox;
 
         /* create and append film strip */
         this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
-        this.filmStrip.classList.add('filmStrip','hide');
-        this.filmStrip.onClick = (event, selectedImage) => {this.navigate(selectedImage);}
+        this.filmStrip.classList.add('filmStrip', 'hide');
+        this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
         div.appendChild(this.filmStrip);
 
         /* add svg to container/canvas */
@@ -354,8 +365,9 @@ class Gallery {
             div.innerHTML = "No Information available";
             el.replaceChildren(div);
         } else {
-            list = {...this.getCurrentImage()};
+            list = { ...this.getCurrentImage() };
             delete list?.src;
+            list = {title: list.title, description: list.description, location: list.location, date: list.date}
             let ul = new TagsUL(list);
             ul.classList.add('imageInfo');
             el.replaceChildren(ul);

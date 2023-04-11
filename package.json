@@ -2,7 +2,11 @@
   "name": "@iovano/chameleon",
   "version": "0.1.0",
   "main": "app.js",
-  "keywords": ["clipping","path","mask"],
+  "keywords": [
+    "clipping",
+    "path",
+    "mask"
+  ],
   "homepage": "https://iovano.de/chameleon/",
   "repository": {
     "url": "https://github.com/iovano/chameleon.git",
@@ -15,6 +19,11 @@
     "./TagsUL": "./public/js/classes/TagsUL.js",
     "./js/": "./public/js/classes/",
     "./css/": "./public/css/"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "flickr-sdk": "^3.0.0"
   },
   "author": "Timor Kodal",
   "license": "MIT"
