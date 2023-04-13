@@ -5,9 +5,25 @@ class FlickrExtractor extends FlickrConnector {
     retries = 3;
     retryDelay = 2000;
     requestDelay = 200;
+    useCache = true;
 
+    setParams(params) {
+        for (const [key, value] of Object.entries(params)) {
+            this[key] = value;
+        }
+    }
     async sleep(ms = this.requestDelay) {
         await new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async cacheClear() {
+        const directory = "temp";
+        const path = require("node:path");
+        let files = 0;
+        for (const file of fs.readdirSync(directory)) {
+          fs.unlinkSync(path.join(directory, file));        
+          files ++;
+        }
+        console.log("cache cleared. unlinked "+files+" files from cache directory.");
     }
     cacheData(data, context = 'photo', mode = 'default') {
         let filename = "./temp/"+context+"_"+data.id+".json";
@@ -27,7 +43,7 @@ class FlickrExtractor extends FlickrConnector {
             return data;
         } finally {
             fs.closeSync(fd);
-        }
+        }   
     }
     /** mapping = ['description', {title: 'title._content'}] */
     condenseData(data, mapping, keepEmpty = false) {
@@ -66,11 +82,7 @@ class FlickrExtractor extends FlickrConnector {
             page = collection.page;
             let items = collection[dataNode];
             console.debug("flickr."+endpoint+": aggregating data"+(pages > 1 ? " [page "+page+"/"+pages+"]" : "")+": "+items.length+" entries", query);
-            items.forEach (async (data, key) =>
-                {
-                    collected.push(this.cacheData(data));
-                }
-            );
+            items.forEach (async (data, key) => { collected.push(this.useCache ? this.cacheData(data) : data); });
             await this.sleep();
         }
         return collected;                                              
@@ -86,7 +98,7 @@ class FlickrExtractor extends FlickrConnector {
             if (attempt <= this.retries) {
                 console.warn('request to "'+endpoint+'" failed (attempt '+attempt+'/'+this.retries+')', q, error);
                 await this.sleep(this.retryDelay);
-                return await this.enrichPhotoData(data, attempt + 1);
+                return await this.enrichPhotoData(data, endpoint, attempt + 1);
             } else {
                 console.error('Maximum retrials ('+this.retries+') to "'+endpoint+'" reached. Skipping dataset!', q);
             }
@@ -123,19 +135,22 @@ class FlickrExtractor extends FlickrConnector {
     }
 
     async collectPhotoInfo(data) {
-        let cache = this.cacheData(data, 'photoinfo', 'readOnly');
+        let cache = this.useCache ? this.cacheData(data, 'photoinfo', 'readOnly') : undefined;
         if (cache) {
             data = cache;
         } else {
             try {
                 data = await this.enrichPhotoData(data);
+                data = await this.getPhotoSizes(data);
+                data = await this.enrichPhotoData(data, 'flickr.photos.getExif');
                 data = await this.buildPhotoUri(data);
-                data = await this.getPhotoSizes(data);  
                 await this.sleep();  
             } catch (error) {
                 console.error('error while collecting photo information for photo #'+data.id);
             }
-            this.cacheData(data, 'photoinfo', true);
+            if (this.useCache) {
+                this.cacheData(data, 'photoinfo', true);
+            }
         }
         data = this.condenseData(data, ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }]);
         data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);        

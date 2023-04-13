@@ -3,18 +3,18 @@ const FE = new FlickrExtractor();
 
 function getArgs() {
   // print process.argv
-  let ret = {args: [], params: {}, options: {}};
+  let ret = {args: [], params: {}};
   process.argv.slice(2).forEach(function (val, index, array) {
     if (val.substring(0,1) === '-') {
       if (val.indexOf('=')) {
         let [key, value] = val.split("=");
-        ret.options[key.substring(1, val.length - 1)] = value;
+        while (key.substring(0,1) == '-') {
+          key = key.substring(1);
+        }
+        ret.params[key] = (['false', '', '0'].indexOf(value.toLowerCase()) !== -1 ? false : (['true', '1', 'yes'].indexOf(value.toLowerCase()) !== -1 ? true : value || true));
       } else {
-        ret.options[key.substring(1, val.length - 1)] = true;
+        ret.params[key] = true;
       }
-    } else if (val.indexOf('=') !== -1) {
-      let [key, value] = val.split("=");
-      ret.params[key] = value;
     } else {
       ret.args.push(val);
     }
@@ -23,11 +23,19 @@ function getArgs() {
 
 }
 
-let req = {};
 let res = {};
 res.json = function (data) {
   console.log(data.length+" entries, "+JSON.stringify(data).length+" bytes");
 }
 var argv = getArgs();
-console.log(argv.args[0]);
-FE[argv.args[0]](req, res);
+console.log(argv);
+argv.args.forEach(
+  async (method) => 
+  {
+    if (typeof FE[method] === 'function') {
+      FE.setParams(argv.params);
+      await FE[method]({}, res);
+    } else {
+      console.error('Skipping non-existent method "'+method+'".');
+    }
+  });
