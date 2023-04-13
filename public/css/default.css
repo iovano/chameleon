@@ -51,6 +51,9 @@ header button {
 header button:hover {
     background: rgba(180,180,180,0.8);
 }
+header button.active {
+    background: rgba(180,180,180,0.5);
+}
 
 .controls div.button {
     position: absolute;

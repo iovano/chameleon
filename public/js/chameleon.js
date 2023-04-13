@@ -28,6 +28,14 @@ let albums = [
     } else {
       gallery = new DotGain(canvas);
     }
+    document.querySelectorAll('button.topic').forEach((button) => {
+        if (button.dataset.topic === theme) {
+          button.classList.add('active')
+        } else {
+          button.classList.remove('active');
+        }
+      })
+    ;
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
  
@@ -97,7 +105,7 @@ let albums = [
   }
   window.startTheme = start;
   document.addEventListener("DOMContentLoaded", function () {
-    start('standard');
+    start('dotgain');
     document.querySelectorAll('button.topic').forEach(
       button =>
         button.addEventListener("click", () => start(button.dataset.topic))
