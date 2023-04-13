@@ -7,6 +7,8 @@ class Gallery {
     /* namespaces */
     svgNS = "http://www.w3.org/2000/svg";
 
+    meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
+
     /* gallery settings */
     duration = 200; /* slideshow duration in frames */
     transitionDuration = 20;
@@ -74,9 +76,12 @@ class Gallery {
             this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
         }
         const url = new URL(window.location);
-        url.searchParams.set('album', this.getAlbum().title || this.getAlbum().name);
-        url.searchParams.set('image', this.getCurrentImage().title || this.getCurrentImage().name);
+        let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
+        let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
+        url.searchParams.set('album', albumName);
+        url.searchParams.set('image', imageName);
         history.pushState({}, "", url);
+        document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
 
         this.imageInfoBox.classList.add('hide');
         this.suspended = true;
@@ -133,6 +138,9 @@ class Gallery {
     }
     setHeight(height) {
         this.height = height;
+    }
+    setMetaData(metaData) {
+        this.meta = {...this.meta, ...metaData};
     }
     init(params = undefined, resize = true) {
         if (resize === true || !this.width && !this.height) {
@@ -214,7 +222,7 @@ class Gallery {
             }
         }
     }
-    loadAlbums(filename = './data/albums.json') {
+    async loadData(filename = './data/albums.json') {
         return fetch(filename)
             .then(response => response.json())
             .catch(error => {

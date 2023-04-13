@@ -31,7 +31,14 @@ let albums = [
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
  
-    gallery.loadAlbums('./data/albums.json').then(data => {
+    gallery.loadData('./data/meta.json').then(data => {
+      if (data) {
+        gallery.setMetaData(data);
+        document.querySelectorAll('.meta-title')?.forEach((element) => element.innerHTML=data?.title);  
+      }
+    });
+ 
+    gallery.loadData('./data/albums.json').then(data => {
       gallery.setImages(data);
       onResize();
       gallery.run();
