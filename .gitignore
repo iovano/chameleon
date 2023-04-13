@@ -11,9 +11,12 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Image Data
 public/data/*
+# exception to the rule
+!public/data/.gitkeep 
 
 # Temporary Files
 temp/*
+!temp/.gitkeep 
 
 # DS_Store
 *DS_Store
