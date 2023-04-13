@@ -54,7 +54,7 @@
 }
 #gallery .canvasContainer .filmStrip ul li img:hover, #gallery .canvasContainer .filmStrip ul li.selected img {
     opacity: 1;
-    filter: invert(0);
+/*    filter: invert(0);*/
 }
 .filmStrip span {
     color: rgba(255,255,255,0.6);

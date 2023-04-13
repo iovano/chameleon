@@ -61,13 +61,13 @@ canvas {
     z-index: 200;
     opacity: 1;
     transition: background-color 1s, opacity 1s;
-    color: rgba(155,155,155,0.5);
+    color: rgba(155,155,155,0.8);
 }
 #gallery .infoBox > .imageInfo, #gallery .infoBox .noInfo {
     padding: 1em;
     display: inline-block;
     border-radius: 0.25em;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     position: relative;
 }
 #gallery .infoBox tags-ul {
@@ -80,7 +80,7 @@ canvas {
 #gallery .infoBox tags-ul > li {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 #gallery .infoBox h1,h2,h3, .imageInfo .title div.value span {
     margin: 0;
@@ -98,7 +98,7 @@ canvas {
     padding-right: 0.5em;
 }
 #gallery .infoBox div.value {
-    width: auto;
+    max-width: 22em;
 }
 #gallery .infoBox > .info > .label {
     display: none;
