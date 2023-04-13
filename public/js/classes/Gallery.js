@@ -404,12 +404,12 @@ class Gallery {
                 tags: list.tags, 
                 date: list.dates?.taken, 
                 posted: list.dates?.posted,
-                exp: list.exif.ExposureTime,
-                aperture: list.exif.FNumberm,
-                focal: list.exif.FocalLength,
-                ISO: list.exif.ISO,
-                flash: list.exif.Flash,
-                lens: list.exif.LensModel || list.Lens
+                exp: list.exif?.ExposureTime,
+                aperture: list.exif?.FNumberm,
+                focal: list.exif?.FocalLength,
+                ISO: list.exif?.ISO,
+                flash: list.exif?.Flash,
+                lens: list.exif?.LensModel || list?.Lens
             }
             let ul = new TagsUL(list);
             ul.classList.add('imageInfo');
