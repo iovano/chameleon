@@ -57,9 +57,22 @@ class Gallery {
         this.run = undefined;
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
-        /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
-        this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
-        this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
+        if (typeof targetImage === 'object' || targetImage === undefined) {
+            if (targetImage.image) {
+                let target = this.getImageNumByName(targetImage.image);
+                if (target) {
+                    this.setCurrentAlbumNum(target.album);
+                    this.setCurrentImageNum(target.image);
+                }
+            }
+            if (targetImage.album) {
+                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album) || targetAlbum);
+            }
+        } else {
+            /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
+            this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
+            this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
+        }
         this.imageInfoBox.classList.add('hide');
         this.suspended = true;
         this.frame = 0;
@@ -179,7 +192,24 @@ class Gallery {
         setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
 
     }
-    loadAlbums(filename = '/data/albums.json') {
+    getImageNumByName(imageName) {
+        for (let a = 0; a < this.images.length; a++) {
+            let photos = this.images[a].photos || this.images[a].images;
+            for (let i = 0; i < photos.length; i++) {
+                if (photos[i].title == imageName || photos[i].name == imageName) {
+                    return {album: a, image: i};
+                }
+            }
+        }
+    }
+    getAlbumNumByName(albumName) {
+        for (let i = 0; i < this.images.length; i++) {
+            if (this.images[i].title == albumName || this.images[i].name == albumName ) {
+                return i;
+            }
+        }
+    }
+    loadAlbums(filename = './data/albums.json') {
         return fetch(filename)
             .then(response => response.json())
             .catch(error => {
@@ -367,7 +397,20 @@ class Gallery {
         } else {
             list = { ...this.getCurrentImage() };
             delete list?.src;
-            list = {title: list.title, description: list.description, location: list.location, tags: list.tags, date: list.dates?.taken, posted: list.dates?.posted}
+            list = {
+                title: list.title, 
+                description: list.description, 
+                location: list.location, 
+                tags: list.tags, 
+                date: list.dates?.taken, 
+                posted: list.dates?.posted,
+                exp: list.exif.ExposureTime,
+                aperture: list.exif.FNumberm,
+                focal: list.exif.FocalLength,
+                ISO: list.exif.ISO,
+                flash: list.exif.Flash,
+                lens: list.exif.LensModel || list.Lens
+            }
             let ul = new TagsUL(list);
             ul.classList.add('imageInfo');
             el.replaceChildren(ul);

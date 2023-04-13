@@ -28,9 +28,11 @@ let albums = [
     } else {
       gallery = new DotGain(canvas);
     }
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+ 
     gallery.loadAlbums('./data/albums.json').then(data => {
       gallery.setImages(data);
-      console.debug(data);
       onResize();
       gallery.run();
   })
@@ -57,14 +59,14 @@ let albums = [
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
       document.querySelector('header').classList.add('hide');
-      document.querySelector('#gallery .canvasContainer .filmStrip').classList.add('hide');
-      document.querySelectorAll('.controls').forEach((element) => {element.classList.add('hide');})
+      document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.add('hide');
+      document.querySelectorAll('.controls').forEach((element) => {element?.classList.add('hide');})
       document.body.classList.add('noCursor');
     }
     gallery.onIdleEnd = (idleTime) => {
-      document.querySelector('header').classList.remove('hide');
-      document.querySelector('#gallery .canvasContainer .filmStrip').classList.remove('hide');
-      document.querySelectorAll('.controls').forEach((element) => {element.classList.remove('hide');})
+      document.querySelector('header')?.classList.remove('hide');
+      document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.remove('hide');
+      document.querySelectorAll('.controls').forEach((element) => {element?.classList.remove('hide');})
       document.body.classList.remove('noCursor');
     }
     gallery.onNavigation = function (payload) {
@@ -78,6 +80,7 @@ let albums = [
         document.body.style.transform = scale;
         if (gallery) {
           gallery.init();
+          gallery.navigate(params);
         }
         window.scrollTo(0,0);
     }
