@@ -93,9 +93,7 @@ let albums = [
         document.body.style.webkitTransform =  scale;
         document.body.style.msTransform =   scale;
         document.body.style.transform = scale;
-        if (gallery) {
-          gallery.init(params);
-        }
+        gallery.init(params);
         window.scrollTo(0,0);
     }
   }

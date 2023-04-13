@@ -68,7 +68,7 @@ class Gallery {
                 }
             }
             if (targetImage.album) {
-                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album) || targetAlbum);
+                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album));
             }
         } else {
             /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
@@ -100,11 +100,11 @@ class Gallery {
         return this.getAlbumImages()[idx];
     }
     setCurrentAlbumNum(albumNum, imageNum = undefined) {
-        if (albumNum !== this.currentAlbumNum) {
+        if (albumNum !== undefined && albumNum !== this.currentAlbumNum) {
             this.currentAlbumNum = (albumNum % this.images.length) < 0 ? (albumNum % this.images.length) + this.images.length : albumNum % this.images.length;
             this.updateFilmStrip();
         }
-        if (imageNum && imageNum !== this.currentImageNum) {
+        if (imageNum !== undefined && imageNum !== this.currentImageNum) {
             this.setCurrentImageNum(imageNum);
         }
     }
@@ -128,7 +128,7 @@ class Gallery {
     setCurrentImageNum(newIndex) {
         let images = this.getAlbumImages();
         /* set currentImage and normalize its value (i.e. make sure it is positive and within range of existing image amount) */
-        this.currentImageNum = (newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length;
+        this.currentImageNum = ((newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length) || 0;
     }
     getCurrentImageNum() {
         return this.currentImageNum;
