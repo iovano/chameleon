@@ -79,8 +79,7 @@ let albums = [
         document.body.style.msTransform =   scale;
         document.body.style.transform = scale;
         if (gallery) {
-          gallery.init();
-          gallery.navigate(params);
+          gallery.init(params);
         }
         window.scrollTo(0,0);
     }

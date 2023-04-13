@@ -73,6 +73,11 @@ class Gallery {
             this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
             this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
         }
+        const url = new URL(window.location);
+        url.searchParams.set('album', this.getAlbum().title || this.getAlbum().name);
+        url.searchParams.set('image', this.getCurrentImage().title || this.getCurrentImage().name);
+        history.pushState({}, "", url);
+
         this.imageInfoBox.classList.add('hide');
         this.suspended = true;
         this.frame = 0;
@@ -129,7 +134,7 @@ class Gallery {
     setHeight(height) {
         this.height = height;
     }
-    init(resize = true) {
+    init(params = undefined, resize = true) {
         if (resize === true || !this.width && !this.height) {
             this.width = this.canvas.clientWidth || this.canvas.width || document.clientWidth || 800;
             this.height = this.canvas.clientHeight || this.canvas.height || document.clientHeight || 600;
@@ -143,7 +148,7 @@ class Gallery {
         document.addEventListener('keyup', (event) => this._onKeyUp(event));
         document.addEventListener('keydown', (event) => this._onKeyDown(event));
         this.createCanvas();
-        this.navigate(this.currentImageNum);
+        this.navigate(params || this.currentImageNum);
     }
     update() {
         if (!this.suspended) {
