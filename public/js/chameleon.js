@@ -28,7 +28,7 @@ let albums = [
     } else {
       gallery = new DotGain(canvas);
     }
-    gallery.loadAlbums('/data/albums.json').then(data => {
+    gallery.loadAlbums('./data/albums.json').then(data => {
       gallery.setImages(data);
       console.debug(data);
       onResize();
