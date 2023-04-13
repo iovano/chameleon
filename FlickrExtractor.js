@@ -152,8 +152,11 @@ class FlickrExtractor extends FlickrConnector {
                 this.cacheData(data, 'photoinfo', true);
             }
         }
-        data = this.condenseData(data, ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }]);
-        data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);        
+        data = this.condenseData(data, ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif']);
+        data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);      
+        let collectedExif = {};
+        data.exif?.forEach((exif) => {if (['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool'].indexOf(exif.tag) !==-1) { collectedExif[exif.tag] = exif.raw._content}});
+        data.exif = collectedExif;
         return data;
     }
 
