@@ -19,9 +19,16 @@ class TagsUL extends HTMLElement {
                 li.appendChild(div);
                 div = document.createElement('div');
                 div.classList.add('value');
-                span = document.createElement('span');
-                span.innerHTML = listItems[key];
-                div.appendChild(span);
+                if (!Array.isArray(listItems[key])) {
+                    listItems[key] = [listItems[key]];
+                }
+                listItems[key].forEach(
+                    (item) => {
+                        span = document.createElement('span');
+                        span.innerHTML = item;
+                        div.appendChild(span);        
+                    }
+                );
                 li.appendChild(div);
                 this.appendChild(li);    
             }

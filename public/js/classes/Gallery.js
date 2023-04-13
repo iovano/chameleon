@@ -367,7 +367,7 @@ class Gallery {
         } else {
             list = { ...this.getCurrentImage() };
             delete list?.src;
-            list = {title: list.title, description: list.description, location: list.location, date: list.date}
+            list = {title: list.title, description: list.description, location: list.location, tags: list.tags, date: list.dates?.taken, posted: list.dates?.posted}
             let ul = new TagsUL(list);
             ul.classList.add('imageInfo');
             el.replaceChildren(ul);

@@ -98,7 +98,20 @@ canvas {
     padding-right: 0.5em;
 }
 #gallery .infoBox div.value {
-    max-width: 22em;
+    max-width: 21em;
+}
+#gallery .infoBox li.tags div.value span:after {
+    content: "\a";
+} 
+
+#gallery .infoBox li.tags div.value span {
+    color: rgba(75,75,75,0.8);
+    display: inline-block;
+    background-color: rgba(25,25,25,0.8);
+    font-size: 0.8em;
+    border-radius: 0.2em;
+    padding: 0 0.6em 0.1em 0.6em;
+    margin: 0.1em 0.1em;
 }
 #gallery .infoBox > .info > .label {
     display: none;
