@@ -1,6 +1,6 @@
-import css from '../../css/filmstrip.css' assert { type: 'css' };
+//import css from '../../css/filmstrip.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
 
-document.adoptedStyleSheets.push(css);
+//document.adoptedStyleSheets.push(css);
 
 class FilmStrip extends HTMLElement {
     images = [];
