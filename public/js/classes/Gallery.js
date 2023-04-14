@@ -136,7 +136,14 @@ class Gallery {
         return this.images[index || this.currentAlbumNum]?.photos || this.images?.photos || this.photos || this.images[index || this.currentAlbumNum]?.images || this.images?.images || this.images;
     }
     getImageSrc(img, size = 0) {
-        return img?.src || img?.size[size] || img;
+        if (typeof img === 'string' || img instanceof String) { 
+            return img;
+        }
+        try {
+            return img?.src || img?.size[size];
+        } catch (error) {
+            console.log("image #"+(img.id || img.title)+" does not provide src/sizes", error);
+        }
     }
     setCurrentImageNum(newIndex) {
         let images = this.getAlbumImages();
