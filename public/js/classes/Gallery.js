@@ -18,7 +18,10 @@ class Gallery {
     suspended = false;
     direction = "random";
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
-    fps = 20; /* canvas update frequency (frames per second) */
+    fps = [20,50]; /* canvas update frequency (frames per second) min/max (depending on client gpu) */
+    currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
+    workload = 0; /* calculates the current workload */ 
+    timer = [Date.now()];
 
     /* transition variables */
     idleTime = undefined;
@@ -201,9 +204,16 @@ class Gallery {
      * starts scene (continuously calls update())
      */
     run() {
+        this.timer[1] = Date.now();
         this.update();
-        setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
-
+        this.workload = (this.workload * 49 + (this.timer[1] - this.timer[0])) / 50;
+        if (Array.isArray(this.fps)) {
+            this.currentFPS = this.fps[0] + (this.fps[1] - this.fps[0]) / (1 + this.workload);
+            setTimeout(() => { if (this.run) this.run() }, 1000 / (this.currentFPS))
+        } else {
+            setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
+        }
+        this.timer[0] = Date.now();
     }
     getImageNumByName(imageName) {
         for (let a = 0; a < this.images.length; a++) {

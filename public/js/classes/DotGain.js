@@ -1,12 +1,16 @@
 import Gallery from "./Gallery.js";
 class DotGain extends Gallery {
     grid = 25;
-    transitionDuration = 50;
+    transitionDuration = 40;
     clipPathTransitionSpeed = 4;
     clipPath = undefined;
     clipPathId = "clipPathMask";
     maskedImage = undefined;
     debugMask = false;
+    _onTransitionEnd() {
+        super._onTransitionEnd();
+        this.clipPathTransitionSpeed = Math.floor(20 / (this.currentFPS / 5 + 1)); 
+    }
     updateClipPathTransition() {
         let parameters = {
             frame: this.frame -1, 
@@ -32,8 +36,8 @@ class DotGain extends Gallery {
         let clipPath = document.createElementNS(this.svgNS, this.debugMask ? "g" : "clipPath");
         let w = this.width;
         let h = this.height;
-        let cols = w / this.grid;
-        let rows = h / this.grid;
+        let cols = w / this.grid * this.transitionDuration / 50;
+        let rows = h / this.grid * this.transitionDuration / 50;
         let maxRadius = this.grid * Math.PI / 4;
         let r,x,y;
         for (y = 0; y <= Math.max(cols,rows) * 2; y += 1) {
