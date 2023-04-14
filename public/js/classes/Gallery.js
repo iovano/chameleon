@@ -16,12 +16,15 @@ class Gallery {
     height = undefined;
     lazyLoad = false;
     suspended = false;
+    waitForTransitionEnd = false;
     direction = "random";
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
     fps = [20,50]; /* canvas update frequency (frames per second) min/max (depending on client gpu) */
     currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
     workload = 0; /* calculates the current workload */ 
     timer = [Date.now()];
+    infoBoxInertia = 3000; /* infobox inertia in milliseconds */
+    infoBoxDuration = 150; /* infobox duration in frames */
 
     /* transition variables */
     idleTime = undefined;
@@ -87,14 +90,21 @@ class Gallery {
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
 
         this.imageInfoBox.classList.add('hide');
+        if (this.idleTime > 0) {
+            this.startTransition();
+        } else {
+            this.waitForTransitionEnd = true;
+        }
+        this.filmStrip.select(this.currentImageNum);
+    }
+    startTransition() {
+        this.dispatchEvent("onNavigation", { target: this.currentIamgeNum });
         this.suspended = true;
         this.frame = 0;
         this.idleTime = undefined;
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
-        this.dispatchEvent("onNavigation", { target: targetImage });
         this.updateClipPathTransition();
-        this.showImage();
-        this.filmStrip.select(this.currentImageNum);
+        this.showImage();        
     }
     getCurrentImage() {
         return this.getAlbumImages()[this.currentImageNum];
@@ -167,10 +177,10 @@ class Gallery {
             if (this.idleTime !== undefined) this.idleTime++;
         }
         this.updateClipPathTransition();
-        if (this.idleTime >= 100) {
-            if (this.idleTime === 100) {
-                this._onIdle();
-            }
+        if (this.idleTime > 0) {
+            this._onIdle();
+        }
+        if (this.idleTime === (this.infoBoxDuration)) {
             this.imageInfoBox.classList.add('hide');
         }
         if (this.idleTime > this.duration && !this.suspended) {
@@ -213,6 +223,7 @@ class Gallery {
         } else {
             setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
         }
+        console.log(this.idleTime);
         this.timer[0] = Date.now();
     }
     getImageNumByName(imageName) {
@@ -250,7 +261,7 @@ class Gallery {
     }
     /* internal event listeners */
     _onIdle() {
-        this.dispatchEvent('onIdle', { idle: this.idleTime });
+        this.dispatchEvent('onIdle', this.idleTime);
     }
     _onKeyDown(event) {
         this.dispatchEvent('onKeyDown', { event: event });
@@ -285,13 +296,17 @@ class Gallery {
         this._onIdleEnd();
     }
     _onTransitionEnd() {
+        if (this.waitForTransitionEnd) {
+            this.waitForTransitionEnd = false;
+            this.startTransition();
+        }
         if (this.idleTime === undefined) {
+            setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
             this.dispatchEvent("onTransitionEnd", { image: this.getCurrentImage() });
             this.idleTime = 0;
         }
     }
     _onImageLoad(event, image) {
-        setTimeout(() => this.showImageInfo(), 2000);
         if (event.target === this.getImageSlot(1)) {
             /* only dispatch event */
             this.dispatchEvent("onImageLoad", { event: event, image: image });
