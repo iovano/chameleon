@@ -23,7 +23,7 @@ class Gallery {
     currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
     workload = 0; /* calculates the current workload */ 
     timer = [Date.now()];
-    infoBoxInertia = 3000; /* infobox inertia in milliseconds */
+    infoBoxInertia = 1500; /* infobox inertia in milliseconds */
     infoBoxDuration = 150; /* infobox duration in frames */
 
     /* transition variables */
@@ -223,7 +223,6 @@ class Gallery {
         } else {
             setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
         }
-        console.log(this.idleTime);
         this.timer[0] = Date.now();
     }
     getImageNumByName(imageName) {
@@ -424,6 +423,9 @@ class Gallery {
     }
 
     showImageInfo() {
+        if (this.waitForTransitionEnd) {
+            return;
+        }
         let el = this.imageInfoBox;
         el.classList.remove('hide');
         let list = this.getCurrentImage();
