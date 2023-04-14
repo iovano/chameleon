@@ -134,7 +134,10 @@ class FlickrExtractor extends FlickrConnector {
         return data;
     }
 
-    async collectPhotoInfo(data) {
+    async collectPhotoInfo(data, 
+        mapping = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif'], 
+        collectExif = ['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool']
+        ) {
         let cache = this.useCache ? this.cacheData(data, 'photoinfo', 'readOnly') : undefined;
         if (cache) {
             data = cache;
@@ -152,10 +155,10 @@ class FlickrExtractor extends FlickrConnector {
                 this.cacheData(data, 'photoinfo', true);
             }
         }
-        data = this.condenseData(data, ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif']);
+        data = this.condenseData(data, mapping);
         data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);      
         let collectedExif = {};
-        data.exif?.forEach((exif) => {if (['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool'].indexOf(exif.tag) !==-1) { collectedExif[exif.tag] = exif.raw._content}});
+        data.exif?.forEach((exif) => {if (collectExif.indexOf(exif.tag) !==-1) { collectedExif[exif.tag] = exif.raw._content}});
         data.exif = collectedExif;
         return data;
     }
