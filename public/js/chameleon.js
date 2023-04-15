@@ -73,7 +73,7 @@ let albums = [
 
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
-      if (idleTime > 100) {
+      if (idleTime == 100) {
         document.querySelector('header').classList.add('hide');
         document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.add('hide');
         document.querySelectorAll('.controls').forEach((element) => {element?.classList.add('hide');})
