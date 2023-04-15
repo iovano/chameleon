@@ -95,14 +95,17 @@ header button.active {
     height: 24px;
     content: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4 L22 20 L40 4' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E");
 }
-.controls div.button:hover {
-    opacity: 1;
-}
 
 @media(max-height: 500px) {
     header {
         visibility: hidden;
         display: none !important;
     } 
-
 }
+
+@media (hover: hover) {
+    .controls div.button:hover {
+        opacity: 1;
+    }    
+}
+

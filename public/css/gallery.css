@@ -48,9 +48,6 @@ canvas {
     overflow: hidden;
     display: inline-block;
 }
-#gallery:hover {
-    background: rgba(255,255,255,0.1);
-}
 .canvasContainer .infoBox.hide, .hide {
     opacity: 0;
 }
@@ -72,7 +69,8 @@ canvas {
     display: inline-block;
     border-radius: 0.25em;
     background: rgba(0,0,0,0.6);
-
+    user-select: none;
+    cursor: pointer;
     position: relative;
 }
 #gallery .infoBox tags-ul {
@@ -96,6 +94,10 @@ canvas {
     font-size: 1.2em;
     font-weight: bolder;
 }
+.infoBox.minified .imageInfo :not(.title) > div, .infoBox.minified div.label {
+    display: none;
+}
+
 #gallery .infoBox div.label {
     width: 3em;
     text-align: right;
@@ -128,3 +130,9 @@ canvas {
     background: rgba(0,0,0,0.8);
 }
 
+
+@media (hover: hover) {
+    #gallery:hover {
+        background: rgba(255,255,255,0.1);
+    }    
+}
