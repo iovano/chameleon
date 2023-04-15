@@ -17,7 +17,7 @@ class FlickrExtractor extends FlickrConnector {
     }
     async cacheClear() {
         const directory = "temp";
-        const path = require("node:path");
+        const path = require("path");
         let files = 0;
         let total = fs.readdirSync(directory);
         for (const file of total) {
