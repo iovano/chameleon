@@ -13,10 +13,13 @@ class FlickrConnector extends Connector {
             this.getCredentialsFromDotEnv();
         }
         this.init();
-        this.consoler = new Consoler();
+        this.consoler = new Consoler(8);
     }
-    log(message, line = undefined) {
-        this.consoler.log(message, line);
+    log(message, line = undefined, payload = undefined) {
+        this.consoler.log(message, line, payload);
+    }
+    error(message, line = undefined, payload = undefined) {
+        this.consoler.error(message, line, payload);
     }
 
     setUserId(uid) {

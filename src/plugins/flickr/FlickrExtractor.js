@@ -19,9 +19,13 @@ class FlickrExtractor extends FlickrConnector {
         const directory = "temp";
         const path = require("node:path");
         let files = 0;
-        for (const file of fs.readdirSync(directory)) {
-          fs.unlinkSync(path.join(directory, file));        
-          files ++;
+        let total = fs.readdirSync(directory);
+        for (const file of total) {
+          if (file !== '.gitkeep') {
+            fs.unlinkSync(path.join(directory, file));
+            files ++;  
+            this.log(this.consoler.progressBar(files, total.length, 50), 6);       
+          }
         }
         this.log("cache cleared. unlinked "+files+" files from cache directory.")
     }
@@ -88,22 +92,22 @@ class FlickrExtractor extends FlickrConnector {
         }
         return collected;                                              
     }
-    async enrichPhotoData(data, endpoint = 'flickr.photos.getInfo', callback = undefined, attempt = 1) {
+    async enrichPhotoData(data, endpoint = 'flickr.photos.getInfo', callback = undefined) {
         let q = {'photo_id': data.id};
-        try {
-            let response = await this.flickr._('GET', endpoint, q);
-            await this.sleep(this.requestDelay);
-            Object.assign(data, response.body.photo)
-            return data;
-        } catch (error) {
-            if (attempt <= this.retries) {
-                console.warn('request to "'+endpoint+'" failed (attempt '+attempt+'/'+this.retries+')', q, error);
+        for (let attempt = 1; attempt < this.retries; attempt ++) {
+            try {
+                let response = await this.flickr._('GET', endpoint, q);
+                await this.sleep(this.requestDelay);
+                Object.assign(data, response.body.photo)
+                return data;
+            } catch (error) {
+                this.log('request to "'+endpoint+'" failed for photo #'+data.id+' (attempt '+attempt+'/'+this.retries+')', 5);
+                this.error('Error: '+(error.code ? error.code + ": " : '')+error.errno, 6);
                 await this.sleep(this.retryDelay);
-                return await this.enrichPhotoData(data, endpoint, callback, attempt + 1);
-            } else {
-                console.error('Maximum retrials ('+this.retries+') to "'+endpoint+'" reached. Skipping dataset!', q);
-            }
+            }    
         }
+        console.error('Maximum retrials ('+this.retries+') to "'+endpoint+'" reached. Skipping dataset!', q);
+        return;
     }
     buildPhotoUri(photo, attributeName = 'thumb', sizeSuffix = 't') {
         photo[attributeName] = 'https://live.staticflickr.com/'+photo.server+'/'+photo.id+'_'+photo.secret+'_'+sizeSuffix+'.jpg';
@@ -160,7 +164,7 @@ class FlickrExtractor extends FlickrConnector {
                     this.cacheData(data, 'photoinfo', true);
                 }            
                 this.stats.photos.processed.push(data.id);
-               return data;
+                return data;
             } catch (error) {
                 this.stats.photos.failed.push(data.id);
             }
@@ -187,12 +191,14 @@ class FlickrExtractor extends FlickrConnector {
         this.log("Collecting Photosets from Flickr", 1);
         let collect = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'photos', {'url': 'url._content'}];
         let collected = await this.aggregateData('photosets.getList','photosets','photoset',{});
-        let pending = collected.length;
+        let jobs = {total: 0, completed: 0, failed: 0};
+        for(var i = 0; i < collected.length; i++) {
+            jobs.total += collected[i].count_photos + collected[i].count_videos;
+        }
         let consoler = this.consoler;
-        const polling = function (change = 0) {
-            consoler.log(consoler.progressBar(collected.length - pending, collected.length), 4)
-            pending +=change;
-            return pending;
+        const done = function () {
+            consoler.log(consoler.progressBar(jobs.completed + jobs.failed, jobs.total, 50, true), 4)
+            return (jobs.completed + jobs.failed) >= jobs.total;
         }
         //const pb = new ProgressBar(50);
         //pb.start();
@@ -204,21 +210,22 @@ class FlickrExtractor extends FlickrConnector {
                 let result = await this.collectPhotoInfo(photo);
                 if (result === undefined) {
                     this.stats.photos.failed.push(photo.id);
+                    jobs.failed++;
                 } else {
                     photoset.photos[photoNum] = result;
+                    jobs.completed ++;
                 }
             });
             collected[i] = this.condenseData(photoset, collect);
             await this.sleep();
             this.stats.albums.processed.push(photoset.id);
-            polling(-1);
         });
-        while (polling() > 0) {
-            await this.sleep();
-         }
+        while (!done()) {
+            await this.sleep(50);
+        }
         
         let data = JSON.stringify(collected);
-        this.log("photoset collection ("+collected.length+" photos ,"+data.length+" bytes) finished. ", 6);
+        this.log("photoset collection ("+jobs.completed+" photos ,"+data.length+" bytes) finished. ", 6);
         this.log("done");
         console.table({
             albums: {cached: this.stats.albums.cached.length, processed: this.stats.albums.processed.length, failed: this.stats.albums.failed.length},
