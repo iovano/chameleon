@@ -37,11 +37,11 @@ class Consoler {
     constructor(messagesAmount = 5) {
         this.messagesAmount = messagesAmount;
         /* make room for log area */
-            for (let i = 0 ; i < messagesAmount ; i ++) {
+        for (let i = 0 ; i < messagesAmount ; i ++) {
             console.log();
         }
     }
-    progressBar(done, total, size = 50, style = {
+    progressBar(done, total, size = 50, summary = true, style = {
         empty: Consoler.Dim + Consoler.FgRed, 
         emptyChar: '·' , 
         full: Consoler.Bright + Consoler.FgCyan, 
@@ -61,6 +61,9 @@ class Consoler {
             text += style.emptyChar;
         }
         text += Consoler.Reset + style.last + Consoler.Reset;
+        if (summary) {
+            text += Consoler.Dim+' ['+Consoler.Bright+done+Consoler.Dim+'/'+Consoler.Bright+total+Consoler.Dim+']'+Consoler.Reset;
+        }
         return text;
     }
     write(message) {
@@ -72,20 +75,23 @@ class Consoler {
     nl() {
         this.write("\n");
     }
-    log(message, line = undefined) {
+    error(message, line = undefined, payload = undefined) {
+        this.log(Consoler.BgYellow+Consoler.FgRed+message+Consoler.Reset,line,payload);
+    }
+    log(message, line = undefined, payload = undefined) {
         if (line === undefined) {
             this.nl();
             console.log(message);
             return;
         }
         //rdl.moveCursor(process.stdout, x, y);
-        let y = process.stdout.rows - this.messagesAmount;
-        this.messages[line] = message;
+        this.messages[line] = [message, payload];
         this.write(Consoler.Hidden);
+        this.offsetY = process.stdout.rows;
         for (let i=0;i < this.messagesAmount; i++) {
-            rdl.cursorTo(process.stdout,0,y+i);
+            rdl.cursorTo(process.stdout,0,this.offsetY+i-this.messagesAmount);
             this.cl();
-            this.write(this.messages[i] || "");
+            this.write(this.messages[i]?.[0] || "");
         }
         this.write(Consoler.Show);
     }
