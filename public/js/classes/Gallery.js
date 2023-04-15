@@ -92,7 +92,7 @@ class Gallery {
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
 
         this.imageInfoBox.classList.add('hide');
-        if (this.idleTime > 0) {
+        if (this.idleTime >= 0) {
             this.startTransition();
         } else {
             this.waitForTransitionEnd = true;
@@ -100,6 +100,7 @@ class Gallery {
         this.filmStrip.select(this.currentImageNum);
     }
     startTransition() {
+        console.log("start transition");
         this.dispatchEvent("onNavigation", { target: this.currentIamgeNum });
         this.suspended = true;
         this.frame = 0;
@@ -192,10 +193,9 @@ class Gallery {
     update() {
         if (!this.suspended) {
             this.frame++;
-            if (this.idleTime !== undefined) this.idleTime++;
         }
         this.updateClipPathTransition();
-        if (this.idleTime > 0) {
+        if (this.idleTime !== undefined) {
             this._onIdle();
         }
         if (this.idleTime === (this.infoBoxDuration)) {
@@ -281,6 +281,7 @@ class Gallery {
     }
     /* internal event listeners */
     _onIdle() {
+        this.idleTime++;
         this.dispatchEvent('onIdle', this.idleTime);
     }
     _onKeyDown(event) {
@@ -291,7 +292,10 @@ class Gallery {
     }
     _onKeyUp(event) {
         this.dispatchEvent('onKeyUp', { event: event });
-        if (this.keysPressed.indexOf('Shift') === -1) {
+        if (event.key === ' ' && (this.idleTime < this.infoBoxDuration)) {
+            /* space key can be used to toggle idle mode */
+            this.idleTime = this.infoBoxDuration - 1;
+        } else if (this.keysPressed.indexOf('Shift') === -1) {
             /* Shift key can be used for "silent" navigation, i.e. with muted controls */
             this._onIdleEnd();
         }
@@ -307,6 +311,10 @@ class Gallery {
     }
     _onIdleEnd() {
         if (this.idleTime > 0) {
+            if (!this.waitForTransitionEnd) {
+                this.showImageInfo();
+                //this.imageInfoBox.classList.remove('hide');
+            }    
             this.dispatchEvent('onIdleEnd', { idle: this.idleTime });
             this.idleTime = 0;
         }
