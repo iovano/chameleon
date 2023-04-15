@@ -20,11 +20,9 @@ class Gallery {
     direction = "random";
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
     fps = [20,50]; /* canvas update frequency (frames per second) min/max (depending on client gpu) */
-    currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
-    workload = 0; /* calculates the current workload */ 
-    timer = [Date.now()];
     infoBoxInertia = 1500; /* infobox inertia in milliseconds */
     infoBoxDuration = 150; /* infobox duration in frames */
+    changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
 
     /* transition variables */
     idleTime = undefined;
@@ -32,6 +30,9 @@ class Gallery {
 
     /* internal control variables */
     keysPressed = []
+    currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
+    workload = 0; /* calculates the current workload */ 
+    timer = [Date.now()];
 
     /* gallery image storage */
     images = [];
@@ -72,7 +73,6 @@ class Gallery {
             }
             if (targetImage.image) {
                 let target = this.getImageNumByName(targetImage.image);
-                console.log(target);
                 if (target) {
                     this.setCurrentAlbumNum(target.album);
                     this.setCurrentImageNum(target.image);
@@ -122,6 +122,7 @@ class Gallery {
         if (imageNum !== undefined && imageNum !== this.currentImageNum) {
             this.setCurrentImageNum(imageNum);
         }
+        return this.currentAlbumNum;
     }
     getAlbum(index = undefined) {
         return this.images[index || this.currentAlbumNum];
@@ -148,9 +149,17 @@ class Gallery {
         }
     }
     setCurrentImageNum(newIndex) {
+        if (this.changeAlbumOnImageNumOverflow) {
+            if (newIndex >= this.getAlbumImages().length) {
+                this.setCurrentAlbumNum(this.getCurrentAlbumNum()+1);
+                newIndex = 0;
+            } else if (newIndex < 0) {
+                this.setCurrentAlbumNum(this.getCurrentAlbumNum()-1);
+            }
+        }
         let images = this.getAlbumImages();
         /* set currentImage and normalize its value (i.e. make sure it is positive and within range of existing image amount) */
-        this.currentImageNum = ((newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length) || 0;
+        return this.currentImageNum = ((newIndex % images.length) < 0 ? (newIndex % images.length) + images.length : newIndex % images.length) || 0;
     }
     getCurrentImageNum() {
         return this.currentImageNum;
@@ -297,9 +306,8 @@ class Gallery {
         }
     }
     _onIdleEnd() {
-        if (this.idleTime !== undefined && this.idleTime > 0) {
+        if (this.idleTime > 0) {
             this.dispatchEvent('onIdleEnd', { idle: this.idleTime });
-            this.imageInfoBox.classList.remove('hide');
             this.idleTime = 0;
         }
     }
@@ -417,6 +425,7 @@ class Gallery {
         let infobox = document.createElement("div");
         infobox.classList.add('infoBox', 'hide');
         div.appendChild(infobox);
+        infobox.onclick = (event) => {infobox.classList.toggle('minified')};
         this.imageInfoBox = infobox;
 
         /* create and append film strip */
