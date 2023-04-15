@@ -66,15 +66,17 @@ class Gallery {
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
         if (typeof targetImage === 'object' || targetImage === undefined) {
+            if (targetImage.album) {
+                /* select album first (this is important if queried image exists in more than one album) */
+                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album));
+            }
             if (targetImage.image) {
                 let target = this.getImageNumByName(targetImage.image);
+                console.log(target);
                 if (target) {
                     this.setCurrentAlbumNum(target.album);
                     this.setCurrentImageNum(target.image);
                 }
-            }
-            if (targetImage.album) {
-                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album));
             }
         } else {
             /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
@@ -232,12 +234,15 @@ class Gallery {
         }
         this.timer[0] = Date.now();
     }
-    getImageNumByName(imageName) {
-        for (let a = 0; a < this.images.length; a++) {
-            let photos = this.images[a].photos || this.images[a].images;
+    getImageNumByName(imageName, preferredAlbum = undefined) {
+        preferredAlbum = preferredAlbum ?? this.getCurrentAlbumNum();
+        for (let a = -1; a < this.images.length; a++) {
+            let album = (a === -1 ? preferredAlbum : a);
+            if (a === undefined) continue;
+            let photos = this.images[album].photos || this.images[album].images;
             for (let i = 0; i < photos.length; i++) {
-                if (photos[i].title == imageName || photos[i].name == imageName) {
-                    return {album: a, image: i};
+                if (photos[i].title === imageName || photos[i].name === imageName) {
+                    return {album: album, image: i};
                 }
             }
         }
