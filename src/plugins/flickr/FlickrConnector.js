@@ -1,22 +1,24 @@
 const Flickr = require('flickr-sdk');
 const https = require('https'); 
+const Connector = require('../Connector');
+const Consoler = require("../../Consoler");
 
-class FlickrConnector {
-    consumerKey;
-    consumerSecret;
-    accessToken;
-    accessTokenSecret;
-    userId;
+class FlickrConnector extends Connector {
     requestTokenSecret;
     flickr;
     flickrAuth;
     constructor(consumerKey = undefined, consumerSecret = undefined, accessToken = undefined, accessTokenSecret = undefined, userId = undefined) {
-        this.setCredentials(consumerKey, consumerSecret, accessToken, accessTokenSecret, userId)
+        super(consumerKey, consumerSecret, accessToken, accessTokenSecret, userId);
         if (!consumerKey || !consumerSecret) {
             this.getCredentialsFromDotEnv();
         }
         this.init();
+        this.consoler = new Consoler();
     }
+    log(message, line = undefined) {
+        this.consoler.log(message, line);
+    }
+
     setUserId(uid) {
         this.userId = uid;
     }
@@ -28,13 +30,6 @@ class FlickrConnector {
         dotenv.config();
         dotenv.config({ path: filename, override: true });
         this.setCredentials(process.env.FLICKR_CONSUMER_KEY, process.env.FLICKR_CONSUMER_SECRET, process.env.FLICKR_ACCESS_TOKEN, process.env.FLICKR_ACCESS_TOKEN_SECRET, process.env.FLICKR_USER_ID);
-    }
-    setCredentials(consumerKey = undefined, consumerSecret = undefined, accessToken = undefined, accessTokenSecret = undefined, userId = undefined) {
-        this.consumerKey = consumerKey;
-        this.consumerSecret = consumerSecret;
-        this.accessToken = accessToken;
-        this.accessTokenSecret = accessTokenSecret;
-        this.userId = userId;
     }
     init() {
         this.flickrAuth = new Flickr.OAuth(this.consumerKey, this.consumerSecret, this.accessToken, this.accessTokenSecret);
