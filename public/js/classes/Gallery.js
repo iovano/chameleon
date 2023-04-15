@@ -100,7 +100,6 @@ class Gallery {
         this.filmStrip.select(this.currentImageNum);
     }
     startTransition() {
-        console.log("start transition");
         this.dispatchEvent("onNavigation", { target: this.currentIamgeNum });
         this.suspended = true;
         this.frame = 0;
@@ -312,8 +311,8 @@ class Gallery {
     _onIdleEnd() {
         if (this.idleTime > 0) {
             if (!this.waitForTransitionEnd) {
-                this.showImageInfo();
-                //this.imageInfoBox.classList.remove('hide');
+                //this.showImageInfo();
+                this.imageInfoBox.classList.remove('hide');
             }    
             this.dispatchEvent('onIdleEnd', { idle: this.idleTime });
             this.idleTime = 0;
