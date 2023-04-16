@@ -1,6 +1,6 @@
 const express = require('express');
 
-const FlickrConnector = require('./FlickrConnector');
+const FlickrConnector = require('./src/plugins/flickr/FlickrConnector');
 
 const app = express();
 const FC = new FlickrConnector();
