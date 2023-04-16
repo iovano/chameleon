@@ -9,7 +9,6 @@ class Gallery {
 
     meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
 
-    /* gallery settings */
     duration = 200; /* slideshow duration in frames */
     transitionDuration = 20;
     width = undefined;
@@ -327,6 +326,7 @@ class Gallery {
             this.startTransition();
         }
         if (this.idleTime === undefined) {
+            console.log("ontransitionend");
             setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
             this.dispatchEvent("onTransitionEnd", { image: this.getCurrentImage() });
             this.idleTime = 0;
