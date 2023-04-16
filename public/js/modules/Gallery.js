@@ -326,7 +326,6 @@ class Gallery {
             this.startTransition();
         }
         if (this.idleTime === undefined) {
-            console.log("ontransitionend");
             setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
             this.dispatchEvent("onTransitionEnd", { image: this.getCurrentImage() });
             this.idleTime = 0;

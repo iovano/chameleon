@@ -1,5 +1,5 @@
-import DotGain from './classes/DotGain.js';
-import Gallery from './classes/Gallery.js'
+import DotGain from './modules/DotGain.js';
+import Gallery from './modules/Gallery.js'
 let gallery;
   function start(theme) {
     const canvas = document.getElementById("gallery");
