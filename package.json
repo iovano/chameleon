@@ -25,6 +25,6 @@
     "express": "^4.18.2",
     "flickr-sdk": "^3.0.0"
   },
-  "author": "Timor Kodal",
+  "author": "Timor Kodal <timor@kodal.de> (https://kodal.de)",
   "license": "MIT"
 }
