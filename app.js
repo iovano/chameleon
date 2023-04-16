@@ -19,12 +19,6 @@ app.get('/auth', (req, res) => FC.authenticate(req, res));
 app.get('/callback', (req, res) => FC.callback(req, res));
 app.get('/me', (req, res) => FC.me(req, res));
 
-/* TODO: run these heavy tasks from the command line instead
-app.get('/collect/photos', (req, res) => FC.collectPhotos(req, res));
-app.get('/collect', (req, res) => FC.collectPhotoSets(req, res));
-app.get('/download/:photoId/:size?', (req, res) => FC.downloadPhoto(req, res));
-*/
-
 app.get('/image/:photoId/:size?', (req, res) => FC.showPhoto(req, res));
 app.get('/cover/:albumId/:size?', (req, res) => FC.showAlbumCover(req, res));
 
