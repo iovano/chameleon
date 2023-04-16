@@ -1,23 +1,6 @@
 import DotGain from './classes/DotGain.js';
 import Gallery from './classes/Gallery.js'
 let gallery;
-let albums = [
-  {
-    title: 'Osteuropa',
-    description: 'Bilder von Reisen nach Osteuropa',
-    images: [
-  {src: 'images/example.png', title: 'Hohe Tatra im Abendlicht', 'location': 'High Tatra | Slovakia', 'date': '2021-07-06'},
-  {src: 'images/example3.jpg', title: 'Wetterleuchten am Zalew Wióry', 'location': 'Poland', link: '<a href="https://www.flickr.com/photos/timor-kodal/51343261551/in/datetaken-public/" target="_blank">link</a>'},
-  {src: 'images/Osteuropa-2021-7574.jpg', title: 'Garagen in Oschgorod', 'location': 'Ukraine'}
-  
-  ]},
-  {
-    title: 'Spanien',
-    description: 'Reisefotos vom spanischen Festland und den Kanaren',
-    images: [{src: 'images/example2.jpg', title: 'Monteverde', 'location': 'Gomera | Canary Islands'},
-    'images/FoKo-WEuro-22-0028.jpg','images/FoKo-WEuro-22-0048.jpg','images/FoKo-WEuro-22-0109.jpg','images/FoKo-WEuro-22-0261.jpg','images/FoKo-WEuro-22-9940.jpg'
-    ]}
-  ];
   function start(theme) {
     const canvas = document.getElementById("gallery");
     if (gallery) {
@@ -50,7 +33,14 @@ let albums = [
       gallery.setImages(data);
       onResize();
       gallery.run();
+  }).catch(error => {
+    gallery.loadData('./data/example.json').then(data => {
+      gallery.setImages(data);
+      onResize();
+      gallery.run();
   })
+
+  });
     
     //gallery.setImages(albums);
 
