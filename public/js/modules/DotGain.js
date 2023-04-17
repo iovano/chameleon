@@ -13,9 +13,9 @@ class DotGain extends Gallery {
     }
     updateClipPathTransition() {
         let parameters = {
-            frame: this.frame -1, 
+            frame: this.transitionFrame -1, 
             x: - this.grid * 4, 
-            y: Math.max(this.height, this.width) - (this.frame - 1) * this.grid * this.clipPathTransitionSpeed, 
+            y: Math.max(this.height, this.width) - (this.transitionFrame - 1) * this.grid * this.clipPathTransitionSpeed, 
             limitY: - this.height - this.clipPathNetSize.height,
             direction: this.currentDirection,
             suspended: this.suspended,

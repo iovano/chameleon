@@ -14,24 +14,25 @@ class Gallery {
     width = undefined;
     height = undefined;
     lazyLoad = false;
-    suspended = false;
     waitForTransitionEnd = false;
     direction = "random";
+    fps = 20;
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
-    fps = [20,50]; /* canvas update frequency (frames per second) min/max (depending on client gpu) */
     infoBoxInertia = 1500; /* infobox inertia in milliseconds */
     infoBoxDuration = 150; /* infobox duration in frames */
     changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
 
     /* transition variables */
+    transitionFrame = 0;
+    totalFrames = 0;
+    suspended = false;
     idleTime = undefined;
-    frame = 0;
 
     /* internal control variables */
-    keysPressed = []
     currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
     workload = 0; /* calculates the current workload */ 
     timer = [Date.now()];
+    keysPressed = []
 
     /* gallery image storage */
     images = [];
@@ -99,9 +100,9 @@ class Gallery {
         this.filmStrip.select(this.currentImageNum);
     }
     startTransition() {
-        this.dispatchEvent("onNavigation", { target: this.currentIamgeNum });
+        this.dispatchEvent("Navigation", { target: this.currentIamgeNum });
         this.suspended = true;
-        this.frame = 0;
+        this.transitionFrame = 0;
         this.idleTime = undefined;
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
         this.updateClipPathTransition();
@@ -182,20 +183,21 @@ class Gallery {
             /* remove existing canvasContainer first */
             this.canvas.removeChild(this.canvasContainer);
         }
-        document.addEventListener('mousemove', (event) => this._onMouseMove(event));
-        document.addEventListener('keyup', (event) => this._onKeyUp(event));
-        document.addEventListener('keydown', (event) => this._onKeyDown(event));
+        document.addEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
+        document.addEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
+        document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
         this.createCanvas();
         this.navigate(params || this.currentImageNum);
     }
     update() {
+        if (this.idleTime !== undefined) {
+            this.dispatchEvent('Idle', this.idleTime);
+        }
         if (!this.suspended) {
-            this.frame++;
+            this.transitionFrame ++;
+            console.log(this.transitionFrame);
         }
         this.updateClipPathTransition();
-        if (this.idleTime !== undefined) {
-            this._onIdle();
-        }
         if (this.idleTime === (this.infoBoxDuration)) {
             this.imageInfoBox.classList.add('hide');
         }
@@ -204,13 +206,13 @@ class Gallery {
         }
     }
     updateClipPathTransition() {
-        if (this.suspended && this.frame !== 0) {
+        if (this.suspended && this.transitionFrame !== 0) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
-        } else if (this.frame <= this.transitionDuration && !this.suspended) {
-            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.frame) / (this.transitionDuration || 10));
+        } else if (this.transitionFrame <= this.transitionDuration && !this.suspended) {
+            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / (this.transitionDuration || 10));
         }
-        if (this.idleTime === undefined && this.frame > this.transitionDuration) {
-            this._onTransitionEnd();
+        if (this.idleTime === undefined && this.transitionFrame > this.transitionDuration) {
+            this.dispatchEvent('TransitionEnd');
         }
     }
     updateFilmStrip() {
@@ -218,28 +220,11 @@ class Gallery {
         this.filmStrip.setInfo(this.getAlbumInfo());
         this.filmStrip.render();
     }
-    dispatchEvent(eventName, payload, ...args) {
-        if (typeof this[eventName] === 'function') {
-            this[eventName](payload, args);
-        }
-        if (this.eventHandler) {
-            this.eventHandler(eventName, payload, args);
-        }
-    }
-    /**
-     * starts scene (continuously calls update())
-     */
     run() {
-        this.timer[1] = Date.now();
         this.update();
-        this.workload = (this.workload * 49 + (this.timer[1] - this.timer[0])) / 50;
-        if (Array.isArray(this.fps)) {
-            this.currentFPS = this.fps[0] + (this.fps[1] - this.fps[0]) / (1 + this.workload);
-            setTimeout(() => { if (this.run) this.run() }, 1000 / (this.currentFPS))
-        } else {
-            setTimeout(() => { if (this.run) this.run() }, 1000 / (this.fps || 20))
-        }
-        this.timer[0] = Date.now();
+        this.totalFrames ++;
+        this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
+        setTimeout(() => this.run(), 1000 / this.fps);        
     }
     getImageNumByName(imageName, preferredAlbum = undefined) {
         preferredAlbum = preferredAlbum ?? this.getCurrentAlbumNum();
@@ -277,28 +262,28 @@ class Gallery {
     getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
     }
-    /* internal event listeners */
-    _onIdle() {
-        this.idleTime++;
-        this.dispatchEvent('onIdle', this.idleTime);
-    }
-    _onKeyDown(event) {
-        this.dispatchEvent('onKeyDown', { event: event });
-        if (this.keysPressed.indexOf(event.key) === -1) {
-            this.keysPressed.push(event.key);
+    dispatchEvent(eventName, ...args) {
+        let callbackName = 'on'+eventName;
+        let internalCallbackName = '_on'+eventName;
+        if (typeof this.onEvent === 'function') {
+            this.onEvent(eventName, ...args);
+        }
+
+        if (typeof this[internalCallbackName] === 'function') {
+            this[internalCallbackName](...args);
+        }
+        if (typeof this[callbackName] === 'function') {
+            this[callbackName](...args);
         }
     }
+    /* internal event listeners */
     _onKeyUp(event) {
-        this.dispatchEvent('onKeyUp', { event: event });
         if (event.key === ' ' && (this.idleTime < this.infoBoxDuration)) {
             /* space key can be used to toggle idle mode */
             this.idleTime = this.infoBoxDuration - 1;
         } else if (this.keysPressed.indexOf('Shift') === -1) {
             /* Shift key can be used for "silent" navigation, i.e. with muted controls */
-            this._onIdleEnd();
-        }
-        if (this.keysPressed.indexOf(event.key) !== -1) {
-            this.keysPressed.splice(this.keysPressed.indexOf(event.key), 1);
+            this.dispatchEvent('IdleEnd', this.idleTime);
         }
         switch (event.key) {
             case 'ArrowRight': this.navigate('+1'); break;
@@ -306,19 +291,24 @@ class Gallery {
             case 'ArrowUp': this.navigate(0, '-1'); break;
             case 'ArrowDown': this.navigate(0, '+1'); break;
         }
+        if (this.keysPressed.indexOf(event.key) !== -1) {
+            this.keysPressed.splice(this.keysPressed.indexOf(event.key), 1);
+        }        
     }
+    _onIdle() {
+        if (this.idleTime !== undefined) this.idleTime++;
+    }    
     _onIdleEnd() {
         if (this.idleTime > 0) {
             if (!this.waitForTransitionEnd) {
                 //this.showImageInfo();
                 this.imageInfoBox.classList.remove('hide');
             }    
-            this.dispatchEvent('onIdleEnd', { idle: this.idleTime });
             this.idleTime = 0;
         }
     }
     _onMouseMove() {
-        this._onIdleEnd();
+        this.dispatchEvent('IdleEnd', this.idleTime );
     }
     _onTransitionEnd() {
         if (this.waitForTransitionEnd) {
@@ -327,7 +317,6 @@ class Gallery {
         }
         if (this.idleTime === undefined) {
             setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
-            this.dispatchEvent("onTransitionEnd", { image: this.getCurrentImage() });
             this.idleTime = 0;
         }
     }
@@ -397,7 +386,7 @@ class Gallery {
             image.id = 'imageSlot' + i;
             image.setAttributeNS(null, "visibility", "visible");
             /* assign internal onload - handler for image */
-            image.onload = (event) => this._onImageLoad(event, this.getCurrentImage());
+            image.onload = (event) => this.dispatchEvent('ImageLoad', event, this.getCurrentImage());
 
             /* create background */
             let background = document.createElementNS(this.svgNS, "rect");
@@ -446,7 +435,7 @@ class Gallery {
         } else {
             div.appendChild(svg);
         }
-        this.dispatchEvent("onCanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
+        this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
     }
 
     showImageInfo() {
