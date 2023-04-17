@@ -4,7 +4,12 @@ body {
     flex-grow: 1;
     color: #fff;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    transition: opacity 2s;
 }
+strong {
+    color: 'white';
+}
+
 a:link, a:visited {
     color: rgba(155,155,155,0.5);
     text-decoration: none;
@@ -16,6 +21,9 @@ a:hover {
 
 h1, h2, h3 {
     color: #fff;
+}
+body.darkness header {
+    opacity: 0;
 }
 header {
     position: absolute;
@@ -55,24 +63,72 @@ header button.active {
     background: rgba(180,180,180,0.5);
 }
 
-.controls div.button {
+div.curtain div.welcome {
+    color: rgba(255,255,255,0.8);
+    width: 18em;
+    left: auto;
+    right: auto;
+    padding: 2em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.controls {
     position: absolute;
     z-index: 105;
-    top: 50%;
+    display: flex;
+    align-items: center; /** Y-axis align **/
+    top: 40%;
+    bottom: 40%;
+    left: 5%;
+    right: 5%;
+}
+div.curtain {
+    user-select: none;
+    position: absolute;
+    display: flex;
+    align-items: center; /** Y-axis align **/
+    z-index: 1000;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,1);
+}
+
+.controls div.button {
+    cursor: pointer;
+    display: flex;
+    align-items: center; /** Y-axis align **/
+    transition: opacity 0.4s;
+
+    background: rgba(0,0,0,1);
     width: 4em;
     height: 4em;
-    cursor: pointer;
-    background: rgba(0,0,0,1);
     border-radius: 50%;
-    opacity: 0.5;
+    opacity: 0.2;
 }
 .controls div.button.left {
-    top: 50%;
-    left: 2em;
+    margin-right: auto;
 }
 .controls div.button.right {
-    top: 50%;
-    right: 2em;
+    margin-left: auto;
+}
+.controls div.button.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+.controls div.pause, .controls div.play {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.4em;
+}
+.controls div.hide {
+    opacity: 0;
+}
+div.curtain.hide {
+    opacity: 0;
+    transition: opacity 2s;
 }
 .controls div.left div.icon {
     transform: rotate(90deg);
@@ -86,8 +142,17 @@ header button.active {
     margin: 20px 10px;
     width: 44px;
     height: 24px;
-
 }
+.controls div.stress {
+    background-color: rgba(255,255,255,0.5);
+    opacity: 1 !important;
+    animation: blink 0.1s !important;
+    animation-iteration-count: 2 !important;
+}
+.controls div.stress div.icon {
+    opacity: 1 !important;
+}
+@keyframes blink { 50% { background-color:rgba(0,0,0,0.5) ; opacity: 1}  }    
 
 .controls div.icon.more::before {
     display: inline-block;
@@ -95,6 +160,29 @@ header button.active {
     height: 24px;
     content: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4 L22 20 L40 4' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E");
 }
+.controls div.toggle.paused div.icon, .controls div.toggle div.icon {
+    content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' style='width: 24px; height: 24px;'%3E%3Cpath d='M8 5v14l11-7z' stroke-linecap='round' stroke-linejoin='round' style='fill: %23FFF; stroke: %23fff; stroke-width: 2px; rx: 4px; ry: 4px;'/%3E%3C/svg%3E");
+    width: 30px;
+    height: 30px;
+    padding: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.controls div.toggle:not(.hide) {
+    background-color: rgba(255,255,255,0.25);
+    opacity: 0;
+    animation: glimpse 2.5s;
+    animation-iteration-count: infinite;    
+}
+@keyframes glimpse { 25% { background-color:rgba(0,0,0,0.25); opacity: 0.5; }  }    
+
+.controls div.toggle.paused div.icon {
+    width: 40px;
+    height: 40px;
+    content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 24' style='width: 24px; height: 24px;'%3E%3Crect width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3Crect x='16' width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3C/svg%3E");
+}
+
+
 
 @media(max-height: 500px) {
     header {
@@ -104,8 +192,21 @@ header button.active {
 }
 
 @media (hover: hover) {
-    .controls div.button:hover {
+    .controls  div.button:hover:not(.stress) {
         opacity: 1;
     }    
-}
+    .controls div.toggle:hover:not(.stress) {
+        background-color: rgba(0,0,0,0.5);
+        opacity: 1;
+    }
+    .controls div.toggle.paused:hover div.icon {
+        content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' style='width: 24px; height: 24px;'%3E%3Cpath d='M8 5v14l11-7z' stroke-linecap='round' stroke-linejoin='round' style='fill: %23FFF; stroke: %23fff; stroke-width: 2px; rx: 4px; ry: 4px;'/%3E%3C/svg%3E");
+        opacity: 1;
+    }
+    .controls div.toggle:hover div.icon {
+        content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 24' style='width: 24px; height: 24px;'%3E%3Crect width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3Crect x='16' width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3C/svg%3E");
+        opacity: 1;
+        
+    }
 
+}

@@ -2,32 +2,30 @@ import Gallery from "./Gallery.js";
 class DotGain extends Gallery {
     grid = 25;
     transitionDuration = 40;
-    clipPathTransitionSpeed = 4;
+    clipPathTransitionSpeed = 2;
     clipPath = undefined;
     clipPathId = "clipPathMask";
     maskedImage = undefined;
     debugMask = false;
     _onTransitionEnd() {
         super._onTransitionEnd();
-        this.clipPathTransitionSpeed = Math.floor(20 / (this.currentFPS / 5 + 1)); 
+//        this.clipPathTransitionSpeed = Math.floor(20 / (this.currentFPS / 5 + 1)); 
     }
     updateClipPathTransition() {
         let parameters = {
             frame: this.transitionFrame -1, 
             x: - this.grid * 4, 
-            y: Math.max(this.height, this.width) - (this.transitionFrame - 1) * this.grid * this.clipPathTransitionSpeed, 
+            y: Math.max(this.height, this.width) - ((this.transitionFrame || 0) - 5) * this.grid * this.clipPathTransitionSpeed, 
             limitY: - this.height - this.clipPathNetSize.height,
             direction: this.currentDirection,
             suspended: this.suspended,
-            idleTime: this.idleTime
+            userIdleTime: this.userIdleTime
         };
         this.dispatchEvent('onTransition', parameters);
         if (!parameters.suspended && parameters.y < parameters.limitY) {
             parameters.y = parameters.limitY;
-            this._onTransitionEnd();
-            if (parameters.idleTime === undefined) {
-                document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
-            }
+            this.dispatchEvent("TransitionEnd");
+            document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
         }
         this.clipPath.style.transform = "rotate("+parameters.direction+"deg) translate("+parameters.x+"px, "+parameters.y+"px)";
 

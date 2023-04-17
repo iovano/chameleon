@@ -9,30 +9,34 @@ class Gallery {
 
     meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
 
-    duration = 200; /* slideshow duration in frames */
+    breakTimeDuration = 200; /* slideshow duration in frames */
+    userIdleTimeDuration = 150; /* slideshow will not continue before user idle Time exceeds this threshold */
     transitionDuration = 20;
     width = undefined;
     height = undefined;
     lazyLoad = false;
-    waitForTransitionEnd = false;
+    afterTransition = undefined; /* function */
     direction = "random";
     fps = 20;
+    pauseMode = "smooth";
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
     infoBoxInertia = 1500; /* infobox inertia in milliseconds */
-    infoBoxDuration = 150; /* infobox duration in frames */
+    infoBoxDuration = 75; /* infobox duration in frames */
     changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
 
     /* transition variables */
     transitionFrame = 0;
+    breakTimeFrame = 0;
     totalFrames = 0;
-    suspended = false;
-    idleTime = undefined;
+    suspended = false; /* "suspend" prevents premature state changes during transitions or while images are loading */
 
     /* internal control variables */
     currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
     workload = 0; /* calculates the current workload */ 
     timer = [Date.now()];
     keysPressed = []
+    paused = false; /* user pause state */
+    userIdleTime = 0;
 
     /* gallery image storage */
     images = [];
@@ -66,6 +70,9 @@ class Gallery {
         this.run = undefined;
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
+        if (this.isPaused()) {
+            this.dispatchEvent("PauseEnd");
+        }
         if (typeof targetImage === 'object' || targetImage === undefined) {
             if (targetImage.album) {
                 /* select album first (this is important if queried image exists in more than one album) */
@@ -92,10 +99,10 @@ class Gallery {
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
 
         this.imageInfoBox.classList.add('hide');
-        if (this.idleTime >= 0) {
+        if (this.transitionFrame === undefined) {
             this.startTransition();
         } else {
-            this.waitForTransitionEnd = true;
+            this.afterTransition = this.startTransition;
         }
         this.filmStrip.select(this.currentImageNum);
     }
@@ -103,10 +110,10 @@ class Gallery {
         this.dispatchEvent("Navigation", { target: this.currentIamgeNum });
         this.suspended = true;
         this.transitionFrame = 0;
-        this.idleTime = undefined;
+        this.breakTimeFrame = 0;
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
         this.updateClipPathTransition();
-        this.showImage();        
+        this.showImage();
     }
     getCurrentImage() {
         return this.getAlbumImages()[this.currentImageNum];
@@ -190,27 +197,32 @@ class Gallery {
         this.navigate(params || this.currentImageNum);
     }
     update() {
-        if (this.idleTime !== undefined) {
-            this.dispatchEvent('Idle', this.idleTime);
+        this.userIdleTime++;
+        if (this.userIdleTime > this.fps) {
+            this.dispatchEvent('Idle', this.userIdleTime);
         }
-        if (!this.suspended) {
-            this.transitionFrame ++;
+        if (!this.isPaused()) {
+            if (this.transitionFrame !== undefined) {
+                this.transitionFrame ++;
+            } else {
+                this.breakTimeFrame ++;
+            }
+            this.updateClipPathTransition();    
         }
-        this.updateClipPathTransition();
-        if (this.idleTime === (this.infoBoxDuration)) {
+        if (this.userIdleTime === (this.infoBoxDuration)) {
             this.imageInfoBox.classList.add('hide');
         }
-        if (this.idleTime > this.duration && !this.suspended) {
+        if (this.breakTimeFrame > this.breakTimeDuration && this.userIdleTime > this.userIdleTimeDuration && !this.suspended) {
             this.navigate("+1");
         }
     }
     updateClipPathTransition() {
         if (this.suspended && this.transitionFrame !== 0) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
-        } else if (this.transitionFrame <= this.transitionDuration && !this.suspended) {
+        } else if (this.transitionFrame !== undefined && this.transitionFrame <= this.transitionDuration && !this.suspended) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / (this.transitionDuration || 10));
         }
-        if (this.idleTime === undefined && this.transitionFrame > this.transitionDuration) {
+        if (this.transitionFrame > this.transitionDuration) {
             this.dispatchEvent('TransitionEnd');
         }
     }
@@ -220,10 +232,14 @@ class Gallery {
         this.filmStrip.render();
     }
     run() {
+        if (this.isPaused()) {
+            this.paused ++;
+            this.dispatchEvent('Paused', this.paused);
+        }
         this.update();
         this.totalFrames ++;
-        this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
-        setTimeout(() => this.run(), 1000 / this.fps);        
+//      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
+        setTimeout(() => this.run(), 1000 / this.fps);    
     }
     getImageNumByName(imageName, preferredAlbum = undefined) {
         preferredAlbum = preferredAlbum ?? this.getCurrentAlbumNum();
@@ -275,15 +291,39 @@ class Gallery {
             this[callbackName](...args);
         }
     }
+    isPaused() {
+        return this.paused > 0;
+    }
+    setPaused(value = undefined) {
+        if (value === undefined) {
+            value = !this.paused;
+        }
+        if (value === true) {
+            if (this.transitionFrame && !this.isPaused()) {
+                this.afterTransition = () => this.dispatchEvent("PauseStart");
+                this.userIdleTime = this.infoBoxDuration - 1;
+            } else {
+                this.dispatchEvent("PauseStart");
+            }    
+        } else {
+            this.dispatchEvent("PauseEnd");
+        }
+        return value;
+    }
     /* internal event listeners */
     _onKeyUp(event) {
-        console.log(event.key);
-        if (event.key === ' ' && (this.idleTime < this.infoBoxDuration)) {
-            /* space key can be used to toggle idle mode */
-            this.idleTime = this.infoBoxDuration - 1;
+        if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration)) {
+            if (this.userIdleTime < this.infoBoxDuration) {
+                this.userIdleTime = this.infoBoxDuration - 1;
+            } else {
+                this._onIdleEnd();
+            }
+            /* escape key can be used to toggle idle mode */
+        } else if (event.key === ' ') {
+            this.setPaused();
         } else if (this.keysPressed.indexOf('Shift') === -1) {
             /* Shift key can be used for "silent" navigation, i.e. with muted controls */
-            this.dispatchEvent('IdleEnd', this.idleTime);
+            this.dispatchEvent('IdleEnd', this.userIdleTime);
         }
         switch (event.key) {
             case 'ArrowRight': this.navigate('+1'); break;
@@ -295,36 +335,39 @@ class Gallery {
             this.keysPressed.splice(this.keysPressed.indexOf(event.key), 1);
         }        
     }
-    _onIdle() {
-        if (this.idleTime !== undefined) this.idleTime++;
-    }    
+    _onPauseEnd() {
+        this.paused = 0;
+    }
+    _onPauseStart() {
+        this.imageInfoBox?.classList.add('hide');
+        this.filmStrip?.classList.add('hide');
+        this.paused = 1;
+    }
     _onIdleEnd() {
-        if (this.idleTime > 0) {
-            if (!this.waitForTransitionEnd) {
-                //this.showImageInfo();
-                this.imageInfoBox.classList.remove('hide');
-            }    
-            this.idleTime = 0;
-        }
+        if (!this.afterTransition && this.breakTimeFrame / this.fps > this.infoBoxInertia / 1000) {
+            //this.showImageInfo();
+            this.imageInfoBox.classList.remove('hide');
+        }    
+        this.userIdleTime = 0;
     }
     _onMouseMove() {
-        this.dispatchEvent('IdleEnd', this.idleTime );
+        this.dispatchEvent('IdleEnd', this.userIdleTime );
+        this.userIdleTime = 0;
     }
     _onTransitionEnd() {
-        if (this.waitForTransitionEnd) {
-            this.waitForTransitionEnd = false;
-            this.startTransition();
+        this.transitionFrame = undefined;
+        this.breakTimeFrame = 0;
+        if (this.paused) {
+            this.setPaused(true);
         }
-        if (this.idleTime === undefined) {
-            setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
-            this.idleTime = 0;
+        if (this.afterTransition) {
+            this.afterTransition();
+            this.afterTransition = undefined;
         }
+        setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
+        this.userIdleTime = 0;
     }
     _onImageLoad(event, image) {
-        if (event.target === this.getImageSlot(1)) {
-            /* only dispatch event */
-            this.dispatchEvent("onImageLoad", { event: event, image: image });
-        }
         if (this.canvas instanceof HTMLCanvasElement) {
             const ctx = this.canvas.getContext("2d");
             ctx.drawImage(event.target, 0, 0);
@@ -339,6 +382,7 @@ class Gallery {
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
                 this.suspended = false;
+                this.transitionFrame = 0;
                 this.updateClipPathTransition();
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
@@ -439,7 +483,7 @@ class Gallery {
     }
 
     showImageInfo() {
-        if (this.waitForTransitionEnd) {
+        if (this.afterTransition) {
             return;
         }
         let el = this.imageInfoBox;

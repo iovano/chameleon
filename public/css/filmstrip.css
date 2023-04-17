@@ -6,11 +6,12 @@
     transform: translate(-50%, 0);
     z-index: 400;
     opacity: 1;
+    transition: opacity 1s;
     color: rgba(155,155,155,0.5);
     padding: 0.25em;
     border-radius: 0.25em;
     background: rgba(0,0,0,0.75);
-    max-width: 50%;
+    max-width: 40em;
 }
 #gallery .canvasContainer .filmStrip ul {
     transition: scroll 1s;
@@ -23,7 +24,7 @@
     scroll-behavior: smooth;
     margin: 0;
     padding: 0;
-    max-width: 20em;
+    width: 100%;
 }
 #gallery .canvasContainer .filmStrip ul li {
     display: inline-block;

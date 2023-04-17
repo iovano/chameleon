@@ -1,5 +1,6 @@
 import DotGain from './modules/DotGain.js';
 import Gallery from './modules/Gallery.js'
+
 let gallery;
   function start(theme) {
     const canvas = document.getElementById("gallery");
@@ -11,6 +12,8 @@ let gallery;
     } else {
       gallery = new DotGain(canvas);
     }
+    //gallery.setPaused(true);
+  
     document.querySelectorAll('button.topic').forEach((button) => {
         if (button.dataset.topic === theme) {
           button.classList.add('active')
@@ -63,12 +66,19 @@ let gallery;
 
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
-      if (idleTime == gallery.infoBoxDuration) {
+      if (idleTime == Math.floor(gallery.infoBoxDuration / 2)) {
         document.querySelector('header').classList.add('hide');
-        document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.add('hide');
         document.querySelectorAll('.controls').forEach((element) => {element?.classList.add('hide');})
+      } else if (idleTime == gallery.infoBoxDuration) {
+        document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.add('hide');
         document.body.classList.add('noCursor');  
       }
+    }
+    gallery.onPauseStart = () => {
+      updatePauseButtons(true);
+    }
+    gallery.onPauseEnd = () => {
+      updatePauseButtons(false);
     }
     gallery.onIdleEnd = (idleTime) => {
       document.querySelector('header')?.classList.remove('hide');
@@ -77,6 +87,15 @@ let gallery;
       document.body.classList.remove('noCursor');
     }
     gallery.onNavigation = function (payload) {
+      if (document.querySelector('div.curtain')) {
+        document.querySelector('div.curtain').classList.add('hide');
+        setTimeout(
+          () => {
+            document.body.removeChild(document.querySelector('div.curtain'));
+          }, 2000
+        );
+        document.body.classList.remove('darkness');  
+      }
       gallery.currentDirection = {'-1': 90, '+1': 270}[payload.target] || gallery.currentDirection;
     }
 
@@ -89,6 +108,24 @@ let gallery;
         window.scrollTo(0,0);
     }
   }
+  function updatePauseButtons(paused) {
+    document.querySelectorAll('.controls .button.toggle').forEach( (el) => {
+      console.log("update pause ",el);
+      el.classList.add('stress');
+      if (paused) {
+        el.classList.add('paused');
+      } else {
+        el.classList.remove('paused');
+      }
+      setTimeout(() => {
+        el.classList.remove('stress')
+      }, 1000);
+      }
+    );
+  }
+  function togglePause(value = undefined) {
+    gallery.setPaused(value);
+  }
   function move(delta) {
     gallery.navigate(delta);
     // gallery.direction = "random" /* in order to change direction permanently, change "direction"-parameter instead */
@@ -100,7 +137,12 @@ let gallery;
       button =>
         button.addEventListener("click", () => start(button.dataset.topic))
     );
-    document.querySelectorAll('.controls .button').forEach(
+    document.querySelectorAll('.controls .button.toggle').forEach(
+      button =>
+        button.addEventListener("click", () => togglePause())
+    );
+
+    document.querySelectorAll('.controls .button.navi').forEach(
       button =>
         button.addEventListener("click", () => move(button.dataset.target))
     );
