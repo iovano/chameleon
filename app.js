@@ -9,10 +9,13 @@ FC.onAuthentication = function (accessToken, accessTokenSecret) {
   FC.writeCredentialsToFile('.env.local');
 }
 
-app.get('/', function(req, res){
-    res.sendFile('/app/public/index.html');
-});
+app.get('/', [
+  function(req, res){res.sendFile('./public/index.html', { followSymlinks: true, root: __dirname });},
+  function(req, res){res.sendFile('/app/public/index.html', { followSymlinks: true });},
+  ]
+);
 
+app.use(express.static('./public', { followSymlinks: true, root: __dirname }))
 app.use(express.static('/app/public'))
 
 app.get('/auth', (req, res) => FC.authenticate(req, res));
