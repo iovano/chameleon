@@ -195,7 +195,6 @@ class Gallery {
         }
         if (!this.suspended) {
             this.transitionFrame ++;
-            console.log(this.transitionFrame);
         }
         this.updateClipPathTransition();
         if (this.idleTime === (this.infoBoxDuration)) {
@@ -278,6 +277,7 @@ class Gallery {
     }
     /* internal event listeners */
     _onKeyUp(event) {
+        console.log(event.key);
         if (event.key === ' ' && (this.idleTime < this.infoBoxDuration)) {
             /* space key can be used to toggle idle mode */
             this.idleTime = this.infoBoxDuration - 1;
