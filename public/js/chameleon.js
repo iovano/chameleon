@@ -1,5 +1,6 @@
 import DotGain from './modules/DotGain.js';
-import Pipe from './modules/Pipe.js';
+import Fader from './modules/Fader.js';
+import Roam from './modules/Roam.js';
 import Gallery from './modules/Gallery.js'
 
 
@@ -10,10 +11,12 @@ let gallery;
     if (gallery) {
       gallery.destroy();
     }    
-    if (theme == 'Gallery') {
+    if (theme == 'Fader') {
+      gallery = new Fader(canvas);
+    } else if (theme === 'Roam') {
+      gallery = new Roam(canvas);
+    } else if (theme === 'Gallery') {
       gallery = new Gallery(canvas);
-    } else if (theme === 'Pipe') {
-      gallery = new Pipe(canvas);
     } else {
       gallery = new DotGain(canvas);
     }
@@ -42,14 +45,16 @@ let gallery;
  
     gallery.loadData('./data/albums.json').then(data => {
       gallery.setImages(data);
-      gallery.init();
+      gallery.init(params);
       gallery.run();
-  }).catch(error => {
+  /*
+    }).catch(error => {
     gallery.loadData('./data/example.json').then(data => {
       gallery.setImages(data);
-      gallery.init();
+      gallery.init(params);
       gallery.run();
   })
+      */
 
   });
     
