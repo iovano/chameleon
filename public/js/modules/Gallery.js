@@ -46,13 +46,14 @@ class Gallery {
     currentAlbumNum = 0;
 
     /* canvas elements */
+    target = undefined;
+    canvasContainer = undefined;
     canvas = undefined;
     mask = undefined;
-    canvasContainer = undefined;
     imageInfoBox = undefined;
     filmStrip = undefined;
 
-    constructor(canvas, images = undefined, width = undefined, height = undefined) {
+    constructor(targetObject, images = undefined, width = undefined, height = undefined) {
         if (images) {
             this.setImages(images);
         }
@@ -62,12 +63,49 @@ class Gallery {
         if (height !== undefined) {
             this.height = height;
         }
-        this.canvas = canvas;
+        this.target = targetObject;
+        this.addEventListeners();
     }
     destroy() {
-        this.canvas.removeChild(this.canvasContainer);
-        this.canvas = undefined;
+        this.target.removeChild(this.canvasContainer);
+        this.removeEventListeners();
+        this.target = undefined;
         this.run = undefined;
+    }
+    requestFullscreen(clickableElement, fullscreenTarget) {
+        //fullscreenTarget = document.getElementById('gallery');
+        clickableElement.addEventListener('click', function() {
+          let result;
+          if (!document.fullscreenElement) {
+                if (fullscreenTarget.requestFullscreen) {
+                    result = fullscreenTarget.requestFullscreen(fullscreenTarget);
+                } else if (fullscreenTarget.mozRequestFullScreen) { // Firefox
+                    result = fullscreenTarget.mozRequestFullScreen(fullscreenTarget);
+                } else if (fullscreenTarget.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    result = fullscreenTarget.webkitRequestFullscreen(fullscreenTarget);
+                } else if (fullscreenTarget.msRequestFullscreen) { // IE/Edge
+                    result = fullscreenTarget.msRequestFullscreen(fullscreenTarget);
+                }
+            } else {
+                document.exitFullscreen();
+            }
+        });
+        addEventListener("fullscreenchange", (event) => {this.dispatchEvent('FullscreenChange', event)});
+    }
+    
+    isFullscreen() {
+        return (window.fullScreen) || (window.innerWidth == screen.width && window.innerHeight == screen.height);
+    }
+    removeEventListeners() {
+        document.removeEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
+        document.removeEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
+        document.removeEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
+    }
+
+    addEventListeners() {
+        document.addEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
+        document.addEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
+        document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
         if (this.isPaused()) {
@@ -90,13 +128,16 @@ class Gallery {
             this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
             this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
         }
-        const url = new URL(window.location);
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
-        url.searchParams.set('album', albumName);
-        url.searchParams.set('image', imageName);
-        history.pushState({}, "", url);
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
+        if (!this.isFullscreen()) {
+            /* prevent Fullscreen mode to exit when changing window location */
+            const url = new URL(window.location);
+            url.searchParams.set('album', albumName);
+            url.searchParams.set('image', imageName);
+            history.pushState({}, "", url);    
+        }
 
         this.imageInfoBox.classList.add('hide');
         if (this.transitionFrame === undefined) {
@@ -180,19 +221,21 @@ class Gallery {
     setMetaData(metaData) {
         this.meta = {...this.meta, ...metaData};
     }
+    resize() {
+        this.width = this.target.clientWidth || this.target.width || document.clientWidth || 800;
+        this.height = this.target.clientHeight || this.target.height || document.clientHeight || 600;
+        this.canvas?.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
+        console.debug("canvas size: " + (this.width + "x" + this.height) + " fullscreen: "+this.isFullscreen());
+        this.dispatchEvent('Resize', this.width, this.height);
+    }
     init(params = undefined, resize = true) {
         if (resize === true || !this.width && !this.height) {
-            this.width = this.canvas.clientWidth || this.canvas.width || document.clientWidth || 800;
-            this.height = this.canvas.clientHeight || this.canvas.height || document.clientHeight || 600;
+            this.resize();
         }
-        console.debug("canvas size: " + (this.width + "x" + this.height));
         if (this.canvasContainer) {
             /* remove existing canvasContainer first */
-            this.canvas.removeChild(this.canvasContainer);
+            this.target.removeChild(this.canvasContainer);
         }
-        document.addEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
-        document.addEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
-        document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
         this.createCanvas();
         this.navigate(params || this.currentImageNum);
     }
@@ -310,6 +353,12 @@ class Gallery {
         }
         return value;
     }
+    _onFullscreenChange(event) {
+        if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+            /* does not work. TODO: figure out what causes fullscreen mode to exit in the first place */
+            event.preventDefault();
+        }
+    }
     /* internal event listeners */
     _onKeyUp(event) {
         if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration)) {
@@ -368,10 +417,10 @@ class Gallery {
         this.userIdleTime = 0;
     }
     _onImageLoad(event, image) {
-        if (this.canvas instanceof HTMLCanvasElement) {
-            const ctx = this.canvas.getContext("2d");
+        if (this.target instanceof HTMLCanvasElement) {
+            const ctx = this.target.getContext("2d");
             ctx.drawImage(event.target, 0, 0);
-        } else if (this.canvas instanceof HTMLElement) {
+        } else if (this.target instanceof HTMLElement) {
             event.target.setAttributeNS(null, "x", (this.width - event.target.getBBox().width) * this.alignImages.x);
             event.target.setAttributeNS(null, "y", (this.height - event.target.getBBox().height) * this.alignImages.y);
 
@@ -412,7 +461,7 @@ class Gallery {
     createCanvas() {
         let w = this.width;
         let h = this.height;
-        let context = this.canvas;
+        let context = this.target;
         let clipPath = null;
 
         /* create svg object which contains dotGain - mask */
@@ -460,17 +509,21 @@ class Gallery {
         this.canvasContainer.style.width = "100%";/* this.width+"px" */
         this.canvasContainer.style.height = "100%";/* this.height+"px" */
 
-        /* create and append infoBox Overlay */
-        let infobox = document.createElement("div");
-        infobox.classList.add('infoBox', 'hide');
-        div.appendChild(infobox);
-        infobox.onclick = (event) => {infobox.classList.toggle('minified')};
-        this.imageInfoBox = infobox;
+        if (!this.imageInfoBox) {
+            /* create and append infoBox Overlay */
+            let infobox = document.createElement("div");
+            infobox.classList.add('infoBox', 'hide');
+            infobox.onclick = (event) => {infobox.classList.toggle('minified')};
+            this.imageInfoBox = infobox;
+        }
+        div.appendChild(this.imageInfoBox);
 
-        /* create and append film strip */
-        this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
-        this.filmStrip.classList.add('filmStrip', 'hide');
-        this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
+        if (!this.filmstrip) {
+            /* create and append film strip */
+            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
+            this.filmStrip.classList.add('filmStrip', 'hide');
+            this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
+        }
         div.appendChild(this.filmStrip);
 
         /* add svg to container/canvas */
@@ -479,6 +532,7 @@ class Gallery {
         } else {
             div.appendChild(svg);
         }
+        this.canvas = svg;
         this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
     }
 

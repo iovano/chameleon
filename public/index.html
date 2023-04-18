@@ -10,11 +10,11 @@
   <link href="css/gallery.css" type="text/css" rel="stylesheet" />
 </head>
 
-<body class="darkness">
+<body class="darkness" id="fullscreenRoot">
   <div class="curtain">
     <div class="welcome">
       <p>Diese Seite ist für die Darstellung im <strong>Querformat</strong> optimiert.</p>
-      <p></p>Es wird der <strong>Fullscreen</strong>-Modus des Bildschirms empfohlen.</div>
+      <p></p>Es wird der <span class="requestFullscreen">Fullscreen</span>-Modus des Bildschirms empfohlen.</div>
     </div>
   </div>
 <header>
@@ -22,10 +22,13 @@
     <div class="buttons">
       <button class="topic" data-topic="standard">Standard</button>
       <button class="topic" data-topic="dotgain">Dot Gain</button>
+      <button class="requestFullscreen">fullscreen</button>
     </div>
   </header>
+  
   <div id="gallery">
   </div>
+
   <div class="controls">
     <div class="button left navi" data-target="-1">
       <div class="more icon"></div>

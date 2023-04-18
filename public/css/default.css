@@ -126,6 +126,12 @@ div.curtain {
 .controls div.hide {
     opacity: 0;
 }
+div.disabled {
+    z-index: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
 div.curtain.hide {
     opacity: 0;
     transition: opacity 2s;

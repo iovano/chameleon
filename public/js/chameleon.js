@@ -1,8 +1,10 @@
 import DotGain from './modules/DotGain.js';
 import Gallery from './modules/Gallery.js'
 
+
 let gallery;
   function start(theme) {
+
     const canvas = document.getElementById("gallery");
     if (gallery) {
       gallery.destroy();
@@ -12,6 +14,9 @@ let gallery;
     } else {
       gallery = new DotGain(canvas);
     }
+    document.querySelectorAll('.requestFullscreen').forEach(
+      (el) => {gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));}
+    );
     //gallery.setPaused(true);
   
     document.querySelectorAll('button.topic').forEach((button) => {
@@ -34,12 +39,12 @@ let gallery;
  
     gallery.loadData('./data/albums.json').then(data => {
       gallery.setImages(data);
-      onResize();
+      gallery.init();
       gallery.run();
   }).catch(error => {
     gallery.loadData('./data/example.json').then(data => {
       gallery.setImages(data);
-      onResize();
+      gallery.init();
       gallery.run();
   })
 
@@ -91,6 +96,7 @@ let gallery;
         document.querySelector('div.curtain').classList.add('hide');
         setTimeout(
           () => {
+            document.querySelector('div.curtain').classList.add('disabled');
             document.body.removeChild(document.querySelector('div.curtain'));
           }, 2000
         );
@@ -104,8 +110,10 @@ let gallery;
         document.body.style.webkitTransform =  scale;
         document.body.style.msTransform =   scale;
         document.body.style.transform = scale;
-        gallery.init(params);
-        window.scrollTo(0,0);
+        gallery.resize();
+        if (!gallery.isFullscreen()) {
+          window.scrollTo(0,0);
+        }
     }
   }
   function updatePauseButtons(paused) {
