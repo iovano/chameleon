@@ -1,4 +1,5 @@
 import DotGain from './modules/DotGain.js';
+import Pipe from './modules/Pipe.js';
 import Gallery from './modules/Gallery.js'
 
 
@@ -9,8 +10,10 @@ let gallery;
     if (gallery) {
       gallery.destroy();
     }    
-    if (theme == 'standard') {
+    if (theme == 'Gallery') {
       gallery = new Gallery(canvas);
+    } else if (theme === 'Pipe') {
+      gallery = new Pipe(canvas);
     } else {
       gallery = new DotGain(canvas);
     }
@@ -71,12 +74,9 @@ let gallery;
 
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
-      if (idleTime == Math.floor(gallery.infoBoxDuration / 2)) {
+      if (idleTime == 60) {
         document.querySelector('header').classList.add('hide');
         document.querySelectorAll('.controls').forEach((element) => {element?.classList.add('hide');})
-      } else if (idleTime == gallery.infoBoxDuration) {
-        document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.add('hide');
-        document.body.classList.add('noCursor');  
       }
     }
     gallery.onPauseStart = () => {
@@ -87,9 +87,7 @@ let gallery;
     }
     gallery.onIdleEnd = (idleTime) => {
       document.querySelector('header')?.classList.remove('hide');
-      document.querySelector('#gallery .canvasContainer .filmStrip')?.classList.remove('hide');
       document.querySelectorAll('.controls').forEach((element) => {element?.classList.remove('hide');})
-      document.body.classList.remove('noCursor');
     }
     gallery.onNavigation = function (payload) {
       if (document.querySelector('div.curtain')) {

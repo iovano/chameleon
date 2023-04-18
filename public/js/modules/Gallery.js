@@ -9,9 +9,11 @@ class Gallery {
 
     meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
 
+    /* USER SETTINGS */
     breakTimeDuration = 200; /* slideshow duration in frames */
     userIdleTimeDuration = 150; /* slideshow will not continue before user idle Time exceeds this threshold */
     transitionDuration = 20;
+    showCursorDuration = 200; /* hide the mouse cursor after x frames */
     width = undefined;
     height = undefined;
     lazyLoad = false;
@@ -20,8 +22,6 @@ class Gallery {
     fps = 20;
     pauseMode = "smooth";
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
-    infoBoxInertia = 1500; /* infobox inertia in milliseconds */
-    infoBoxDuration = 75; /* infobox duration in frames */
     changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
 
     /* transition variables */
@@ -52,6 +52,13 @@ class Gallery {
     mask = undefined;
     imageInfoBox = undefined;
     filmStrip = undefined;
+
+    /* overlays */
+    overlays = {
+        imageInfoBox: {autostart: 50, duration: 100, idleEnd: true, idleMax: 100, pauseHide: true},
+        filmStrip: {autostart: false, idleEnd: true, idleMax: 100, pauseHide: true}
+    };
+
 
     constructor(targetObject, images = undefined, width = undefined, height = undefined) {
         if (images) {
@@ -237,7 +244,20 @@ class Gallery {
             this.target.removeChild(this.canvasContainer);
         }
         this.createCanvas();
+        this.createFilmStrip();
+        this.createInfoBox();
         this.navigate(params || this.currentImageNum);
+    }
+    updateOverlays() {
+        for(let key of Object.keys(this.overlays)) {
+            let os = this.overlays[key];
+            if (!this.transitionFrame && (os.autostart > 0 && this.breakTimeFrame === os.autostart) || (os.idleEnd === true && this.userIdleTime === 0)) {
+                console.log(key,os.autostart,this.breakTimeFrame,this.userIdleTime);
+                this[key].classList.remove('hide');
+            } else if (os.idleMax === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration)) {
+                this[key].classList.add('hide');
+            }
+        }
     }
     update() {
         this.userIdleTime++;
@@ -252,12 +272,10 @@ class Gallery {
             }
             this.updateClipPathTransition();    
         }
-        if (this.userIdleTime === (this.infoBoxDuration)) {
-            this.imageInfoBox.classList.add('hide');
-        }
         if (this.breakTimeFrame > this.breakTimeDuration && this.userIdleTime > this.userIdleTimeDuration && !this.suspended) {
             this.navigate("+1");
         }
+
     }
     updateClipPathTransition() {
         if (this.suspended && this.transitionFrame !== 0) {
@@ -279,7 +297,11 @@ class Gallery {
             this.paused ++;
             this.dispatchEvent('Paused', this.paused);
         }
+        this.updateOverlays();
         this.update();
+        if (this.userIdleTime === this.showCursorDuration) {
+            document.body.style.cursor = 'none';
+        }
         this.totalFrames ++;
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
         setTimeout(() => this.run(), 1000 / this.fps);    
@@ -388,16 +410,18 @@ class Gallery {
         this.paused = 0;
     }
     _onPauseStart() {
-        this.imageInfoBox?.classList.add('hide');
-        this.filmStrip?.classList.add('hide');
         this.paused = 1;
+        if (this.overlays.imageInfoBox.pauseHide) {
+            this.imageInfoBox?.classList.add('hide');
+        }
+        if (this.overlays.filmStrip.pauseHide) {
+            this.filmStrip?.classList.add('hide');
+        }
+
     }
     _onIdleEnd() {
-        if (!this.afterTransition && this.breakTimeFrame / this.fps > this.infoBoxInertia / 1000) {
-            //this.showImageInfo();
-            this.imageInfoBox.classList.remove('hide');
-        }    
         this.userIdleTime = 0;
+        document.body.style.cursor = 'auto';
     }
     _onMouseMove() {
         this.dispatchEvent('IdleEnd', this.userIdleTime );
@@ -413,8 +437,6 @@ class Gallery {
             this.afterTransition();
             this.afterTransition = undefined;
         }
-        setTimeout(() => this.showImageInfo(), this.infoBoxInertia || 2000);
-        this.userIdleTime = 0;
     }
     _onImageLoad(event, image) {
         if (this.target instanceof HTMLCanvasElement) {
@@ -433,6 +455,7 @@ class Gallery {
                 this.suspended = false;
                 this.transitionFrame = 0;
                 this.updateClipPathTransition();
+                this.showImageInfo();
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
                 let img = this.getCurrentImage();
@@ -509,23 +532,6 @@ class Gallery {
         this.canvasContainer.style.width = "100%";/* this.width+"px" */
         this.canvasContainer.style.height = "100%";/* this.height+"px" */
 
-        if (!this.imageInfoBox) {
-            /* create and append infoBox Overlay */
-            let infobox = document.createElement("div");
-            infobox.classList.add('infoBox', 'hide');
-            infobox.onclick = (event) => {infobox.classList.toggle('minified')};
-            this.imageInfoBox = infobox;
-        }
-        div.appendChild(this.imageInfoBox);
-
-        if (!this.filmstrip) {
-            /* create and append film strip */
-            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
-            this.filmStrip.classList.add('filmStrip', 'hide');
-            this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
-        }
-        div.appendChild(this.filmStrip);
-
         /* add svg to container/canvas */
         if (context instanceof HTMLCanvasElement) {
             context.getContext("2d").drawImage(svg, 0, 0);
@@ -535,13 +541,33 @@ class Gallery {
         this.canvas = svg;
         this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
     }
+    createFilmStrip() {
+        if (!this.filmstrip) {
+            /* create and append film strip */
+            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
+            this.filmStrip.classList.add('filmStrip', 'hide');
+            this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
+        }
+        this.canvasContainer.appendChild(this.filmStrip);
+    }
+    createInfoBox() {
+        if (!this.imageInfoBox) {
+            /* create and append infoBox Overlay */
+            let infobox = document.createElement("div");
+            infobox.classList.add('infoBox', 'hide');
+            infobox.onclick = (event) => {infobox.classList.toggle('minified')};
+            this.imageInfoBox = infobox;
+        }
+        this.canvasContainer.appendChild(this.imageInfoBox);
 
-    showImageInfo() {
+    }
+
+    showImageInfo(forceShow = false) {
         if (this.afterTransition) {
             return;
         }
         let el = this.imageInfoBox;
-        el.classList.remove('hide');
+        if (forceShow) el.classList.remove('hide');
         let list = this.getCurrentImage();
         if (typeof list === 'string' || list instanceof String || Object.keys(list).length === 0) {
             let div = document.createElement('div');

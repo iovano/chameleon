@@ -10,9 +10,6 @@ body {
     color: #fff;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
-body.noCursor {
-    cursor: none;
-}
 
 canvas {
     border: none;
