@@ -252,7 +252,6 @@ class Gallery {
         for(let key of Object.keys(this.overlays)) {
             let os = this.overlays[key];
             if (!this.transitionFrame && (os.autostart > 0 && this.breakTimeFrame === os.autostart) || (os.idleEnd === true && this.userIdleTime === 0)) {
-                console.log(key,os.autostart,this.breakTimeFrame,this.userIdleTime);
                 this[key].classList.remove('hide');
             } else if (os.idleMax === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration)) {
                 this[key].classList.add('hide');
