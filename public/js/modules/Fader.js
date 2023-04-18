@@ -6,6 +6,8 @@ export default class Fader extends Gallery {
     objectFit = 'cover';
     img = [];
     imageContainer;
+    imgStyle = {marginLeft: 'auto', marginRight: 'auto', objectFit: this.objectFit, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0};
+    imgLayerStyle = {opacity: 0,zIndex: this.img.length+1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'};
     updateClipPathTransition() {
         if (this.transitionFrame > this.transitionDuration) {
             this.dispatchEvent("TransitionEnd");
