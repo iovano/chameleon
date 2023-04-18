@@ -11,6 +11,14 @@ class DotGain extends Gallery {
         super._onTransitionEnd();
 //        this.clipPathTransitionSpeed = Math.floor(20 / (this.currentFPS / 5 + 1)); 
     }
+    _onResize() {
+        if (this.canvas) {
+            console.log("updating clipMask");
+            let oldClipPath = this.clipPath;
+            this.createClipPath();
+            this.canvas.replaceChild(oldClipPath, this.clipPath);    
+        }
+    }
     updateClipPathTransition() {
         let parameters = {
             frame: this.transitionFrame -1, 
