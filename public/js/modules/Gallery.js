@@ -37,10 +37,10 @@ class Gallery {
     keysPressed = []
     paused = false; /* user pause state */
     userIdleTime = 0;
+    firstRun = true;
 
     /* gallery image storage */
     images = [];
-    loadedImages = [];
     previousImage = undefined;
     currentImageNum = 0;
     currentAlbumNum = 0;
@@ -139,7 +139,7 @@ class Gallery {
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
         if (!this.isFullscreen()) {
-            /* prevent Fullscreen mode to exit when changing window location */
+            /* window location change does not have any effect in fullscreen mode */
             const url = new URL(window.location);
             url.searchParams.set('album', albumName);
             url.searchParams.set('image', imageName);
@@ -147,20 +147,28 @@ class Gallery {
         }
 
         this.imageInfoBox.classList.add('hide');
+        if (this.firstRun) {
+            /* first image -- jump to the end of a transition */
+            this.transitionFrame = undefined;
+            this.firstRun = false;
+            this.suspended = true;
+        } 
         if (this.transitionFrame === undefined) {
             this.startTransition();
         } else {
             this.afterTransition = this.startTransition;
-        }
+        }    
+        
         this.filmStrip.select(this.currentImageNum);
+        this.dispatchEvent("Navigation", { target: this.currentImageNum });
     }
     startTransition() {
-        this.dispatchEvent("Navigation", { target: this.currentIamgeNum });
         this.suspended = true;
-        this.transitionFrame = 0;
+        this.transitionFrame = undefined;
         this.breakTimeFrame = 0;
         this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
         this.updateClipPathTransition();
+        this.dispatchEvent("TransitionStart");
         this.showImage();
     }
     getCurrentImage() {
@@ -251,7 +259,7 @@ class Gallery {
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
             let os = this.overlays[key];
-            if (!this.transitionFrame && (os.autostart > 0 && this.breakTimeFrame === os.autostart) || (os.idleEnd === true && this.userIdleTime === 0)) {
+            if (!this.transitionFrame && (os.autostart > 0 && this.breakTimeFrame === os.autostart) || (os.idleEnd === true && this.userIdleTime === 0) && !this.suspended) {
                 this[key].classList.remove('hide');
             } else if (os.idleMax === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration)) {
                 this[key].classList.add('hide');
@@ -259,6 +267,8 @@ class Gallery {
         }
     }
     update() {
+        //console.log(this.transitionFrame, this.breakTimeFrame, this.userIdleTime);
+
         this.userIdleTime++;
         if (this.userIdleTime > this.fps) {
             this.dispatchEvent('Idle', this.userIdleTime);
@@ -266,7 +276,8 @@ class Gallery {
         if (!this.isPaused()) {
             if (this.transitionFrame !== undefined) {
                 this.transitionFrame ++;
-            } else {
+                this.breakTimeFrame = 0;
+            } else if (!this.suspended) {
                 this.breakTimeFrame ++;
             }
             this.updateClipPathTransition();    
@@ -312,7 +323,7 @@ class Gallery {
             if (a === undefined) continue;
             let photos = this.images[album].photos || this.images[album].images;
             for (let i = 0; i < photos.length; i++) {
-                if (photos[i].title === imageName || photos[i].name === imageName) {
+                if (photos[i].title == imageName || photos[i].name == imageName) {
                     return {album: album, image: i};
                 }
             }
@@ -429,6 +440,7 @@ class Gallery {
     _onTransitionEnd() {
         this.transitionFrame = undefined;
         this.breakTimeFrame = 0;
+        this.suspended = false;
         if (this.paused) {
             this.setPaused(true);
         }
@@ -464,6 +476,12 @@ class Gallery {
                 }
                 this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
             }
+        }
+    }
+    set(element, props) {
+        for (let a of Object.keys(props)) {
+            let value = props[a];
+            element[a] = value;
         }
     }
     showImage() {
@@ -562,7 +580,7 @@ class Gallery {
     }
 
     showImageInfo(forceShow = false) {
-        if (this.afterTransition) {
+        if (this.afterTransition && !forceShow) {
             return;
         }
         let el = this.imageInfoBox;
