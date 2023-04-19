@@ -184,6 +184,14 @@ canvas {
         min-width: 95%;   
         max-width: 95%;
     }
+    .infoBox tags-ul.imageExif > li div.label {
+        width: 2em;
+        height: 2em;
+    }
+    #gallery .infoBox li.tags div.value span {
+        font-size: 0.6em;
+    }
+
 }
 @media (max-height: 600px) {
     .canvasContainer .infoBox {
