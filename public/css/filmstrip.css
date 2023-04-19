@@ -8,10 +8,10 @@
     opacity: 1;
     transition: opacity 1s;
     color: rgba(155,155,155,0.5);
-    padding: 0.25em;
+    padding: 0.5em;
     border-radius: 0.25em;
     background: rgba(0,0,0,0.75);
-    max-width: 40em;
+    max-width: 34.70em;
 }
 #gallery .canvasContainer .filmStrip ul {
     transition: scroll 1s;
@@ -77,4 +77,15 @@
 ::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.75) !important;
     transition: 1s;
+}
+@media(max-width: 800px) {
+    #gallery .canvasContainer .filmStrip {
+        max-width: 100%;
+    }
+}
+
+@media(max-height: 500px) {
+    #gallery .canvasContainer .filmStrip {
+        top: 0em;
+    }
 }
