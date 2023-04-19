@@ -594,22 +594,21 @@ class Gallery {
         } else {
             list = { ...this.getCurrentImage() };
             delete list?.src;
-            let infoList = {
-                title: list.title, 
-                description: list.description, 
-                location: list.location, 
-                tags: list.tags, 
-                date: list.dates?.taken, 
-                posted: list.dates?.posted,
+            let gearUL, exifUL;
+            if (list.camera) {
+                let gearList = {
+                    camera: list.camera,
+                    lens: list.exif?.LensModel || list?.Lens
+                }    
+                gearUL = new TagsUL(gearList);
+                gearUL.classList.add('imageExif');  
             }
             if (list.exif) {
                 let exifList = {
                     exposure: list.exif?.ExposureTime,
-                    aperture: list.exif?.FNumberm,
-                    camera: list.camera,
+                    aperture: list.exif?.FNumber,
                     focus: list.exif?.FocalLength,
-                    iso: list.exif?.ISO,
-                    lens: list.exif?.LensModel || list?.Lens
+                    iso: list.exif?.ISO
                 }
                 if (list.exif?.Flash) {
                     if (list.exif?.Flash.substring(0,2).toLowerCase() === 'on') {
@@ -618,10 +617,21 @@ class Gallery {
                         exifList.noflash = 'off';
                     }
                 }
-                let exifUL = new TagsUL(exifList);
+                exifUL = new TagsUL(exifList);
                 exifUL.classList.add('imageExif');
-                infoList.exif = exifUL;
             }
+
+            let infoList = {
+                title: list.title, 
+                description: list.description, 
+                location: list.location, 
+                tags: list.tags, 
+                date: list.dates?.taken, 
+                posted: list.dates?.posted,
+                gear: gearUL,
+                exif: exifUL
+            }
+            
             let infoUL = new TagsUL(infoList);
             infoUL.classList.add('imageInfo');
             el.replaceChildren(infoUL);
