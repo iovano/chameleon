@@ -72,12 +72,12 @@ canvas {
     cursor: pointer;
     position: relative;
 }
-#gallery .infoBox tags-ul {
+#gallery .infoBox tags-ul.imageInfo {
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
-    padding: 0;
-    width: 35.7em;
+    padding: 1em;
+    width: 34.7em;
 }
 #gallery .infoBox tags-ul > li {
     display: flex;
@@ -86,16 +86,15 @@ canvas {
 }
 #gallery .infoBox .imageInfo .description div.value {
     text-align: justify;
+    padding-left: 0.5em;
 }
-#gallery .infoBox:not(.minified) .imageInfo .title {
-    margin-bottom: 0.5em;
+#gallery .infoBox:not(.minified) .imageInfo .title div.value {
+    margin-left: 0.5em;
 }
-#gallery .infoBox .imageInfo .exif {
-    margin: 0.5em 0 0 0;
+#gallery .infoBox .imageInfo li {
+    margin: 0 0 0.25em 0;
 }
 #gallery .infoBox h1,h2,h3, .imageInfo .title div.value span {
-    margin: 0;
-    padding: 0;
     color: rgba(255,255,255,0.8);
 }
 .infoBox .imageInfo .title div.value span {
@@ -107,7 +106,8 @@ canvas {
 }
 
 #gallery .infoBox div.label {
-    min-width: 2.5em;
+    min-width: 3em;
+    max-width: 3em;
     text-align: right;
     vertical-align: center;
     padding-right: 0.5em;
@@ -118,9 +118,9 @@ canvas {
 } 
 
 #gallery .infoBox li.tags div.value span {
-    color: rgba(75,75,75,0.8);
+    color: rgba(255,255,255,0.4);
     display: inline-block;
-    background-color: rgba(25,25,25,0.8);
+    background-color: rgba(0,0,0,0.8);
     font-size: 0.8em;
     border-radius: 0.2em;
     padding: 0 0.6em 0.1em 0.6em;
@@ -153,6 +153,7 @@ canvas {
 }
 .infoBox tags-ul.imageExif {
     display: flex;
+    justify-content: space-between;
     font-size: 0.75em;    
 }
 .infoBox tags-ul.imageExif > li div.label span {
