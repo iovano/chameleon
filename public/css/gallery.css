@@ -91,6 +91,10 @@ canvas {
 #gallery .infoBox:not(.minified) .imageInfo .title div.value {
     margin-left: 0.5em;
 }
+#gallery .infoBox:not(.minified) .imageInfo li.title {
+    margin-bottom: 0.5em;
+
+}
 #gallery .infoBox .imageInfo li {
     margin: 0 0 0.25em 0;
 }
