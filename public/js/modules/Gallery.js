@@ -606,6 +606,7 @@ class Gallery {
                 let exifList = {
                     exposure: list.exif?.ExposureTime,
                     aperture: list.exif?.FNumberm,
+                    camera: list.camera,
                     focus: list.exif?.FocalLength,
                     iso: list.exif?.ISO,
                     lens: list.exif?.LensModel || list?.Lens
