@@ -148,8 +148,6 @@ canvas {
     margin-top: auto;
     margin-bottom: auto;
 }
-.infoBox tags-ul.imageExif > li div.value {
-}
 .infoBox tags-ul.imageExif {
     display: flex;
     font-size: 0.75em;    
@@ -183,6 +181,10 @@ canvas {
     #gallery .infoBox tags-ul {
         min-width: 95%;   
         max-width: 95%;
+    }
+    .infoBox tags-ul.imageExif {
+        flex-wrap: wrap;
+        font-size: 0.6em;    
     }
     .infoBox tags-ul.imageExif > li div.label {
         width: 2em;
