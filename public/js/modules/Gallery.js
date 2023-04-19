@@ -270,7 +270,7 @@ class Gallery {
         //console.log(this.transitionFrame, this.breakTimeFrame, this.userIdleTime);
 
         this.userIdleTime++;
-        if (this.userIdleTime > this.fps) {
+        if (this.userIdleTime % 20 === 0) {
             this.dispatchEvent('Idle', this.userIdleTime);
         }
         if (!this.isPaused()) {
@@ -594,23 +594,36 @@ class Gallery {
         } else {
             list = { ...this.getCurrentImage() };
             delete list?.src;
-            list = {
+            let infoList = {
                 title: list.title, 
                 description: list.description, 
                 location: list.location, 
                 tags: list.tags, 
                 date: list.dates?.taken, 
                 posted: list.dates?.posted,
-                exp: list.exif?.ExposureTime,
-                aperture: list.exif?.FNumberm,
-                focal: list.exif?.FocalLength,
-                ISO: list.exif?.ISO,
-                flash: list.exif?.Flash,
-                lens: list.exif?.LensModel || list?.Lens
             }
-            let ul = new TagsUL(list);
-            ul.classList.add('imageInfo');
-            el.replaceChildren(ul);
+            if (list.exif) {
+                let exifList = {
+                    exposure: list.exif?.ExposureTime,
+                    aperture: list.exif?.FNumberm,
+                    focus: list.exif?.FocalLength,
+                    iso: list.exif?.ISO,
+                    lens: list.exif?.LensModel || list?.Lens
+                }
+                if (list.exif?.Flash) {
+                    if (list.exif?.Flash.substring(0,2).toLowerCase() === 'on') {
+                        exifList.flash = 'on';
+                    } else {
+                        exifList.noflash = 'off';
+                    }
+                }
+                let exifUL = new TagsUL(exifList);
+                exifUL.classList.add('imageExif');
+                infoList.exif = exifUL;
+            }
+            let infoUL = new TagsUL(infoList);
+            infoUL.classList.add('imageInfo');
+            el.replaceChildren(infoUL);
         }
     }
 
