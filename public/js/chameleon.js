@@ -72,9 +72,7 @@ let gallery;
     // etc.
 
     /* set event listeners */
-    addEventListener('resize', onResize);
 
-    window.addEventListener("orientationchange", onResize);
     //screen.orientation.addEventListener("change", onResize); /* TODO: CHECK WHY RESIZE DOES NOT WORK ON iOS */
 
     gallery.direction = "random";
@@ -108,12 +106,11 @@ let gallery;
       gallery.currentDirection = {'-1': 90, '+1': 270}[payload.target] || gallery.currentDirection;
     }
 
-    function onResize(event = null) {
+    gallery.onResize = function() {
         var scale = 'scale(1)';
         document.body.style.webkitTransform =  scale;
         document.body.style.msTransform =   scale;
         document.body.style.transform = scale;
-        gallery.resize();
         if (!gallery.isFullscreen()) {
           window.scrollTo(0,0);
         }
