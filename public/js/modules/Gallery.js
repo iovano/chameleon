@@ -72,6 +72,7 @@ class Gallery {
         }
         this.target = targetObject;
         this.addEventListeners();
+        this.dispatchEvent('Resize');
     }
     destroy() {
         this.target.removeChild(this.canvasContainer);
@@ -107,12 +108,17 @@ class Gallery {
         document.removeEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
         document.removeEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
         document.removeEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
+        window.removeEventListener('resize', (event) => this.dispatchEvent('Resize', event));
+        window.removeEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
     }
 
     addEventListeners() {
         document.addEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
         document.addEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
         document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
+        window.addEventListener('resize', (event) => this.dispatchEvent('Resize', event));
+        window.addEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
+    
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
         if (this.isPaused()) {
@@ -236,16 +242,20 @@ class Gallery {
     setMetaData(metaData) {
         this.meta = {...this.meta, ...metaData};
     }
-    resize() {
+    _onResize(event) {
         this.width = this.target.clientWidth || this.target.width || document.clientWidth || 800;
         this.height = this.target.clientHeight || this.target.height || document.clientHeight || 600;
         this.canvas?.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
         console.debug("canvas size: " + (this.width + "x" + this.height) + " fullscreen: "+this.isFullscreen());
-        this.dispatchEvent('Resize', this.width, this.height);
+        let iSlot = this.getImageSlot(1);
+        if (iSlot) {
+            iSlot.background.setAttributeNS(null, 'width', this.width);
+            iSlot.background.setAttributeNS(null, 'height', this.height);    
+        }
     }
     init(params = undefined, resize = true) {
         if (resize === true || !this.width && !this.height) {
-            this.resize();
+            this.dispatchEvent('Resize');
         }
         if (this.canvasContainer) {
             /* remove existing canvasContainer first */
@@ -391,6 +401,9 @@ class Gallery {
             event.preventDefault();
         }
     }
+    _onScroll(event) {
+        this._onIdleEnd();
+    }
     /* internal event listeners */
     _onKeyUp(event) {
         if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration)) {
@@ -430,8 +443,10 @@ class Gallery {
 
     }
     _onIdleEnd() {
-        this.userIdleTime = 0;
-        document.body.style.cursor = 'auto';
+        if (this.userIdleTime > 0) {
+            this.userIdleTime = 0;
+            document.body.style.cursor = 'auto';    
+        }
     }
     _onMouseMove() {
         this.dispatchEvent('IdleEnd', this.userIdleTime );
@@ -462,7 +477,8 @@ class Gallery {
                 if (!this.debugMask && this.clipPath) {
                     document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
                 }
-                this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
+                let iSlot = this.getImageSlot(1);
+                iSlot.setAttributeNS(null, "visibility", "visible");
                 this.suspended = false;
                 this.transitionFrame = 0;
                 this.updateClipPathTransition();
@@ -526,6 +542,7 @@ class Gallery {
             background.setAttributeNS(null, 'width', this.width);
             background.setAttributeNS(null, 'height', this.height);
             background.setAttributeNS(null, 'fill', 'black');
+            image.background = background;
 
             /* append elements to svg canvas */
             imageGroup.appendChild(background);
@@ -622,7 +639,8 @@ class Gallery {
             }
 
             let infoList = {
-                title: list.title, 
+                title: list.title,
+                album: this.getAlbum().title,
                 description: list.description, 
                 location: list.location, 
                 tags: list.tags, 
