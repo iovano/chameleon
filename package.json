@@ -5,7 +5,14 @@
   "keywords": [
     "clipping",
     "path",
-    "mask"
+    "mask",
+    "image",
+    "gallery",
+    "transition",
+    "flickr",
+    "photo",
+    "exif",
+    "slideshow"
   ],
   "homepage": "https://iovano.de/chameleon/",
   "repository": {
