@@ -97,6 +97,23 @@
 
 @media(max-height: 500px) {
     #gallery .canvasContainer .filmStrip {
-        top: 0em;
+        top: 0em; 
     }
+    #gallery .canvasContainer .filmStrip ul li img {
+        transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
+        background-color: rgba(0,0,0,0.8);
+        padding: 0;
+        width: 30px;
+        height: 20px;
+    }
+    .filmStrip div.title {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        padding: 0.1em 0.25em 0.25em 0.25em;
+        display: inline-block;
+        font-size: 0.6em;
+    }
+    #gallery .canvasContainer .filmStrip {
+        text-align: center;
+    }    
 }

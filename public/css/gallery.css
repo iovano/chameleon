@@ -62,6 +62,7 @@ canvas {
 
     transition: background-color 1s, opacity 1s;
     color: rgba(155,155,155,0.8);
+    
 }
 #gallery .infoBox > .imageInfo, #gallery .infoBox .noInfo {
     padding: 1em;
@@ -207,8 +208,8 @@ canvas {
 
 @media (max-width: 600px) {
     #gallery .infoBox tags-ul {
-        min-width: 95%;   
-        max-width: 95%;
+        min-width: 100%;   
+        max-width: 100%;
     }
     .infoBox tags-ul.imageExif {
         flex-wrap: wrap;
@@ -227,7 +228,7 @@ canvas {
     }
     
 }
-@media (max-height: 600px) {
+@media (max-height: 650px) {
     .canvasContainer .infoBox {
         max-height: 30%;
         bottom: 0;
@@ -237,24 +238,42 @@ canvas {
     }
     
 }
-@media (max-height: 400px) {
+@media (max-height: 500px) {
     #gallery .infoBox .imageInfo :not(.title) > div, .infoBox div.label {
         display: none;
     }
+    
+    #gallery .infoBox > .imageInfo {
+        min-width: auto;   
+        max-width: auto;
+
+    }    
     #gallery .infoBox {
         max-height: 15%;
         height: auto;
     }
     #gallery .infoBox .imageInfo {
-        padding: 0.5em 0 !important;
+        padding: 0.5em 0.5em !important;
     }
     #gallery .infoBox .imageInfo li {
         margin-bottom: 0 !important;
         margin: 0 !important;
     }
+    #gallery .infoBox {
+        width: auto;
+    }
+    #gallery .infoBox tags-ul.imageInfo {
+        width: auto;
+    }
+    #gallery .infoBox .imageInfo li div.value {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
     #gallery .infoBox .imageInfo li.title > div {
+        white-space: nowrap;
         text-align: center;
-        width: 100%;
+        width: auto;
         margin: 0;
     }
     #gallery .infoBox .imageInfo li.title > div.value span {
