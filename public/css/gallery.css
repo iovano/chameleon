@@ -84,7 +84,7 @@ canvas {
     flex-direction: row;
     flex-wrap: nowrap;
 }
-#gallery .infoBox .imageInfo .description div.value {
+#gallery .infoBox .imageInfo li:not(.tags,.exif,.gear,.title) div.value {
     text-align: justify;
     padding: 0 1.5em 0 0.5em;
 }
@@ -105,9 +105,18 @@ canvas {
     font-size: 1.2em;
     font-weight: bolder;
 }
-.infoBox.minified .imageInfo :not(.title) > div, .infoBox.minified div.label {
+/* MINIFIED infoBox */
+#gallery .infoBox.minified .imageInfo :not(.title) > div, #gallery .infoBox.minified div.label {
     display: none;
 }
+#gallery .infoBox.minified .imageInfo li {
+    margin: 0;
+}
+#gallery .infoBox.minified .imageInfo li.title > div {
+    text-align: center;
+    width: 100%;
+}
+
 
 #gallery .infoBox div.label {
     min-width: 3em;
@@ -121,11 +130,15 @@ canvas {
     content: "\a";
 } 
 
+#gallery .infoBox .imageInfo li.tags div.value {
+    padding-left: 0.3em;
+
+}
 #gallery .infoBox li.tags div.value span {
     color: rgba(255,255,255,0.4);
     display: inline-block;
     background-color: rgba(0,0,0,0.8);
-    font-size: 0.8em;
+    font-size: 0.6em;
     border-radius: 0.2em;
     padding: 0 0.6em 0.1em 0.6em;
     margin: 0.1em 0.1em;
@@ -217,11 +230,35 @@ canvas {
 @media (max-height: 600px) {
     .canvasContainer .infoBox {
         max-height: 30%;
+        bottom: 0;
     }
+    #gallery .infoBox.minified .imageInfo li {
+        margin: 0 !important;
+    }
+    
 }
 @media (max-height: 400px) {
-    .infoBox .imageInfo :not(.title) > div, .infoBox div.label {
+    #gallery .infoBox .imageInfo :not(.title) > div, .infoBox div.label {
         display: none;
+    }
+    #gallery .infoBox {
+        max-height: 15%;
+        height: auto;
+    }
+    #gallery .infoBox .imageInfo {
+        padding: 0.5em 0 !important;
+    }
+    #gallery .infoBox .imageInfo li {
+        margin-bottom: 0 !important;
+        margin: 0 !important;
+    }
+    #gallery .infoBox .imageInfo li.title > div {
+        text-align: center;
+        width: 100%;
+        margin: 0;
+    }
+    #gallery .infoBox .imageInfo li.title > div.value span {
+        font-size: 1em;
     }
 }
 @media (hover: hover) {
