@@ -1,6 +1,6 @@
 import Gallery from "./Gallery.js";
 export default class Fader extends Gallery {
-    transitionDuration = 60;
+    transitionDuration = 2;
     clipPathTransitionSpeed = 4;
     fps = 60;
     objectFit = 'cover';
@@ -9,13 +9,13 @@ export default class Fader extends Gallery {
     imgStyle = {marginLeft: 'auto', marginRight: 'auto', objectFit: this.objectFit, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0};
     imgLayerStyle = {opacity: 0,zIndex: this.img.length+1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'};
     updateClipPathTransition() {
-        if (this.transitionFrame > this.transitionDuration) {
+        if (this.transitionFrame > this.transitionDuration * this.fps) {
             this.dispatchEvent("TransitionEnd");
         } else if (this.transitionFrame) {
             for (let i = 0; i < this.img.length; i++) {
                 let img = this.img[i];
                 if (img.style.opacity < 1) {
-                    img.style.opacity = parseFloat(img.style.opacity) + (1 / this.transitionDuration);
+                    img.style.opacity = parseFloat(img.style.opacity) + (1 / this.transitionDuration / this.fps);
                 }
                 img.style.zIndex = this.img.length - i;
             }
@@ -47,7 +47,6 @@ export default class Fader extends Gallery {
             this.imageContainer.removeChild(this.imageContainer.children[idx]);
             this.img.pop();
         }
-        this.showImageInfo(true);
     }
     createCanvas() {
         console.log("creating canvas");

@@ -10,10 +10,10 @@ class Gallery {
     meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
 
     /* USER SETTINGS */
-    breakTimeDuration = 200; /* slideshow duration in frames */
-    userIdleTimeDuration = 150; /* slideshow will not continue before user idle Time exceeds this threshold */
-    transitionDuration = 20;
-    showCursorDuration = 200; /* hide the mouse cursor after x frames */
+    breakTimeDuration = 10; /* slideshow duration in seconds */
+    userIdleTimeDuration = 7.5; /* slideshow will not continue before user idle Time exceeds this threshold */
+    transitionDuration = 2;
+    showCursorDuration = 10; /* hide the mouse cursor after x seconds */
     width = undefined;
     height = undefined;
     lazyLoad = false;
@@ -55,8 +55,8 @@ class Gallery {
 
     /* overlays */
     overlays = {
-        imageInfoBox: {autostart: 50, duration: 100, idleEnd: true, idleMax: 100, pauseHide: true},
-        filmStrip: {autostart: false, idleEnd: true, idleMax: 100, pauseHide: true}
+        imageInfoBox: {autostart: 2.5, duration: 5, idleEnd: true, idleMax: 5, pauseHide: true},
+        filmStrip: {autostart: false, idleEnd: true, idleMax: 5, pauseHide: true}
     };
 
 
@@ -152,7 +152,6 @@ class Gallery {
             history.pushState({}, "", url);    
         }
 
-        this.imageInfoBox.classList.add('hide');
         if (this.firstRun) {
             /* first image -- jump to the end of a transition */
             this.transitionFrame = undefined;
@@ -242,17 +241,7 @@ class Gallery {
     setMetaData(metaData) {
         this.meta = {...this.meta, ...metaData};
     }
-    _onResize(event) {
-        this.width = this.target.clientWidth || this.target.width || document.clientWidth || 800;
-        this.height = this.target.clientHeight || this.target.height || document.clientHeight || 600;
-        this.canvas?.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
-        console.debug("canvas size: " + (this.width + "x" + this.height) + " fullscreen: "+this.isFullscreen());
-        let iSlot = this.getImageSlot(1);
-        if (iSlot) {
-            iSlot.background.setAttributeNS(null, 'width', this.width);
-            iSlot.background.setAttributeNS(null, 'height', this.height);    
-        }
-    }
+
     init(params = undefined, resize = true) {
         if (resize === true || !this.width && !this.height) {
             this.dispatchEvent('Resize');
@@ -269,9 +258,9 @@ class Gallery {
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
             let os = this.overlays[key];
-            if (!this.transitionFrame && (os.autostart > 0 && this.breakTimeFrame === os.autostart) || (os.idleEnd === true && this.userIdleTime === 0) && !this.suspended) {
+            if (!this.transitionFrame  && !this.suspended && ((os.autostart > 0 && this.breakTimeFrame === os.autostart * this.fps) || (this.breakTimeFrame > 0 && os.idleEnd === true && this.userIdleTime === 0))) {
                 this[key].classList.remove('hide');
-            } else if (os.idleMax === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration)) {
+            } else if (os.idleMax * this.fps === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration * this.fps)) {
                 this[key].classList.add('hide');
             }
         }
@@ -292,7 +281,7 @@ class Gallery {
             }
             this.updateClipPathTransition();    
         }
-        if (this.breakTimeFrame > this.breakTimeDuration && this.userIdleTime > this.userIdleTimeDuration && !this.suspended) {
+        if (this.breakTimeFrame > this.breakTimeDuration * this.fps && this.userIdleTime > this.userIdleTimeDuration * this.fps && !this.suspended) {
             this.navigate("+1");
         }
 
@@ -300,7 +289,7 @@ class Gallery {
     updateClipPathTransition() {
         if (this.suspended && this.transitionFrame !== 0) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
-        } else if (this.transitionFrame !== undefined && this.transitionFrame <= this.transitionDuration && !this.suspended) {
+        } else if (this.transitionFrame !== undefined && this.transitionFrame <= this.transitionDuration * this.fps && !this.suspended) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / (this.transitionDuration || 10));
         }
         if (this.transitionFrame > this.transitionDuration) {
@@ -319,7 +308,7 @@ class Gallery {
         }
         this.updateOverlays();
         this.update();
-        if (this.userIdleTime === this.showCursorDuration) {
+        if (this.userIdleTime === this.showCursorDuration * this.fps) {
             document.body.style.cursor = 'none';
         }
         this.totalFrames ++;
@@ -386,7 +375,7 @@ class Gallery {
         if (value === true) {
             if (this.transitionFrame && !this.isPaused()) {
                 this.afterTransition = () => this.dispatchEvent("PauseStart");
-                this.userIdleTime = this.infoBoxDuration - 1;
+                this.userIdleTime = this.infoBoxDuration * this.fps - 1;
             } else {
                 this.dispatchEvent("PauseStart");
             }    
@@ -406,9 +395,9 @@ class Gallery {
     }
     /* internal event listeners */
     _onKeyUp(event) {
-        if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration)) {
-            if (this.userIdleTime < this.infoBoxDuration) {
-                this.userIdleTime = this.infoBoxDuration - 1;
+        if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration * this.fps)) {
+            if (this.userIdleTime < this.infoBoxDuration * this.fps) {
+                this.userIdleTime = this.infoBoxDuration * this.fps - 1;
             } else {
                 this._onIdleEnd();
             }
@@ -442,17 +431,32 @@ class Gallery {
         }
 
     }
+    _onResize(event) {
+        this.width = this.target.clientWidth || this.target.width || document.clientWidth || 800;
+        this.height = this.target.clientHeight || this.target.height || document.clientHeight || 600;
+        this.canvas?.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
+        console.debug("canvas size: " + (this.width + "x" + this.height) + " fullscreen: "+this.isFullscreen());
+        let iSlot = this.getImageSlot(1);
+        if (iSlot) {
+            iSlot.background.setAttributeNS(null, 'width', this.width);
+            iSlot.background.setAttributeNS(null, 'height', this.height);    
+        }
+    }
     _onIdleEnd() {
         if (this.userIdleTime > 0) {
             this.userIdleTime = 0;
-            document.body.style.cursor = 'auto';    
+//            document.body.style.cursor = 'auto';    
         }
     }
     _onMouseMove() {
         this.dispatchEvent('IdleEnd', this.userIdleTime );
         this.userIdleTime = 0;
     }
+    _onTransitionStart() {
+        this.imageInfoBox.classList.add('hide');
+    }
     _onTransitionEnd() {
+        this.showImageInfo();
         this.transitionFrame = undefined;
         this.breakTimeFrame = 0;
         this.suspended = false;
@@ -482,7 +486,6 @@ class Gallery {
                 this.suspended = false;
                 this.transitionFrame = 0;
                 this.updateClipPathTransition();
-                this.showImageInfo();
             } else if (event.target === this.getImageSlot(0)) {
                 /* inactive/previous image (background) */
                 let img = this.getCurrentImage();
