@@ -51,14 +51,6 @@ class FilmStrip extends HTMLElement {
         let div = document.createElement('div');
         div.classList.add('filmStripContainer');
         let ul = document.createElement('ul');
-        if (this.info?.title) {
-            let span = document.createElement('span');
-            span.innerHTML = this.info.title;
-            if (this.info?.description) {
-                span.setAttribute('title', this.info.description);
-            }    
-            div.appendChild(span);
-        }
         for(let i = 0;i < this.images.length; i++) {
             let li = document.createElement('li');
             if (this.selectedImageNum === i) {
@@ -81,6 +73,15 @@ class FilmStrip extends HTMLElement {
             ul.appendChild(li);
         }
         div.appendChild(ul);
+        if (this.info?.title) {
+            let title = document.createElement('div');
+            title.setAttribute('class', 'title');
+            title.innerHTML = this.info.title;
+            if (this.info?.description) {
+                title.setAttribute('title', this.info.description);
+            }    
+            div.appendChild(title);
+        }
         this.replaceChildren(div);
         this.list = ul;
     }
