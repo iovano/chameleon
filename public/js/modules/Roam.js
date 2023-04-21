@@ -2,7 +2,7 @@ import Fader from "./Fader.js";
 export default class Roam extends Fader {
     transitionDuration = 2;
     clipPathTransitionSpeed = 4;
-    fps = 60;
+    fps = 40;
     img = [];
     imgStyle = {display: "block",
         width: "100%",
@@ -37,7 +37,7 @@ export default class Roam extends Fader {
                 break;
             }
             this.img[i].animationFrame = (this.img[i].animationFrame === undefined) ? 0 : this.img[i].animationFrame + 1;
-            let scale = 1 + (this.img[i].animationFrame / 10000);
+            let scale = 1 + (this.img[i].animationFrame / 200 / this.fps);
             this.img[i].firstChild.style.transform = "translate(-50%, -50%) scale("+scale+")";
         }
 //        let top = this.img[0].firstChild.style.top;
