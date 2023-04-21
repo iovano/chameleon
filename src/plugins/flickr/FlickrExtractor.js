@@ -189,7 +189,7 @@ class FlickrExtractor extends FlickrConnector {
 
     async collectPhotoSets(req, res) {
         this.log("Collecting Photosets from Flickr", 1);
-        let collect = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'photos', {'url': 'url._content'}];
+        let collect = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'primary', 'photos', {'url': 'url._content'}];
         let collected = await this.aggregateData('photosets.getList','photosets','photoset',{});
         let jobs = {total: 0, completed: 0, failed: 0};
         for(var i = 0; i < collected.length; i++) {
