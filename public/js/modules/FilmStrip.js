@@ -49,9 +49,9 @@ class FilmStrip extends HTMLElement {
         }
         this.select(selectedImageNum);
     }
-    createFilmStripItems() {
+    createFilmStripItems(items) {
         let ul = document.createElement('ul');
-        for(let i = 0;i < this.images.length; i++) {
+        for(let i = 0;i < items.length; i++) {
             let li = document.createElement('li');
             if (this.selectedImageNum === i) {
                 li.classList.add('selected');
@@ -59,14 +59,14 @@ class FilmStrip extends HTMLElement {
                 li.classList.remove('selected');
             }
             let img = document.createElement('img');
-            if (this.images[i]?.size && Array.isArray(this.images[i].size)) {
-                img.src = this.images[i].size[this.images[i].size.length -1];
+            if (items[i]?.size && Array.isArray(items[i].size)) {
+                img.src = items[i].size[items[i].size.length -1];
             } else {
-                img.src = this.images[i]?.src || this.images[i];
+                img.src = items[i]?.src || items[i];
             }
-            img.addEventListener("click", (event) => this._onSelectImage(event, this.images[i], i));
-            if (this.images[i]?.title) {
-                img.setAttribute('title', this.images[i].title);
+            img.addEventListener("click", (event) => this._onSelectImage(event, items[i], i));
+            if (items[i]?.title) {
+                img.setAttribute('title', items[i].title);
             }    
             li.appendChild(img);
             this.listElements[i] = li;
@@ -80,7 +80,7 @@ class FilmStrip extends HTMLElement {
         }
         let div = document.createElement('div');
         div.classList.add('filmStripContainer');
-        let ul = this.createFilmStripItems();
+        let ul = this.createFilmStripItems(this.images);
 
         div.appendChild(ul);
         
