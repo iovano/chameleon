@@ -4,16 +4,23 @@
 
 class FilmStrip extends HTMLElement {
     images = [];
+    tabs = [];
     info = undefined;
     selectedImageNum = undefined;
     container = undefined;
     list = undefined;
+    tabContainer = undefined;
     listElements = [];
-    constructor(images = undefined, info = undefined, selectedImageNum = undefined) {
+    constructor(images = undefined, info = undefined, selectedImageNum = undefined, tabs = []) {
         super();
         this.setImages(images);
         this.setInfo(info);
-        this.render(selectedImageNum);
+        this.setTabs(tabs);
+        this.selectedImageNum = selectedImageNum;
+        this.render();
+    }
+    setTabs(tabs) {
+        this.tabs = tabs;
     }
     setImages(images) {
         this.images = images;
@@ -41,7 +48,7 @@ class FilmStrip extends HTMLElement {
         this.list.scrollTo((selectedImageNum - itemsVisible / 2 + 1) * itemWidth - paddingOffset, 0);
         this.listElements[selectedImageNum].classList.add('selected');
         this.selectedImageNum = selectedImageNum;
-
+        this.updateTabs();
     }
     _onSelectImage(event, selectedImage, selectedImageNum) {
         if (this.onSelectImage) {
@@ -49,6 +56,12 @@ class FilmStrip extends HTMLElement {
         }
         this.select(selectedImageNum);
     }
+    _onSelectTab(event, selectedTab, selectedTabNum) {
+        console.log("tab selected", selectedTab, selectedTabNum);
+        if (this.onSelectTab) {
+            this.onSelectTab(event, selectedTab, selectedTabNum);
+        }
+    }    
     createFilmStripItems(items) {
         let ul = document.createElement('ul');
         for(let i = 0;i < items.length; i++) {
@@ -74,10 +87,28 @@ class FilmStrip extends HTMLElement {
         }
         return ul;
     }
-    render(selectedImageNum = undefined) {
-        if (selectedImageNum) {
-            this.selectedImageNum = selectedImageNum;
+    updateTabs() {
+        let tabs = this.tabs;
+        if (this.tabContainer) {
+            this.tabContainer.innerHTML = '';
         }
+        if (tabs.length < 1) {
+            tabs = [{title: this.info?.description, caption: this.info?.title}];
+        }
+        for (let i = 0;i < tabs.length;i++) {
+            let tab = tabs[i];
+            let el = document.createElement('div');
+            el.classList.add('tab', i);
+            if (tab.class) {
+                el.classList.add(tab.class);
+            }
+            el.innerHTML = tab.caption || tab.name || tab.title || i;
+            el.setAttribute('title', tab.title || tab.caption || tab.name || i);
+            el.addEventListener('click', (event) => {this._onSelectTab(event, tab, i)});
+            this.tabContainer.appendChild(el);
+        }                
+    }
+    render() {
         let div = document.createElement('div');
         div.classList.add('filmStripContainer');
         let ul = this.createFilmStripItems(this.images);
@@ -85,13 +116,12 @@ class FilmStrip extends HTMLElement {
         div.appendChild(ul);
         
         /* Current Album Tab */
-        let title = document.createElement('div');
-        title.classList.add('tab', 'title');
-        title.innerHTML = this.info?.title ? this.info.title : 'Album';
-        if (this.info?.description) {
-            title.setAttribute('title', this.info.description);
-        }    
-        div.appendChild(title);
+        this.tabContainer = document.createElement('div');
+        this.tabContainer.classList.add('tabContainer');
+
+        this.updateTabs();
+    
+        div.appendChild(this.tabContainer);
         
         this.replaceChildren(div);
         this.list = ul;

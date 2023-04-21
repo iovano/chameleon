@@ -1,3 +1,4 @@
+import AlbumStrip from './AlbumStrip.js';
 import FilmStrip from './FilmStrip.js';
 
 //import css from '../../css/gallery.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
@@ -167,7 +168,7 @@ class Gallery {
         } else {
             this.afterTransition = this.startTransition;
         }    
-        this.filmStrip.select(this.currentImageNum);
+        this.filmStrip.select(this.currentImageNum, this.currentAlbumNum);
         this.dispatchEvent("Navigation", { target: this.currentImageNum });
     }
     startTransition() {
@@ -254,8 +255,8 @@ class Gallery {
             this.target.removeChild(this.canvasContainer);
         }
         this.createCanvas();
-        this.createFilmStrip();
         this.createInfoBox();
+        this.createFilmStrip();
         this.navigate(params || this.currentImageNum);
     }
     updateOverlays() {
@@ -625,7 +626,7 @@ class Gallery {
     createFilmStrip() {
         if (!this.filmstrip) {
             /* create and append film strip */
-            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo(), this.currentImageNum, [{caption: 'Albums', title: 'Browse Albums'}]);
+            this.filmStrip = new AlbumStrip(this.albums, this.currentImageNum, this.currentAlbumNum);
             this.filmStrip.classList.add('filmStrip', 'hide');
             this.filmStrip.onSelectImage = (event, selectedImage, selectedImageNum) => { 
                 this.navigate(selectedImageNum); 
