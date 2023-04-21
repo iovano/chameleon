@@ -2,9 +2,10 @@ import Gallery from "./Gallery.js";
 export default class Fader extends Gallery {
     transitionDuration = 2;
     clipPathTransitionSpeed = 4;
-    fps = 60;
+    fps = 40;
     objectFit = 'cover';
     img = [];
+    imageLayersMax = 3;
     imageContainer;
     imgStyle = {marginLeft: 'auto', marginRight: 'auto', objectFit: this.objectFit, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0};
     imgLayerStyle = {opacity: 0,zIndex: this.img.length+1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'};
@@ -43,7 +44,7 @@ export default class Fader extends Gallery {
         this.transitionFrame = undefined;
         img.onload = (event) => this._onImageLoad();
         this.imageContainer.insertBefore(imgLayer, this.imageContainer.firstChild);
-        for (let idx = 5; idx < this.imageContainer.children.length ; idx++) {
+        for (let idx = this.imageLayersMax; idx < this.imageContainer.children.length ; idx++) {
             this.imageContainer.removeChild(this.imageContainer.children[idx]);
             this.img.pop();
         }
