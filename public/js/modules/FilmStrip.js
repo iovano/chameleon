@@ -36,18 +36,18 @@ class FilmStrip extends HTMLElement {
             this.listElements[this.selectedImageNum].classList.remove('selected');
         }
         let el = this.listElements[selectedImageNum];
-        if (!el) {
-            console.error("filmstrip item #"+selectedImageNum+" not found");
-            return;
+        if (el) {
+            let itemsVisible = this.list.clientWidth / this.listElements[selectedImageNum].clientWidth || 1;
+            let itemWidth = el.clientWidth;
+            let paddingOffset = this.listElements[0].offsetLeft;
+            let item = {x1: el.offsetLeft, x2: el.offsetLeft+itemWidth};
+            
+            this.list.scrollTo((selectedImageNum - itemsVisible / 2 + 1) * itemWidth - paddingOffset, 0);
+            this.listElements[selectedImageNum].classList.add('selected');
+            this.selectedImageNum = selectedImageNum;
+        } else {
+            this.list.scrollTo(0, 0);
         }
-        let itemsVisible = this.list.clientWidth / this.listElements[selectedImageNum].clientWidth || 1;
-        let itemWidth = el.clientWidth;
-        let paddingOffset = this.listElements[0].offsetLeft;
-        let item = {x1: el.offsetLeft, x2: el.offsetLeft+itemWidth};
-        
-        this.list.scrollTo((selectedImageNum - itemsVisible / 2 + 1) * itemWidth - paddingOffset, 0);
-        this.listElements[selectedImageNum].classList.add('selected');
-        this.selectedImageNum = selectedImageNum;
         this.updateTabs();
     }
     _onSelectImage(event, selectedImage, selectedImageNum) {

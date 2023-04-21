@@ -597,39 +597,13 @@ class Gallery {
         this.canvas = svg;
         this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
     }
-    getAlbumList() {
-        let albums = [];
-        for (let i = 0; i < this.albums.length ; i ++) {
-            let album = this.albums[i];
-            for (let p = 0; p < album.photos.length ; p ++) {
-                if (album.photos[p].id === album.primary) {
-                    album.titleImage = album.photos[p];
-                    album.titleImageNum = p;
-                }
-            }
-            albums.push(album);
-        }
-        return albums;
-    }
-    getAlbumTitleImages() {
-        let albums = this.getAlbumList();
-        let images = [];
-        for (let i = 0; i < albums.length ; i++) {
-            let img = albums[i].titleImage;
-            img.photoset = i;
-            img.photosetTitle = albums[i].title;
-            img.titleImageNum = albums[i].titleImageNum;
-            images.push(img);
-        }
-        return images;
-    }
     createFilmStrip() {
         if (!this.filmstrip) {
             /* create and append film strip */
             this.filmStrip = new AlbumStrip(this.albums, this.currentImageNum, this.currentAlbumNum);
             this.filmStrip.classList.add('filmStrip', 'hide');
-            this.filmStrip.onSelectImage = (event, selectedImage, selectedImageNum) => { 
-                this.navigate(selectedImageNum); 
+            this.filmStrip.onSelectImage = (event, selectedImageNum, selectedAlbumNum) => { 
+                this.navigate(selectedImageNum, selectedAlbumNum); 
             }
         }
         this.canvasContainer.appendChild(this.filmStrip);
