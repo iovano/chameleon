@@ -64,14 +64,23 @@
     opacity: 1;
 /*    filter: invert(0);*/
 }
-.filmStrip div.title {
+.filmStrip div.tab {
     background: rgba(0,0,0,0.8);
     padding: 0.25em 0.75em 0.5em 0.75em;
     display: inline-block;
     border-radius: 0 0 0.25em 0.25em;
     color: rgba(255,255,255,0.4);
     font-size: 0.8em;
+    cursor: pointer;
 }
+.filmStrip div.tab.active {
+    background-color: rgba(0,0,0,0.5);
+}
+.filmStrip div.tab:not(.active):hover {
+    background-color: rgba(0,0,0,0.5);
+    color: rgba(255,255,255,0.6);    
+}
+
 #gallery .canvasContainer .filmStrip.hide {
     opacity: 0;
 }
@@ -105,13 +114,6 @@
         padding: 0;
         width: 30px;
         height: 20px;
-    }
-    .filmStrip div.title {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        padding: 0.1em 0.25em 0.25em 0.25em;
-        display: inline-block;
-        font-size: 0.6em;
     }
     #gallery .canvasContainer .filmStrip {
         text-align: center;

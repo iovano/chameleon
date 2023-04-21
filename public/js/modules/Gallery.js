@@ -40,7 +40,7 @@ class Gallery {
     firstRun = true;
 
     /* gallery image storage */
-    images = [];
+    albums = [];
     previousImage = undefined;
     currentImageNum = 0;
     currentAlbumNum = 0;
@@ -127,10 +127,10 @@ class Gallery {
         if (typeof targetImage === 'object' || targetImage === undefined) {
             if (targetImage.album) {
                 /* select album first (this is important if queried image exists in more than one album) */
-                this.setCurrentAlbumNum(this.getAlbumNumByName(targetImage.album));
+                this.setCurrentAlbumNum(this.getAlbumNumByPropertyValue(targetImage.album));
             }
             if (targetImage.image) {
-                let target = this.getImageNumByName(targetImage.image);
+                let target = this.getImageNumByPropertyValue(targetImage.image);
                 if (target) {
                     this.setCurrentAlbumNum(target.album);
                     this.setCurrentImageNum(target.image);
@@ -138,8 +138,12 @@ class Gallery {
             }
         } else {
             /* use delta if target contains a signed value (e.g. "+1" or "-10"), use absolute value if target is unsigned or increase by 1 if target is undefined */
-            this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
-            this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
+            if (targetAlbum !== undefined) {
+                this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
+            }
+            if (targetImage !== undefined) {
+                this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
+            }
         }
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
@@ -163,7 +167,6 @@ class Gallery {
         } else {
             this.afterTransition = this.startTransition;
         }    
-        
         this.filmStrip.select(this.currentImageNum);
         this.dispatchEvent("Navigation", { target: this.currentImageNum });
     }
@@ -184,7 +187,7 @@ class Gallery {
     }
     setCurrentAlbumNum(albumNum, imageNum = undefined) {
         if (albumNum !== undefined && albumNum !== this.currentAlbumNum) {
-            this.currentAlbumNum = (albumNum % this.images.length) < 0 ? (albumNum % this.images.length) + this.images.length : albumNum % this.images.length;
+            this.currentAlbumNum = (albumNum % this.albums.length) < 0 ? (albumNum % this.albums.length) + this.albums.length : albumNum % this.albums.length;
             this.updateFilmStrip();
         }
         if (imageNum !== undefined && imageNum !== this.currentImageNum) {
@@ -193,10 +196,10 @@ class Gallery {
         return this.currentAlbumNum;
     }
     getAlbum(index = undefined) {
-        return this.images[index || this.currentAlbumNum];
+        return this.albums[index || this.currentAlbumNum];
     }
     getAlbumInfo(index = undefined) {
-        let info = { ...this.images[index || this.currentAlbumNum] };
+        let info = { ...this.albums[index || this.currentAlbumNum] };
         delete info.images;
         return info;
     }
@@ -204,7 +207,7 @@ class Gallery {
         return this.currentAlbumNum;
     }
     getAlbumImages(index = undefined) {
-        return this.images[index || this.currentAlbumNum]?.photos || this.images?.photos || this.photos || this.images[index || this.currentAlbumNum]?.images || this.images?.images || this.images;
+        return this.albums[index || this.currentAlbumNum]?.photos || this.albums?.photos || this.photos || this.albums[index || this.currentAlbumNum]?.images || this.albums?.images || this.albums;
     }
     getImageSrc(img, size = 0) {
         if (typeof img === 'string' || img instanceof String) { 
@@ -213,7 +216,7 @@ class Gallery {
         try {
             return img?.src || img?.size[size];
         } catch (error) {
-            console.log("image #"+(img.id || img.title)+" does not provide src/sizes", error);
+            console.log("image #"+(img.id || img.title)+" does not provide src/sizes", error, img);
         }
     }
     setCurrentImageNum(newIndex) {
@@ -315,25 +318,40 @@ class Gallery {
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
         setTimeout(() => this.run(), 1000 / this.fps);    
     }
-    getImageNumByName(imageName, preferredAlbum = undefined) {
+    getImageNumByPropertyValue(imageName, props = ['id', 'title', 'name'], preferredAlbum = undefined) {
+        if (typeof props === 'string' || props instanceof String) {
+            props = [props];
+        }
         preferredAlbum = preferredAlbum ?? this.getCurrentAlbumNum();
-        for (let a = -1; a < this.images.length; a++) {
+        for (let a = -1; a < this.albums.length; a++) {
             let album = (a === -1 ? preferredAlbum : a);
             if (a === undefined) continue;
-            let photos = this.images[album].photos || this.images[album].images;
-            for (let i = 0; i < photos.length; i++) {
-                if (photos[i].title == imageName || photos[i].name == imageName) {
-                    return {album: album, image: i};
+            let photos = this.albums[album].photos || this.albums[album].images;
+            for (let i = 0; i < photos.length ; i ++) {
+                let photo = photos[i];
+                for (let keyIndex of props.values()) {
+                    if (photo[keyIndex] == imageName) {
+                        return {album: album, image: i};
+                    }
                 }
             }
         }
+        console.error('image ' + imageName +' not found');
     }
-    getAlbumNumByName(albumName) {
-        for (let i = 0; i < this.images.length; i++) {
-            if (this.images[i].title == albumName || this.images[i].name == albumName ) {
-                return i;
+    getAlbumNumByPropertyValue(albumName, props = ['id', 'title', 'name']) {
+        if (typeof props === 'string' || props instanceof String) {
+            props = [props];
+        }
+        for (let i = 0; i < this.albums.length; i++) {
+            for (let keyIndex of props.values()) {
+                if (this.albums[i][keyIndex] == albumName) {
+                    return i;
+                }
             }
         }
+        console.error('album ' + albumName +' not found');
+        
+
     }
     async loadData(filename = './data/albums.json') {
         return fetch(filename)
@@ -346,10 +364,10 @@ class Gallery {
         if (lazyLoad !== undefined) {
             this.lazyLoad = lazyLoad;
         }
-        this.images = images;
+        this.albums = images;
     }
     getImageSlot(index = undefined) {
-        return document.getElementById("imageSlot" + (index !== undefined ? index : (this.imageSlots.length - 1)));
+        return document.getElementById("imageSlot" + (index !== undefined ? index : (this.albumslots.length - 1)));
     }
     dispatchEvent(eventName, ...args) {
         let callbackName = 'on'+eventName;
@@ -445,7 +463,7 @@ class Gallery {
     _onIdleEnd() {
         if (this.userIdleTime > 0) {
             this.userIdleTime = 0;
-//            document.body.style.cursor = 'auto';    
+            document.body.style.cursor = 'auto';    
         }
     }
     _onMouseMove() {
@@ -578,12 +596,40 @@ class Gallery {
         this.canvas = svg;
         this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
     }
+    getAlbumList() {
+        let albums = [];
+        for (let i = 0; i < this.albums.length ; i ++) {
+            let album = this.albums[i];
+            for (let p = 0; p < album.photos.length ; p ++) {
+                if (album.photos[p].id === album.primary) {
+                    album.titleImage = album.photos[p];
+                    album.titleImageNum = p;
+                }
+            }
+            albums.push(album);
+        }
+        return albums;
+    }
+    getAlbumTitleImages() {
+        let albums = this.getAlbumList();
+        let images = [];
+        for (let i = 0; i < albums.length ; i++) {
+            let img = albums[i].titleImage;
+            img.photoset = i;
+            img.photosetTitle = albums[i].title;
+            img.titleImageNum = albums[i].titleImageNum;
+            images.push(img);
+        }
+        return images;
+    }
     createFilmStrip() {
         if (!this.filmstrip) {
             /* create and append film strip */
-            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo());
+            this.filmStrip = new FilmStrip(this.getAlbumImages(), this.getAlbumInfo(), this.currentImageNum, [{caption: 'Albums', title: 'Browse Albums'}]);
             this.filmStrip.classList.add('filmStrip', 'hide');
-            this.filmStrip.onClick = (event, selectedImage) => { this.navigate(selectedImage); }
+            this.filmStrip.onSelectImage = (event, selectedImage, selectedImageNum) => { 
+                this.navigate(selectedImageNum); 
+            }
         }
         this.canvasContainer.appendChild(this.filmStrip);
     }

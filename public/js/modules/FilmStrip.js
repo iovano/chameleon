@@ -6,6 +6,7 @@ class FilmStrip extends HTMLElement {
     images = [];
     info = undefined;
     selectedImageNum = undefined;
+    container = undefined;
     list = undefined;
     listElements = [];
     constructor(images = undefined, info = undefined, selectedImageNum = undefined) {
@@ -28,7 +29,11 @@ class FilmStrip extends HTMLElement {
             this.listElements[this.selectedImageNum].classList.remove('selected');
         }
         let el = this.listElements[selectedImageNum];
-        let itemsVisible = this.list.clientWidth / el.clientWidth || 1;
+        if (!el) {
+            console.error("filmstrip item #"+selectedImageNum+" not found");
+            return;
+        }
+        let itemsVisible = this.list.clientWidth / this.listElements[selectedImageNum].clientWidth || 1;
         let itemWidth = el.clientWidth;
         let paddingOffset = this.listElements[0].offsetLeft;
         let item = {x1: el.offsetLeft, x2: el.offsetLeft+itemWidth};
@@ -38,18 +43,13 @@ class FilmStrip extends HTMLElement {
         this.selectedImageNum = selectedImageNum;
 
     }
-    _onClick(event, selectedImage) {
-        if (this.onClick) {
-            this.onClick(event, selectedImage);
+    _onSelectImage(event, selectedImage, selectedImageNum) {
+        if (this.onSelectImage) {
+            this.onSelectImage(event, selectedImage, selectedImageNum);
         }
-        this.select(selectedImage);
+        this.select(selectedImageNum);
     }
-    render(selectedImageNum = undefined) {
-        if (selectedImageNum) {
-            this.selectedImageNum = selectedImageNum;
-        }
-        let div = document.createElement('div');
-        div.classList.add('filmStripContainer');
+    createFilmStripItems() {
         let ul = document.createElement('ul');
         for(let i = 0;i < this.images.length; i++) {
             let li = document.createElement('li');
@@ -64,7 +64,7 @@ class FilmStrip extends HTMLElement {
             } else {
                 img.src = this.images[i]?.src || this.images[i];
             }
-            img.addEventListener("click", (event) => this._onClick(event, i));
+            img.addEventListener("click", (event) => this._onSelectImage(event, this.images[i], i));
             if (this.images[i]?.title) {
                 img.setAttribute('title', this.images[i].title);
             }    
@@ -72,18 +72,30 @@ class FilmStrip extends HTMLElement {
             this.listElements[i] = li;
             ul.appendChild(li);
         }
-        div.appendChild(ul);
-        if (this.info?.title) {
-            let title = document.createElement('div');
-            title.setAttribute('class', 'title');
-            title.innerHTML = this.info.title;
-            if (this.info?.description) {
-                title.setAttribute('title', this.info.description);
-            }    
-            div.appendChild(title);
+        return ul;
+    }
+    render(selectedImageNum = undefined) {
+        if (selectedImageNum) {
+            this.selectedImageNum = selectedImageNum;
         }
+        let div = document.createElement('div');
+        div.classList.add('filmStripContainer');
+        let ul = this.createFilmStripItems();
+
+        div.appendChild(ul);
+        
+        /* Current Album Tab */
+        let title = document.createElement('div');
+        title.classList.add('tab', 'title');
+        title.innerHTML = this.info?.title ? this.info.title : 'Album';
+        if (this.info?.description) {
+            title.setAttribute('title', this.info.description);
+        }    
+        div.appendChild(title);
+        
         this.replaceChildren(div);
         this.list = ul;
+        this.container = div;
     }
 }
 customElements.define('film-strip',FilmStrip);
