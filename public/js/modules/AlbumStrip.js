@@ -66,7 +66,6 @@ export default class AlbumStrip extends FilmStrip {
         } else if (this.albums) {
             /* show album selection page if no album is selected */
             this.images = this.getAlbumTitleImages();
-            console.log("album overview", this.images);
         }
         if (this.images) {
             super.render();    
