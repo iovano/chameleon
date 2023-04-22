@@ -1,7 +1,7 @@
-const process = require("process")
-const rdl = require("readline")
+import process from "process"
+import * as rdl from "readline"
 
-class ProgressBar {
+export default class ProgressBar {
     constructor(size) {
         this.size = size
         this.cursor = 0
@@ -26,5 +26,3 @@ class ProgressBar {
         }, 100)
     }
 }
-
-module.exports = ProgressBar;

@@ -1,4 +1,4 @@
-class Connector {
+export default class Connector {
     consumerKey;
     consumerSecret;
     accessToken;
@@ -19,4 +19,3 @@ class Connector {
         this.userId = uid;
     }
 }
-module.exports = Connector;

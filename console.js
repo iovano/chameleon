@@ -1,4 +1,4 @@
-const FlickrExtractor = require('./src/plugins/flickr/FlickrExtractor');
+import FlickrExtractor from './src/plugins/flickr/FlickrExtractor.js';
 const FE = new FlickrExtractor();
 
 function getArgs() {

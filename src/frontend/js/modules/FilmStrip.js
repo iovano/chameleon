@@ -1,4 +1,4 @@
-//import css from '../../css/filmstrip.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
+import css from '../../css/filmstrip.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
 
 //document.adoptedStyleSheets.push(css);
 

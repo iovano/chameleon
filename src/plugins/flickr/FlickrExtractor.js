@@ -1,7 +1,8 @@
-const FlickrConnector = require('./FlickrConnector');
-const fs = require('fs');
+import FlickrConnector from './FlickrConnector.js';
+import * as fs from 'fs';
+import path from 'path';
 
-class FlickrExtractor extends FlickrConnector {
+export default class FlickrExtractor extends FlickrConnector {
     retries = 3;
     retryDelay = 2000;
     requestDelay = 1000;
@@ -17,7 +18,6 @@ class FlickrExtractor extends FlickrConnector {
     }
     async cacheClear() {
         const directory = "temp";
-        const path = require("path");
         let files = 0;
         let total = fs.readdirSync(directory);
         for (const file of total) {
@@ -240,5 +240,3 @@ class FlickrExtractor extends FlickrConnector {
 
     }
 }
-
-module.exports = FlickrExtractor;

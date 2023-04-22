@@ -3,6 +3,15 @@ import Fader from './modules/Fader.js';
 import Roam from './modules/Roam.js';
 import Gallery from './modules/Gallery.js'
 
+import debug from 'debug';
+const log = debug('app:log');
+
+if (ENV !== 'production') {
+  debug.enable('*');
+  log('Logging is enabled!');
+} else {
+  debug.disable();
+}
 
 let gallery;
   function start(theme) {

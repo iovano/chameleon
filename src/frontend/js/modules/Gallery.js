@@ -1,9 +1,12 @@
 import AlbumStrip from './AlbumStrip.js';
-import FilmStrip from './FilmStrip.js';
 
-//import css from '../../css/gallery.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
+import css from '../../css/gallery.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
+import styles from '../../css/default.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
+
 import TagsUL from './TagsUL.js';
+
 //document.adoptedStyleSheets.push(css);
+
 class Gallery {
     /* namespaces */
     svgNS = "http://www.w3.org/2000/svg";

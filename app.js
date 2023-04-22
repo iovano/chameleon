@@ -1,9 +1,13 @@
-const express = require('express');
-
-const FlickrConnector = require('./src/plugins/flickr/FlickrConnector');
+import express from 'express';
+import FlickrConnector from './src/plugins/flickr/FlickrConnector.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const FC = new FlickrConnector();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 FC.onAuthentication = function (accessToken, accessTokenSecret) {
   FC.writeCredentialsToFile('.env.local');

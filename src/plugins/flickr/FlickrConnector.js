@@ -1,9 +1,10 @@
-const Flickr = require('flickr-sdk');
-const https = require('https'); 
-const Connector = require('../Connector');
-const Consoler = require("../../Consoler");
+import Flickr from 'flickr-sdk';
+import https from 'https';
+import Connector from '../Connector.js';
+import Consoler from '../../Consoler.js';
+import dotenv from 'dotenv';
 
-class FlickrConnector extends Connector {
+export default class FlickrConnector extends Connector {
     requestTokenSecret;
     flickr;
     flickrAuth;
@@ -29,7 +30,6 @@ class FlickrConnector extends Connector {
         return this.userId;
     }
     getCredentialsFromDotEnv(filename = ".env.local") {
-        const dotenv = require('dotenv');
         dotenv.config();
         dotenv.config({ path: filename, override: true });
         this.setCredentials(process.env.FLICKR_CONSUMER_KEY, process.env.FLICKR_CONSUMER_SECRET, process.env.FLICKR_ACCESS_TOKEN, process.env.FLICKR_ACCESS_TOKEN_SECRET, process.env.FLICKR_USER_ID);
@@ -156,5 +156,3 @@ class FlickrConnector extends Connector {
     }
 
 }
-
-module.exports = FlickrConnector;

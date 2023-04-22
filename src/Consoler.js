@@ -1,7 +1,7 @@
-const process = require("process")
-const rdl = require("readline")
+import process from "process";
+import * as rdl from "readline";
 
-class Consoler {
+export default class Consoler {
     messages = [];
     messagesAmount;
 
@@ -96,4 +96,3 @@ class Consoler {
         this.write(Consoler.Show);
     }
 }
-module.exports = Consoler;
