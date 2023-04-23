@@ -13,6 +13,7 @@ class FilmStrip extends HTMLElement {
     listElements = [];
     constructor(images = undefined, info = undefined, selectedImageNum = undefined, tabs = []) {
         super();
+        this.addEventListener("wheel", this._onScroll, { passive: false });
         this.setImages(images);
         this.setInfo(info);
         this.setTabs(tabs);
@@ -49,6 +50,10 @@ class FilmStrip extends HTMLElement {
             this.list.scrollTo(0, 0);
         }
         this.updateTabs();
+    }
+    _onScroll(event) {
+        event.preventDefault();
+        this.list.scrollTo(this.list.scrollLeft + event.deltaY, 0);
     }
     _onSelectImage(event, selectedImage, selectedImageNum) {
         if (this.onSelectImage) {
