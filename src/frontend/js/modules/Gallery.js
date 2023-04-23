@@ -297,12 +297,13 @@ class Gallery {
 
     }
     updateClipPathTransition() {
+        console.log("transition "+this.transitionFrame);
         if (this.suspended && this.transitionFrame !== 0) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
-        } else if (this.transitionFrame !== undefined && this.transitionFrame <= this.transitionDuration * this.fps && !this.suspended) {
-            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / (this.transitionDuration || 10));
+        } else if (this.transitionFrame !== undefined && this.transitionFrame <= (this.transitionDuration * this.fps) && !this.suspended) {
+            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / ((this.transitionDuration * this.fps) || 10));
         }
-        if (this.transitionFrame > this.transitionDuration) {
+        if (this.transitionFrame > this.transitionDuration * this.fps) {
             this.dispatchEvent('TransitionEnd');
         }
     }
@@ -364,7 +365,7 @@ class Gallery {
         return fetch(filename)
             .then(response => response.json())
             .catch(error => {
-                console.error('Error:', error);
+                this.dispatchEvent('Error', undefined, error);
             });
     }
     setImages(images, lazyLoad = undefined) {
@@ -494,6 +495,7 @@ class Gallery {
         }
     }
     _onError(event) {
+        console.log("error!");
         console.error(event);
     }
     _onOnline(event){
@@ -572,7 +574,7 @@ class Gallery {
             image.id = 'imageSlot' + i;
             image.setAttributeNS(null, "visibility", "visible");
             /* assign internal onload - handler for image */
-            image.error = (event) => this.dispatchEvent('Error', event);
+            image.addEventListener("error", (event) => this.dispatchEvent('Error', event));
             image.onload = (event) => this.dispatchEvent('ImageLoad', event, this.getCurrentImage());
 
             /* create background */
