@@ -21,8 +21,9 @@
     "type": "git"
   },
   "scripts": {
-    "watch": "rollup -c --watch",
-    "up": "rollup -c",
+    "build": "rollup -c",
+    "up": "rollup -c && node app.js",
+    "watch": "rollup -c rollup.reload.config.js --watch",
     "cc": "node console.js cacheClear",
     "photosets": "node console.js collectPhotoSets",
     "photos": "node console.js collectPhotos"

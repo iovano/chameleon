@@ -16,6 +16,7 @@ export default {
     },
     watch: {
       buildDelay: 2000,
+      include: "src/**/*",
       clearScreen: false
     },
     plugins: [
@@ -35,6 +36,11 @@ export default {
         replace({
             exclude: 'node_modules/**',
             ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
-            })
+            }),            
+        livereload('public'),
+        serve({
+            contentBase: 'public',
+            port: 3000
+        })
     ],
 };
