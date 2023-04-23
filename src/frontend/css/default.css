@@ -45,10 +45,10 @@ header {
     background: rgba(0,0,0,0.5);
 }
 header h1,h2,h3 {
+    margin-left: 2em;
     display: inline;
     font-size: 1em;
     padding: 0;
-    margin: 0;
     color: rgba(255,255,255,0.2);
 }
 header .buttons {
@@ -70,11 +70,6 @@ header div.buttons button.active {
 
 input-search > li.search div.label {
     background-image:url('../icons/icon_search.svg');
-}
-menu-sandwich > .sandwich {
-    background-image:url('../icons/icon_sandwich.svg');
-    width: 20px;
-    height: 20px;
 }
 
 
@@ -138,12 +133,15 @@ div.curtain {
     margin-right: auto;
     padding: 0.4em;
 }
-.controls div.hide {
+.hide {
     opacity: 0;
+    user-select: none;
+    pointer-events: none;
 }
 div.disabled {
     z-index: 0;
     user-select: none;
+    pointer-events: none;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
@@ -228,10 +226,4 @@ div.curtain.hide {
         content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 24' style='width: 24px; height: 24px;'%3E%3Crect width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3Crect x='16' width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3C/svg%3E");
         opacity: 1;
     }
-    menu-sandwich .sandwich:hover {
-        background: rgba(0,0,0,0);
-        background-image:url('../icons/icon_sandwich2.svg');
-    }
-
-
 }

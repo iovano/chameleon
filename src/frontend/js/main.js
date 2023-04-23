@@ -2,6 +2,8 @@ import DotGain from './modules/DotGain.js';
 import Fader from './modules/Fader.js';
 import Roam from './modules/Roam.js';
 import Gallery from './modules/Gallery.js'
+import Sandwich from './elements/Sandwich.js';
+
 
 import debug from 'debug';
 const log = debug('app:log');
@@ -30,9 +32,20 @@ let gallery;
       gallery = new DotGain(canvas);
     }
     document.querySelectorAll('.requestFullscreen').forEach(
-      (el) => {gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));}
+      (el) => {
+        gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
+      }
     );
     //gallery.setPaused(true);
+    document.querySelectorAll('menu-sandwich').forEach(
+      (el) => {
+        el.onToggle = (expanded) => {
+          if (expanded) {
+            gallery._onIdleEnd();
+          }
+        }
+      }
+    );
   
     document.querySelectorAll('button.topic').forEach((button) => {
         if (button.dataset.topic === theme) {
@@ -87,8 +100,8 @@ let gallery;
     gallery.direction = "random";
     gallery.onIdle = (idleTime) => {
       if (idleTime == 60) {
-        document.querySelector('header').classList.add('hide');
-        document.querySelectorAll('.controls').forEach((element) => {element?.classList.add('hide');})
+        document.querySelectorAll('menu-sandwich').forEach((el) => {el._onToggle(false);});        
+        document.querySelectorAll('.idleHide').forEach((element) => {element.classList.add('hide');})
       }
     }
     gallery.onPauseStart = () => {
@@ -98,8 +111,7 @@ let gallery;
       updatePauseButtons(false);
     }
     gallery.onIdleEnd = (idleTime) => {
-      document.querySelector('header')?.classList.remove('hide');
-      document.querySelectorAll('.controls').forEach((element) => {element?.classList.remove('hide');})
+      document.querySelectorAll('.idleHide').forEach((element) => {element.classList.remove('hide');})
     }
     gallery.onNavigation = function (payload) {
       if (document.querySelector('div.curtain')) {

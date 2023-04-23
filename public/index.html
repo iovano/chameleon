@@ -14,14 +14,24 @@
 </head>
 
 <body class="darkness" id="fullscreenRoot">
+  <menu-sandwich target="ul.menu" menuClass="idleHide" menuItems='[{"title": "About Me", "link": "/about"}, "Contact / Imprint", "Disclaimer"]'>
+    <button class="sandwich idleHide"></button>
+    <!-- ul class="menu idleHide">
+      <li>About Me</li>
+      <li>Contact / Imprint</li>
+      <li>Disclaimer</li>
+    </ul -->    
+  </menu-sandwich>
   <div class="curtain">
     <div class="welcome">
       <p>Es wird empfohlen, <span class="requestFullscreen">Fullscreen</span>- aktivieren. <button class="requestFullscreen">ok</button></p>
     </div>
     </div>
   </div>
-<header>
+  <header class="idleHide">
+    <div class="titleContainer">
       <h1 class="meta-title">Chameleon | Image Gallery Library</h1>
+    </div>
     <div class="buttons">
       <button class="topic" data-topic="Gallery">Standard</button>
       <button class="topic" data-topic="Roam">Roam</button>
@@ -34,7 +44,7 @@
   <div id="gallery">
   </div>
 
-  <div class="controls">
+  <div class="controls idleHide">
     <div class="button left navi" data-target="-1">
       <div class="more icon"></div>
     </div>
