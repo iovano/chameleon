@@ -1,9 +1,9 @@
-import AlbumStrip from './AlbumStrip.js';
+import AlbumStrip from '../elements/AlbumStrip.js';
 
 import css from '../../css/gallery.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
 import styles from '../../css/default.css' assert { type: 'css' }; /* this currently does not work (chrome v101, safari, ...) */
 
-import TagsUL from './TagsUL.js';
+import TagsUL from '../elements/TagsUL.js';
 
 //document.adoptedStyleSheets.push(css);
 
@@ -114,6 +114,8 @@ class Gallery {
         document.removeEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
         window.removeEventListener('resize', (event) => this.dispatchEvent('Resize', event));
         window.removeEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
+        window.removeEventListener("offline", (event) => this.dispatchEvent('Offline', event));
+        window.removeEventListener("online", (event) => this.dispatchEvent('Online', event));    
     }
 
     addEventListeners() {
@@ -122,7 +124,8 @@ class Gallery {
         document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
         window.addEventListener('resize', (event) => this.dispatchEvent('Resize', event));
         window.addEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
-    
+        window.addEventListener("offline", (event) => this.dispatchEvent('Offline', event));
+        window.addEventListener("online", (event) => this.dispatchEvent('Online', event));    
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
         if (this.isPaused()) {
@@ -490,6 +493,15 @@ class Gallery {
             this.afterTransition = undefined;
         }
     }
+    _onError(event) {
+        console.error(event);
+    }
+    _onOnline(event){
+        console.log("online", event);
+    }
+    _onOffline(event){
+        console.log("offline", event);
+    }
     _onImageLoad(event, image) {
         if (this.target instanceof HTMLCanvasElement) {
             const ctx = this.target.getContext("2d");
@@ -560,6 +572,7 @@ class Gallery {
             image.id = 'imageSlot' + i;
             image.setAttributeNS(null, "visibility", "visible");
             /* assign internal onload - handler for image */
+            image.error = (event) => this.dispatchEvent('Error', event);
             image.onload = (event) => this.dispatchEvent('ImageLoad', event, this.getCurrentImage());
 
             /* create background */

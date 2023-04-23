@@ -36,6 +36,7 @@ export default class Fader extends Gallery {
         let imgLayer = document.createElement('div');
         let img = document.createElement('img');
         img.src = this.getImageSrc(this.getCurrentImage());
+        img.error = (event) => this.dispatchEvent('Error', event);
         this.set(img.style,this.imgStyle);
         this.img.unshift(imgLayer);
         this.set(imgLayer.style,this.imgLayerStyle)
