@@ -49,6 +49,7 @@
 #gallery .canvasContainer .filmStrip ul li img {
     transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
     background-color: rgba(0,0,0,0.8);
+    background-size: cover;
     padding: 0;
     width: 90px;
     height: 60px;
@@ -83,6 +84,7 @@
 
 #gallery .canvasContainer .filmStrip.hide {
     opacity: 0;
+    user-select: none;
 }
 ::-webkit-scrollbar {
     width: 0.2em;
