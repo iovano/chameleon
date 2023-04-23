@@ -73,14 +73,14 @@ canvas {
     cursor: pointer;
     position: relative;
 }
-#gallery .infoBox tags-ul.imageInfo {
+#gallery .infoBox ul-tags.imageInfo {
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
     padding: 1em;
     width: 33.7em;
 }
-#gallery .infoBox tags-ul > li {
+#gallery .infoBox ul-tags > li {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -153,7 +153,7 @@ canvas {
     padding: 0.1em 0.25em;
     background: rgba(0,0,0,0.8);
 }
-.infoBox tags-ul.imageExif > li div.label {
+.infoBox ul-tags.imageExif > li div.label {
     width: 2.5em;
     height: 2.5em;
     padding: 0;
@@ -162,43 +162,43 @@ canvas {
     background-size: contain;
     opacity: 0.6;
 }
-.infoBox tags-ul.imageExif > li div.value {
+.infoBox ul-tags.imageExif > li div.value {
     text-align: left;
 }
-.infoBox tags-ul.imageExif > li div.value, .infoBox tags-ul.imageExif > li div.label {
+.infoBox ul-tags.imageExif > li div.value, .infoBox ul-tags.imageExif > li div.label {
     margin-top: auto;
     margin-bottom: auto;
 }
-.infoBox tags-ul.imageExif {
+.infoBox ul-tags.imageExif {
     display: flex;
     justify-content: space-between;
     font-size: 0.75em;    
 }
-.infoBox tags-ul.imageExif > li div.label span {
+.infoBox ul-tags.imageExif > li div.label span {
     visibility: hidden;
 }
-.infoBox tags-ul.imageExif > li.aperture div.label {
+.infoBox ul-tags.imageExif > li.aperture div.label {
     background-image:url('../icons/icon_aperture.svg');
 }
-.infoBox tags-ul.imageExif > li.camera div.label {
+.infoBox ul-tags.imageExif > li.camera div.label {
     background-image:url('../icons/icon_camera.svg');
 }
-.infoBox tags-ul.imageExif > li.exposure div.label {
+.infoBox ul-tags.imageExif > li.exposure div.label {
     background-image:url('../icons/icon_exposure.svg');
 }
-.infoBox tags-ul.imageExif > li.flash div.label {
+.infoBox ul-tags.imageExif > li.flash div.label {
     background-image:url('../icons/icon_flash.svg');
 }
-.infoBox tags-ul.imageExif > li.focus div.label {
+.infoBox ul-tags.imageExif > li.focus div.label {
     background-image:url('../icons/icon_focus.svg');
 }
-.infoBox tags-ul.imageExif > li.iso div.label {
+.infoBox ul-tags.imageExif > li.iso div.label {
     background-image:url('../icons/icon_iso.svg');
 }
-.infoBox tags-ul.imageExif > li.noflash div.label {
+.infoBox ul-tags.imageExif > li.noflash div.label {
     background-image:url('../icons/icon_noflash.svg');
 }
-.infoBox tags-ul.imageExif > li.lens div.label {
+.infoBox ul-tags.imageExif > li.lens div.label {
     background-image:url('../icons/icon_lens.svg');
 }
 .search search > li.search div.label {
@@ -210,15 +210,15 @@ canvas {
 
 
 @media (max-width: 600px) {
-    #gallery .infoBox tags-ul {
+    #gallery .infoBox ul-tags {
         min-width: 100%;   
         max-width: 100%;
     }
-    .infoBox tags-ul.imageExif {
+    .infoBox ul-tags.imageExif {
         flex-wrap: wrap;
         font-size: 0.6em;    
     }
-    .infoBox tags-ul.imageExif > li div.label {
+    .infoBox ul-tags.imageExif > li div.label {
         width: 2em;
         height: 2em;
     }
@@ -265,7 +265,7 @@ canvas {
     #gallery .infoBox {
         width: auto;
     }
-    #gallery .infoBox tags-ul.imageInfo {
+    #gallery .infoBox ul-tags.imageInfo {
         width: auto;
     }
     #gallery .infoBox .imageInfo li div.value {

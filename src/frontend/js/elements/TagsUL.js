@@ -1,4 +1,4 @@
-class TagsUL extends HTMLElement {
+export default class TagsUL extends HTMLElement {
     listItems = undefined
     constructor(listItems = undefined) {
         super();
@@ -39,6 +39,4 @@ class TagsUL extends HTMLElement {
         }
     }
 }
-customElements.define('tags-ul',TagsUL);
-
-export default TagsUL;
+customElements.define('ul-tags',TagsUL);
