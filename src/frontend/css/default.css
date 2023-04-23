@@ -1,4 +1,9 @@
-
+html {
+    min-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 body {
     background: rgba(0,0,0,1);
     flex-grow: 1;
@@ -56,12 +61,22 @@ header button {
     border-radius: 0.25em;
     cursor: pointer;
 }
-header button:hover {
+header div.buttons button:hover {
     background: rgba(180,180,180,0.8);
 }
-header button.active {
+header div.buttons button.active {
     background: rgba(180,180,180,0.5);
 }
+
+input-search > li.search div.label {
+    background-image:url('../icons/icon_search.svg');
+}
+menu-sandwich > .sandwich {
+    background-image:url('../icons/icon_sandwich.svg');
+    width: 20px;
+    height: 20px;
+}
+
 
 div.curtain div.welcome {
     color: rgba(255,255,255,0.8);
@@ -212,7 +227,11 @@ div.curtain.hide {
     .controls div.toggle:hover div.icon {
         content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 24' style='width: 24px; height: 24px;'%3E%3Crect width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3Crect x='16' width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3C/svg%3E");
         opacity: 1;
-        
     }
+    menu-sandwich .sandwich:hover {
+        background: rgba(0,0,0,0);
+        background-image:url('../icons/icon_sandwich2.svg');
+    }
+
 
 }
