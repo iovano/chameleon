@@ -297,7 +297,6 @@ class Gallery {
 
     }
     updateClipPathTransition() {
-        console.log("transition "+this.transitionFrame);
         if (this.suspended && this.transitionFrame !== 0) {
             document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
         } else if (this.transitionFrame !== undefined && this.transitionFrame <= (this.transitionDuration * this.fps) && !this.suspended) {
