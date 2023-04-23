@@ -4,6 +4,8 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import postcss from 'rollup-plugin-postcss'
 import commonjs from 'rollup-plugin-commonjs';
 import replace from 'rollup-plugin-replace';
+import serve from 'rollup-plugin-serve';
+import livereload from 'rollup-plugin-livereload';
 
 export default {
 	input: 'src/frontend/js/main.js',
@@ -11,6 +13,10 @@ export default {
         file: 'public/dist/bundle.min.js',
         format: 'iife',
         name: 'version',
+    },
+    watch: {
+      buildDelay: 2000,
+      clearScreen: false
     },
     plugins: [
         postcss({extract: true}),
@@ -30,5 +36,10 @@ export default {
             exclude: 'node_modules/**',
             ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
             }),            
+        livereload('public'),
+        serve({
+            contentBase: 'public',
+            port: 3000
+        })
     ],
 };
