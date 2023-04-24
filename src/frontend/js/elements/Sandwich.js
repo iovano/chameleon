@@ -14,7 +14,7 @@ export default class Sandwich extends HTMLElement {
         this.menu = this.querySelector(this.attributes.target?.value || 'ul.menu');
         if (!this.menu) {
             this.menu = document.createElement('ul');
-            if (this.attributes.menuClass.value) {
+            if (this.attributes.menuClass?.value) {
                 this.menu.classList.add(this.attributes.menuClass.value.split(" "));
             }
             this.appendChild(this.menu);
@@ -39,6 +39,7 @@ export default class Sandwich extends HTMLElement {
                     this.menu.appendChild(li);
                 }    
             }
+            console.log(this.menu);
         }
     }
     _onClickMenuItem(event, item) {
