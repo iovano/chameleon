@@ -49,9 +49,10 @@
 #gallery .canvasContainer .filmStrip ul li img {
     transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
     background-color: rgba(0,0,0,0.8);
+    background-size: cover;
     padding: 0;
-    width: 60px;
-    height: 40px;
+    width: 90px;
+    height: 60px;
     cursor: pointer;
     opacity: 0.5;
 }
@@ -83,6 +84,7 @@
 
 #gallery .canvasContainer .filmStrip.hide {
     opacity: 0;
+    user-select: none;
 }
 ::-webkit-scrollbar {
     width: 0.2em;
@@ -112,32 +114,12 @@
         transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
         background-color: rgba(0,0,0,0.8);
         padding: 0;
-        width: 30px;
-        height: 20px;
+        width: 45px;
+        height: 30px;
     }
     #gallery .canvasContainer .filmStrip {
         text-align: center;
     }    
-}
-html {
-    min-height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-body {
-    flex-grow: 1;
-    background: rgba(0,0,0,1);
-    color: #fff;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-canvas {
-    border: none;
-}
-.highlight {
-    color: #faf;
-    font-weight: 400;
 }
 #gallery {
     height: 100%;
@@ -166,251 +148,19 @@ canvas {
     overflow: hidden;
     display: inline-block;
 }
-.canvasContainer .infoBox.hide, .hide {
-    opacity: 0;
-}
-.canvasContainer .infoBox {
-    position: absolute;
-    bottom: 0.5em;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    z-index: 200;
-    opacity: 1;
-    max-height: 60%;
-    max-width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
 
-    transition: background-color 1s, opacity 1s;
-    color: rgba(155,155,155,0.8);
-    
-}
-#gallery .infoBox > .imageInfo, #gallery .infoBox .noInfo {
-    padding: 1em;
-    display: inline-block;
-    border-radius: 0.25em;
-    background: rgba(0,0,0,0.6);
-    user-select: none;
-    cursor: pointer;
-    position: relative;
-}
-#gallery .infoBox tags-ul.imageInfo {
-    list-style-type: none;
-    list-style-position: outside;
-    margin: 0;
-    padding: 1em;
-    width: 33.7em;
-}
-#gallery .infoBox tags-ul > li {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-}
-#gallery .infoBox .imageInfo li:not(.tags,.exif,.gear,.title) div.value {
-    text-align: justify;
-    padding: 0 1.5em 0 0.5em;
-}
-#gallery .infoBox:not(.minified) .imageInfo .title div.value {
-    margin-left: 0.5em;
-}
-#gallery .infoBox:not(.minified) .imageInfo li.title {
-    margin-bottom: 0.5em;
-
-}
-#gallery .infoBox .imageInfo li {
-    margin: 0 0 0.25em 0;
-}
-#gallery .infoBox h1,h2,h3, .imageInfo .title div.value span {
-    color: rgba(255,255,255,0.8);
-}
-.infoBox .imageInfo .title div.value span {
-    font-size: 1.2em;
-    font-weight: bolder;
-}
-/* MINIFIED infoBox */
-#gallery .infoBox.minified .imageInfo :not(.title) > div, #gallery .infoBox.minified div.label {
-    display: none;
-}
-#gallery .infoBox.minified .imageInfo li {
-    margin: 0;
-}
-#gallery .infoBox.minified .imageInfo li.title > div {
-    text-align: center;
-    width: 100%;
-}
-
-
-#gallery .infoBox div.label {
-    min-width: 3em;
-    max-width: 3em;
-    text-align: right;
-    vertical-align: center;
-    padding-right: 0.5em;
-}
-
-#gallery .infoBox li.tags div.value span:after {
-    content: "\a";
-} 
-
-#gallery .infoBox .imageInfo li.tags div.value {
-    padding-left: 0.3em;
-
-}
-#gallery .infoBox li.tags div.value span {
-    color: rgba(255,255,255,0.4);
-    display: inline-block;
-    background-color: rgba(0,0,0,0.8);
-    font-size: 0.6em;
-    border-radius: 0.2em;
-    padding: 0 0.6em 0.1em 0.6em;
-    margin: 0.1em 0.1em;
-}
-#gallery .infoBox > .info > .label {
-    display: none;
-}
-#gallery .infoBox .label > span {
-    border-radius: 0.2em;
-    font-size: 0.6em;
-    padding: 0.1em 0.25em;
-    background: rgba(0,0,0,0.8);
-}
-.infoBox tags-ul.imageExif > li div.label {
-    width: 2.5em;
-    height: 2.5em;
-    padding: 0;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.6;
-}
-.infoBox tags-ul.imageExif > li div.value {
-    text-align: left;
-}
-.infoBox tags-ul.imageExif > li div.value, .infoBox tags-ul.imageExif > li div.label {
-    margin-top: auto;
-    margin-bottom: auto;
-}
-.infoBox tags-ul.imageExif {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75em;    
-}
-.infoBox tags-ul.imageExif > li div.label span {
-    visibility: hidden;
-}
-.infoBox tags-ul.imageExif > li.aperture div.label {
-    background-image:url('../icons/icon_aperture.svg');
-}
-.infoBox tags-ul.imageExif > li.camera div.label {
-    background-image:url('../icons/icon_camera.svg');
-}
-.infoBox tags-ul.imageExif > li.exposure div.label {
-    background-image:url('../icons/icon_exposure.svg');
-}
-.infoBox tags-ul.imageExif > li.flash div.label {
-    background-image:url('../icons/icon_flash.svg');
-}
-.infoBox tags-ul.imageExif > li.focus div.label {
-    background-image:url('../icons/icon_focus.svg');
-}
-.infoBox tags-ul.imageExif > li.iso div.label {
-    background-image:url('../icons/icon_iso.svg');
-}
-.infoBox tags-ul.imageExif > li.noflash div.label {
-    background-image:url('../icons/icon_noflash.svg');
-}
-.infoBox tags-ul.imageExif > li.lens div.label {
-    background-image:url('../icons/icon_lens.svg');
-}
-.search search > li.search div.label {
-    background-image:url('../icons/icon_search.svg');
-}
-.infoBox sandwich > li.sandwich div.label {
-    background-image:url('../icons/icon_sandwich.svg');
-}
-
-
-@media (max-width: 600px) {
-    #gallery .infoBox tags-ul {
-        min-width: 100%;   
-        max-width: 100%;
-    }
-    .infoBox tags-ul.imageExif {
-        flex-wrap: wrap;
-        font-size: 0.6em;    
-    }
-    .infoBox tags-ul.imageExif > li div.label {
-        width: 2em;
-        height: 2em;
-    }
-    #gallery .infoBox li.tags div.value span {
-        font-size: 0.6em;
-    }
-    #gallery .infoBox .imageInfo .description div.value {
-        text-align: justify;
-        padding-right: 0.5em;
-    }
-    
-}
-@media (max-height: 650px) {
-    .canvasContainer .infoBox {
-        max-height: 30%;
-        bottom: 0;
-    }
-    #gallery .infoBox.minified .imageInfo li {
-        margin: 0 !important;
-    }
-    
-}
-@media (max-height: 500px) {
-    #gallery .infoBox .imageInfo :not(.title) > div, .infoBox div.label {
-        display: none;
-    }
-    
-    #gallery .infoBox > .imageInfo {
-        min-width: auto;   
-        max-width: auto;
-
-    }    
-    #gallery .infoBox {
-        max-height: 15%;
-        height: auto;
-    }
-    #gallery .infoBox .imageInfo {
-        padding: 0.5em 0.5em !important;
-    }
-    #gallery .infoBox .imageInfo li {
-        margin-bottom: 0 !important;
-        margin: 0 !important;
-    }
-    #gallery .infoBox {
-        width: auto;
-    }
-    #gallery .infoBox tags-ul.imageInfo {
-        width: auto;
-    }
-    #gallery .infoBox .imageInfo li div.value {
-        margin-left: 0 !important;
-        padding: 0 !important;
-    }
-    
-    #gallery .infoBox .imageInfo li.title > div {
-        white-space: nowrap;
-        text-align: center;
-        width: auto;
-        margin: 0;
-    }
-    #gallery .infoBox .imageInfo li.title > div.value span {
-        font-size: 1em;
-    }
-}
 @media (hover: hover) {
     #gallery:hover {
         background: rgba(255,255,255,0.1);
     }    
 }
 
-
+html {
+    min-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 body {
     background: rgba(0,0,0,1);
     flex-grow: 1;
@@ -452,10 +202,10 @@ header {
     background: rgba(0,0,0,0.5);
 }
 header h1,h2,h3 {
+    margin-left: 2em;
     display: inline;
     font-size: 1em;
     padding: 0;
-    margin: 0;
     color: rgba(255,255,255,0.2);
 }
 header .buttons {
@@ -468,12 +218,17 @@ header button {
     border-radius: 0.25em;
     cursor: pointer;
 }
-header button:hover {
+header div.buttons button:hover {
     background: rgba(180,180,180,0.8);
 }
-header button.active {
+header div.buttons button.active {
     background: rgba(180,180,180,0.5);
 }
+
+input-search > li.search div.label {
+    background-image:url('../icons/icon_search.svg');
+}
+
 
 div.curtain div.welcome {
     color: rgba(255,255,255,0.8);
@@ -535,12 +290,15 @@ div.curtain {
     margin-right: auto;
     padding: 0.4em;
 }
-.controls div.hide {
+.hide {
     opacity: 0;
+    user-select: none;
+    pointer-events: none;
 }
 div.disabled {
     z-index: 0;
     user-select: none;
+    pointer-events: none;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
@@ -624,7 +382,350 @@ div.curtain.hide {
     .controls div.toggle:hover div.icon {
         content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 24' style='width: 24px; height: 24px;'%3E%3Crect width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3Crect x='16' width='6' height='24' rx='3' ry='3' style='fill: %23FFF;'/%3E%3C/svg%3E");
         opacity: 1;
-        
+    }
+}
+
+.infoBox.hide, .hide {
+    opacity: 0;
+}
+.infoBox {
+    position: absolute;
+    bottom: 0.5em;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    z-index: 200;
+    opacity: 1;
+    max-height: 60%;
+    max-width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    transition: background-color 1s, opacity 1s;
+    color: rgba(155,155,155,0.8);
+    
+}
+.infoBox > .imageInfo, .infoBox .noInfo {
+    padding: 1em;
+    display: inline-block;
+    border-radius: 0.25em;
+    background: rgba(0,0,0,0.6);
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+}
+.infoBox ul-tags.imageInfo {
+    list-style-type: none;
+    list-style-position: outside;
+    margin: 0;
+    padding: 1em;
+    width: 33.7em;
+}
+.infoBox ul-tags > li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+.infoBox .imageInfo li:not(.tags,.exif,.gear,.title) div.value {
+    text-align: justify;
+    padding: 0 1.5em 0 0.5em;
+}
+.infoBox:not(.minified) .imageInfo .title div.value {
+    margin-left: 0.5em;
+}
+.infoBox:not(.minified) .imageInfo li.title {
+    margin-bottom: 0.5em;
+
+}
+.infoBox .imageInfo li {
+    margin: 0 0 0.25em 0;
+}
+.infoBox h1,h2,h3, .imageInfo .title div.value span {
+    color: rgba(255,255,255,0.8);
+}
+.infoBox .imageInfo .title div.value span {
+    font-size: 1.2em;
+    font-weight: bolder;
+}
+/* MINIFIED infoBox */
+.infoBox.minified .imageInfo :not(.title) > div, .infoBox.minified div.label {
+    display: none;
+}
+.infoBox.minified .imageInfo li {
+    margin: 0;
+}
+.infoBox.minified .imageInfo li.title > div {
+    text-align: center;
+    width: 100%;
+}
+
+
+.infoBox div.label {
+    min-width: 3em;
+    max-width: 3em;
+    text-align: right;
+    vertical-align: center;
+    padding-right: 0.5em;
+}
+
+.infoBox li.tags div.value span:after {
+    content: "\a";
+} 
+
+.infoBox .imageInfo li.tags div.value {
+    padding-left: 0.3em;
+
+}
+.infoBox li.tags div.value span {
+    color: rgba(255,255,255,0.4);
+    display: inline-block;
+    background-color: rgba(0,0,0,0.8);
+    font-size: 0.6em;
+    border-radius: 0.2em;
+    padding: 0 0.6em 0.1em 0.6em;
+    margin: 0.1em 0.1em;
+}
+.infoBox > .info > .label {
+    display: none;
+}
+.infoBox .label > span {
+    border-radius: 0.2em;
+    font-size: 0.6em;
+    padding: 0.1em 0.25em;
+    background: rgba(0,0,0,0.8);
+}
+
+.infoBox ul-tags.imageExif > li div.label {
+    width: 2.5em;
+    height: 2.5em;
+    padding: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.6;
+}
+.infoBox ul-tags.imageExif > li div.value {
+    text-align: left;
+}
+.infoBox ul-tags.imageExif > li div.value, .infoBox ul-tags.imageExif > li div.label {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.infoBox ul-tags.imageExif {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75em;    
+}
+.infoBox ul-tags.imageExif > li div.label span {
+    visibility: hidden;
+}
+.infoBox ul-tags.imageExif > li.aperture div.label {
+    background-image:url('../icons/icon_aperture.svg');
+}
+.infoBox ul-tags.imageExif > li.camera div.label {
+    background-image:url('../icons/icon_camera.svg');
+}
+.infoBox ul-tags.imageExif > li.exposure div.label {
+    background-image:url('../icons/icon_exposure.svg');
+}
+.infoBox ul-tags.imageExif > li.flash div.label {
+    background-image:url('../icons/icon_flash.svg');
+}
+.infoBox ul-tags.imageExif > li.focus div.label {
+    background-image:url('../icons/icon_focus.svg');
+}
+.infoBox ul-tags.imageExif > li.iso div.label {
+    background-image:url('../icons/icon_iso.svg');
+}
+.infoBox ul-tags.imageExif > li.noflash div.label {
+    background-image:url('../icons/icon_noflash.svg');
+}
+.infoBox ul-tags.imageExif > li.lens div.label {
+    background-image:url('../icons/icon_lens.svg');
+}
+
+@media (max-width: 600px) {
+    .infoBox ul-tags {
+        min-width: 100%;   
+        max-width: 100%;
+    }
+    .infoBox ul-tags.imageExif {
+        flex-wrap: wrap;
+        font-size: 0.6em;    
+    }
+    .infoBox ul-tags.imageExif > li div.label {
+        width: 2em;
+        height: 2em;
+    }
+    .infoBox li.tags div.value span {
+        font-size: 0.6em;
+    }
+    .infoBox .imageInfo .description div.value {
+        text-align: justify;
+        padding-right: 0.5em;
+    }
+    
+}
+@media (max-height: 650px) {
+    .canvasContainer .infoBox {
+        max-height: 30%;
+        bottom: 0;
+    }
+    .infoBox.minified .imageInfo li {
+        margin: 0 !important;
+    }
+    
+}
+
+@media (max-height: 500px) {
+    .infoBox .imageInfo :not(.title) > div, .infoBox div.label {
+        display: none;
     }
 
+    .infoBox > .imageInfo {
+        min-width: auto;   
+        max-width: auto;
+
+    }    
+    .infoBox {
+        max-height: 15%;
+        height: auto;
+    }
+    .infoBox .imageInfo {
+        padding: 0.5em 0.5em !important;
+    }
+    .infoBox .imageInfo li {
+        margin-bottom: 0 !important;
+        margin: 0 !important;
+    }
+    .infoBox {
+        width: auto;
+    }
+    .infoBox ul-tags.imageInfo {
+        width: auto;
+    }
+    .infoBox .imageInfo li div.value {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .infoBox .imageInfo li.title > div {
+        white-space: nowrap;
+        text-align: center;
+        width: auto;
+        margin: 0;
+    }
+    .infoBox .imageInfo li.title > div.value span {
+        font-size: 1em;
+    }
+}
+menu-sandwich {
+    z-index: 1000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+
+}
+menu-sandwich > div.menu {
+    position: relative;
+    top: 0;
+    left: 0;
+    padding: 0 2em 0 0;
+    min-width: 15em;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+menu-sandwich > div.menu h3 {
+    margin: 0.5em 0.5em 0.5em 2.3em;
+    display: inline-block;
+}
+menu-sandwich > div.menu ul.menu {
+    list-style-type: circle;
+    list-style-position: inside;
+    padding: 0;
+    margin: 0.5em;
+}
+menu-sandwich ul > li {
+    padding: 0.5em;
+    opacity: 0.6;
+    transition: opacity 1s;
+}
+menu-sandwich ul > li.active {
+    font-weight: bolder;
+    opacity: 1;
+}
+menu-sandwich > button.sandwich {
+    z-index: 1001;
+    position: absolute;
+    cursor: pointer;
+    background-image: url('../icons/icon_sandwich.svg');
+    background-color: rgba(0,0,0,0);
+    margin: 0.5em 0.5em;
+    width: 1.5em;
+    transition: opacity 0.5s;
+    height: 1.5em;
+    border: 0;
+    opacity: 0.5;
+}
+menu-sandwich > button.sandwich.active {
+    background-image:url('../icons/icon_sandwich2.svg');
+}
+menu-sandwich > div.fill {
+    background-color: rgba(0,0,0,0.4);
+    flex-grow: 100;
+    height: 100%;
+}
+menu-sandwich > div.content {
+    overflow-y: auto;
+    position: relative;
+    max-width: 40em;
+    width: 100%;
+    color: rgba(255,255,255,0.8);
+    min-height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+menu-sandwich > div.content body {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    margin: 0;
+    padding: 0 2em 0 4em;
+}
+menu-sandwich > div.content body h3 {
+    margin: 0;
+    color: rgba(255,255,255,1);
+    display: inline-block;
+    padding: 0.5em 0;
+}
+menu-sandwich > div.content body form {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 40em;
+    justify-content: space-between;
+}
+menu-sandwich > div.content body form label {
+    width: 37%;
+    display: inline-block;
+    text-align: right;
+    padding: 0.5em 0;
+}
+menu-sandwich > div.content body form input, menu-sandwich > div.content body form select {
+    padding: 0.5em 0;
+    width: 57%;
+    display: inline-block;
+    text-align: left;
+    margin-bottom: 0.5em;
+}
+menu-sandwich > div.content body form select {
+    margin-bottom: 1em;
+}
+
+
+@media (hover: hover) {
+    menu-sandwich .sandwich:hover {
+        opacity: 1;
+    }
 }
