@@ -14,8 +14,13 @@
 </head>
 
 <body class="darkness" id="fullscreenRoot">
-  <menu-sandwich target="ul.menu" menuItems='["Settings", {"title": "About Me", "link": "/about"}, "Contact / Imprint", "Disclaimer"]'>
-    <button class="sandwich"></button>
+  <menu-sandwich permanent="permanent" target="div.content" menu="ul.menu" menuClass="sandwichMenu" items='["Settings", {"title": "About Me", "link": "/about"}, "Contact / Imprint", "Disclaimer"]'>
+    <button class="sandwich permanent"></button>
+    <div class="menu">
+      <h3>PHOTO.KODAL</h3>
+      <ul class="menu"></ul>
+    </div>
+    <div class="content"></div>
     <!-- ul class="menu idleHide">
       <li>About Me</li>
       <li>Contact / Imprint</li>

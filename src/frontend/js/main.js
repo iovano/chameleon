@@ -31,6 +31,7 @@ let gallery;
     } else {
       gallery = new DotGain(canvas);
     }
+    window.gallery = gallery;
     document.querySelectorAll('.requestFullscreen').forEach(
       (el) => {
         gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
@@ -41,9 +42,9 @@ let gallery;
       (el) => {
         el.onToggle = (expanded) => {
           if (expanded) {
-            gallery._onPureStart();
+            gallery.dispatchEvent("PureStart");
           } else {            
-            gallery._onPureEnd();
+            gallery.dispatchEvent("PureEnd");
           }
         }
       }
@@ -101,6 +102,7 @@ let gallery;
 
     gallery.direction = "random";
     gallery.onPureStart = () => {
+      console.log("pure start");
       gallery.onIdle(60);
     }
     gallery.onPureEnd = () => {

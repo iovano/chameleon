@@ -4,24 +4,35 @@ menu-sandwich {
     top: 0;
     left: 0;
     bottom: 0;
-    min-width: 12em;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+
 }
-menu-sandwich ul {
-    position: absolute;
+menu-sandwich > div.menu {
+    position: relative;
     top: 0;
-    left: 3em;
-    padding: 0;
-    margin: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.8);
-    list-style-type: none;
+}
+menu-sandwich > div.menu h3 {
+    margin: 0.5em 0.5em 0.5em 2.3em;
+    display: inline-block;
+}
+menu-sandwich > div.menu ul.menu {
+    list-style-type: circle;
     list-style-position: inside;
+    padding: 0;
+    margin: 0.5em;
 }
 menu-sandwich ul > li {
     padding: 0.5em;
 }
 menu-sandwich > button.sandwich {
+    z-index: 1001;
+    position: absolute;
     cursor: pointer;
     background-image: url('../icons/icon_sandwich.svg');
     background-color: rgba(0,0,0,0);
@@ -35,7 +46,22 @@ menu-sandwich > button.sandwich {
 menu-sandwich > button.sandwich.active {
     background-image:url('../icons/icon_sandwich2.svg');
 }
-
+menu-sandwich > div.content {
+    min-width: 100%;
+    overflow-y: auto;
+    flex: 1;
+}
+menu-sandwich > div.content body {
+    height: 100%;
+    margin: 0;
+    padding: 0 0.5em 0.5em 2em;
+    background-color: rgba(0,0,0,0.8);
+}
+menu-sandwich > div.content body h3 {
+    margin: 0;
+    display: inline-block;
+    padding: 0.5em 0;
+}
 
 @media (hover: hover) {
     menu-sandwich .sandwich:hover {
