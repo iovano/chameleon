@@ -2,8 +2,10 @@
 <form>
     <label for="style">Style</label>
     <select name="style" type="range">
-        <option name="Standard">Fade in/out</option>
+        <option name="Gallery">Fade in/out</option>
         <option name="DotGain">DotGain</option>
+        <option name="Roam">Roam</option>
+        <option name="Roam">Fader</option>
     </select>
     <label for="duration">duration</label>
     <input name="duration" type="range" min="2" max="180" onload="this.value = window.gallery.breakTimeDuration;" onchange="window.gallery.breakTimeDuration = event.target.value;"/>

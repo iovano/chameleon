@@ -58,6 +58,9 @@ menu-sandwich > div.fill {
     flex-grow: 100;
     height: 100%;
 }
+menu-sandwich > div.content.hide {
+    overflow: hidden;
+}
 menu-sandwich > div.content {
     overflow-y: auto;
     position: relative;
@@ -107,5 +110,41 @@ menu-sandwich > div.content body form select {
 @media (hover: hover) {
     menu-sandwich .sandwich:hover {
         opacity: 1;
+    }
+}
+
+@media (max-width: 750px) {
+    menu-sandwich > div.menu {
+        padding: 0 0.5em 0 0;
+        min-width: 10em;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+    }
+}
+
+@media (max-width: 500px) {
+    menu-sandwich > div.menu h3 {
+        padding: 0.3em 0 0 0.2em;
+        font-size: 0.8em;
+    }
+    menu-sandwich > div.menu {
+        width: 100%;
+        height: auto;
+        background-color: rgba(0,0,0,0.8);
+    }
+    menu-sandwich ul.menu > li {
+        font-size: 0.8em;
+    }
+    menu-sandwich {
+        flex-wrap: inherit;
+        flex-direction: inherit;
+    }
+    menu-sandwich > div.content {
+        flex-grow: 0;
+        width: auto;
+        overflow-y: auto;
+    }
+    menu-sandwich > div.content body {
+        padding: 0 2em 0 0.5em;
     }
 }

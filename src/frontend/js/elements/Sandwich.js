@@ -83,10 +83,15 @@ export default class Sandwich extends HTMLElement {
         if (this.target) {
             fetch(page).then((response) => {return response.text();}).then((html) => {
                 // Convert the HTML string into a document object
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(html, 'text/html');  
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'text/html');  
                 this.target.innerHTML = '';
-                this.target.appendChild(doc.body);
+                if (doc.body) {
+                    let docObj = this.target.appendChild(doc.body);
+                    docObj.style.minHeight = docObj.scrollHeight+"px";
+                } else {
+                    this.target.innerHTML = 'Ressource '+page+' could not be loaded';
+                }
             })
             .catch((error) => {
                 console.error("error loading ressource",item,error);
