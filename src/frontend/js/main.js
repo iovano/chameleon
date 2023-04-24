@@ -41,7 +41,9 @@ let gallery;
       (el) => {
         el.onToggle = (expanded) => {
           if (expanded) {
-            gallery._onIdleEnd();
+            gallery._onPureStart();
+          } else {            
+            gallery._onPureEnd();
           }
         }
       }
@@ -98,10 +100,18 @@ let gallery;
     //screen.orientation.addEventListener("change", onResize); /* TODO: CHECK WHY RESIZE DOES NOT WORK ON iOS */
 
     gallery.direction = "random";
+    gallery.onPureStart = () => {
+      gallery.onIdle(60);
+    }
+    gallery.onPureEnd = () => {
+      gallery.onIdleEnd();
+    }
+
     gallery.onIdle = (idleTime) => {
       if (idleTime == 60) {
-        document.querySelectorAll('menu-sandwich').forEach((el) => {el._onToggle(false);});        
         document.querySelectorAll('.idleHide').forEach((element) => {element.classList.add('hide');})
+//      } else if (idleTime == 200) {
+//        document.querySelectorAll('menu-sandwich').forEach((el) => {el._onToggle(false);});        
       }
     }
     gallery.onPauseStart = () => {
@@ -111,7 +121,9 @@ let gallery;
       updatePauseButtons(false);
     }
     gallery.onIdleEnd = (idleTime) => {
-      document.querySelectorAll('.idleHide').forEach((element) => {element.classList.remove('hide');})
+      if (!gallery.pureMode) {
+        document.querySelectorAll('.idleHide').forEach((element) => {element.classList.remove('hide');})
+      }
     }
     gallery.onNavigation = function (payload) {
       if (document.querySelector('div.curtain')) {

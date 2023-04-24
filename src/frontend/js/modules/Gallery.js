@@ -42,6 +42,7 @@ class Gallery {
     keysPressed = []
     paused = false; /* user pause state */
     userIdleTime = 0;
+    pureMode = false;
     firstRun = true;
 
     /* gallery image storage */
@@ -269,9 +270,9 @@ class Gallery {
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
             let os = this.overlays[key];
-            if (!this.transitionFrame  && !this.suspended && ((os.autostart > 0 && this.breakTimeFrame === os.autostart * this.fps) || (this.breakTimeFrame > 0 && os.idleEnd === true && this.userIdleTime === 0))) {
+            if (!this.pureMode && !this.transitionFrame  && !this.suspended && ((os.autostart > 0 && this.breakTimeFrame === os.autostart * this.fps) || (this.breakTimeFrame > 0 && os.idleEnd === true && this.userIdleTime === 0))) {
                 this[key].classList.remove('hide');
-            } else if (os.idleMax * this.fps === this.userIdleTime && (!os.duration || this.breakTimeFrame > os.duration * this.fps)) {
+            } else if (this.pureMode || ((os.idleMax * this.fps === this.userIdleTime) && (!os.duration || this.breakTimeFrame > os.duration * this.fps))) {
                 this[key].classList.add('hide');
             }
         }
@@ -419,15 +420,22 @@ class Gallery {
     _onScroll(event) {
         this._onIdleEnd();
     }
+    _onPureStart() {
+        this.pureMode = true;
+    }
+    _onPureEnd() {
+        this.pureMode = false;
+        this._onIdleEnd();
+    }
     /* internal event listeners */
     _onKeyUp(event) {
-        if (event.key === 'Escape' && (this.userIdleTime < this.infoBoxDuration * this.fps)) {
-            if (this.userIdleTime < this.infoBoxDuration * this.fps) {
-                this.userIdleTime = this.infoBoxDuration * this.fps - 1;
+        if (event.key === 'Escape') {
+            if (this.pureMode) {
+                this.dispatchEvent('PureEnd');
             } else {
-                this._onIdleEnd();
+                this.dispatchEvent('PureStart');
             }
-            /* escape key can be used to toggle idle mode */
+            /* escape key can be used to toggle pure mode */
         } else if (event.key === ' ') {
             this.setPaused();
         } else if (this.keysPressed.indexOf('Shift') === -1) {
@@ -495,11 +503,11 @@ class Gallery {
         }
     }
     _onError(event) {
-        console.log("error!");
+        this.showMessage("An error occurred", event);
         console.error(event);
     }
     _onOnline(event){
-        console.log("online", event);
+        this.navigate("+0","+0");
     }
     _onOffline(event){
         console.log("offline", event);
