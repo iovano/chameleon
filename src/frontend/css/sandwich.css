@@ -27,14 +27,18 @@ menu-sandwich > button.sandwich {
     background-color: rgba(0,0,0,0);
     margin: 0.5em 0.5em;
     width: 1.5em;
+    transition: opacity 0.5s;
     height: 1.5em;
     border: 0;
+    opacity: 0.5;
+}
+menu-sandwich > button.sandwich.active {
+    background-image:url('../icons/icon_sandwich2.svg');
 }
 
 
 @media (hover: hover) {
     menu-sandwich .sandwich:hover {
-        background: rgba(0,0,0,0);
-        background-image:url('../icons/icon_sandwich2.svg');
+        opacity: 1;
     }
 }
