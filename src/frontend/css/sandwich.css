@@ -13,7 +13,8 @@ menu-sandwich > div.menu {
     position: relative;
     top: 0;
     left: 0;
-    width: 100%;
+    padding: 0 2em 0 0;
+    min-width: 15em;
     height: 100%;
     background-color: rgba(0,0,0,0.8);
 }
@@ -29,6 +30,12 @@ menu-sandwich > div.menu ul.menu {
 }
 menu-sandwich ul > li {
     padding: 0.5em;
+    opacity: 0.6;
+    transition: opacity 1s;
+}
+menu-sandwich ul > li.active {
+    font-weight: bolder;
+    opacity: 1;
 }
 menu-sandwich > button.sandwich {
     z-index: 1001;
@@ -46,22 +53,56 @@ menu-sandwich > button.sandwich {
 menu-sandwich > button.sandwich.active {
     background-image:url('../icons/icon_sandwich2.svg');
 }
+menu-sandwich > div.fill {
+    background-color: rgba(0,0,0,0.4);
+    flex-grow: 100;
+    height: 100%;
+}
 menu-sandwich > div.content {
-    min-width: 100%;
     overflow-y: auto;
-    flex: 1;
+    position: relative;
+    max-width: 40em;
+    width: 100%;
+    color: rgba(255,255,255,0.8);
+    min-height: 100%;
+    background-color: rgba(0,0,0,0.8);
 }
 menu-sandwich > div.content body {
-    height: 100%;
+    background: transparent;
+    color: rgba(255,255,255,0.8);
     margin: 0;
-    padding: 0 0.5em 0.5em 2em;
-    background-color: rgba(0,0,0,0.8);
+    padding: 0 2em 0 4em;
 }
 menu-sandwich > div.content body h3 {
     margin: 0;
+    color: rgba(255,255,255,1);
     display: inline-block;
     padding: 0.5em 0;
 }
+menu-sandwich > div.content body form {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 40em;
+    justify-content: space-between;
+}
+menu-sandwich > div.content body form label {
+    width: 37%;
+    display: inline-block;
+    text-align: right;
+    padding: 0.5em 0;
+}
+menu-sandwich > div.content body form input, menu-sandwich > div.content body form select {
+    padding: 0.5em 0;
+    width: 57%;
+    display: inline-block;
+    text-align: left;
+    margin-bottom: 0.5em;
+}
+menu-sandwich > div.content body form select {
+    margin-bottom: 1em;
+}
+
 
 @media (hover: hover) {
     menu-sandwich .sandwich:hover {

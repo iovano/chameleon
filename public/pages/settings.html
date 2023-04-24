@@ -1,0 +1,12 @@
+<h3>Transition Settings</h3>
+<form>
+    <label for="style">Style</label>
+    <select name="style" type="range">
+        <option name="Standard">Fade in/out</option>
+        <option name="DotGain">DotGain</option>
+    </select>
+    <label for="duration">duration</label>
+    <input name="duration" type="range" min="2" max="180" onload="this.value = window.gallery.breakTimeDuration;" onchange="window.gallery.breakTimeDuration = event.target.value;"/>
+    <label for="transition">transition duration</label>
+    <input name="transition" type="range" min="0.1" max="10" onload="this.value = window.gallery.transitionDuration;" onchange="window.gallery.transitionDuration = event.target.value;"/>
+</form>
