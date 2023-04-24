@@ -663,7 +663,7 @@ menu-sandwich > button.sandwich {
     cursor: pointer;
     background-image: url('../icons/icon_sandwich.svg');
     background-color: rgba(0,0,0,0);
-    background-size: cover;
+    background-size: contain;
     margin: 0.5em 0.5em;
     width: 1.5em;
     transition: opacity 0.5s;
