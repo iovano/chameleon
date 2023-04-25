@@ -1,14 +1,24 @@
-<h3>Transition Settings</h3>
 <form>
+    <h3>Gallery Preferences</h3>
+    <label for="duration">Duration</label>
+    <input name="duration" type="range" min="2" max="180" onload="this.value = window.gallery.breakTimeDuration;" onchange="window.gallery.breakTimeDuration = event.target.value;"/>
+    <label for="size">Image size</label>
+    <select name="size">
+        <option name="cover">Cover</option>
+        <option name="contained">Contained</option>
+    </select>
+
+    <h3>Transition Settings</h3>
     <label for="style">Style</label>
     <select name="style" type="range">
         <option name="Gallery">Fade in/out</option>
         <option name="DotGain">DotGain</option>
         <option name="Roam">Roam</option>
-        <option name="Roam">Fader</option>
+        <option name="Fader">Fader</option>
     </select>
-    <label for="duration">duration</label>
-    <input name="duration" type="range" min="2" max="180" onload="this.value = window.gallery.breakTimeDuration;" onchange="window.gallery.breakTimeDuration = event.target.value;"/>
-    <label for="transition">transition duration</label>
+    <label for="transition">Transition Duration</label>
     <input name="transition" type="range" min="0.1" max="10" onload="this.value = window.gallery.transitionDuration;" onchange="window.gallery.transitionDuration = event.target.value;"/>
+    <h3>Content Filter</h3>
+    <label for="sfw">Adult Content (NSFW)</label>
+    <input name="sfw" type="checkbox" />
 </form>
