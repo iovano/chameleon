@@ -20,7 +20,7 @@ class Gallery {
         userIdleTimeDuration: 7.5, /* slideshow will not continue before user idle Time exceeds this threshold */
         transitionDuration: 2,
         showCursorDuration: 10, /* hide the mouse cursor after x seconds */
-        filters : {safety: ["0","1","2"]}, /* filter NSFW- (adult-) content. 0 = safe for work content, 1 = moderate adult content, 2 = explicit content */
+        filters : {safety: ["0","1"]}, /* filter NSFW- (adult-) content. 0 = safe for work content, 1 = moderate adult content, 2 = explicit content */
         width: undefined,
         height: undefined,
         direction: "random",
