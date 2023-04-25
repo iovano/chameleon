@@ -43,12 +43,10 @@ export default class Sandwich extends HTMLElement {
             );
         }
         this.createMenuItems();
-        console.log(this.items);
         this._onToggle(false);
     }
     createMenuItems() {
         if (this.attributes.items.value) {
-            console.log(this.attributes.items.value);
             let items = JSON.parse(this.attributes.items.value);
             if (Array.isArray(items)) {
                 for (let i in items) {
@@ -71,14 +69,12 @@ export default class Sandwich extends HTMLElement {
                     }
                 }    
             }
-            console.log(this.items);
         }
     }
     selectMenuItemNum(itemNum) {
         itemNum = itemNum !== undefined ? itemNum : this.selectMenuItemNum;
         let item = this.items[itemNum];
         let page = item.dataset?.link;
-        console.log("selected", itemNum, item, page);
         if (!page) page = "/pages/"+item.innerHTML.toLowerCase()+".html";
         if (this.target) {
             fetch(page).then((response) => {return response.text();}).then((html) => {
