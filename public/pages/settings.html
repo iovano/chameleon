@@ -1,24 +1,33 @@
-<form>
-    <h3>Gallery Preferences</h3>
-    <label for="duration">Duration</label>
-    <input name="duration" type="range" min="2" max="180" onload="this.value = window.gallery.breakTimeDuration;" onchange="window.gallery.breakTimeDuration = event.target.value;"/>
-    <label for="size">Image size</label>
-    <select name="size">
-        <option name="cover">Cover</option>
-        <option name="contained">Contained</option>
-    </select>
+<body>
+    <form method="POST" onsubmit="window.onSubmitSettings(event, document.forms[0]); return false;">
+        <h3>Gallery Preferences</h3>
+        <label for="duration">Duration</label>
+        <input name="breakTimeDuration" type="range" min="2" max="180" value="window.getSettings('breakTimeDuration')"/>
+        <label for="imgStyle.objectFit">Image size</label>
+        <select name="imgStyle.objectFit">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+        </select>
 
-    <h3>Transition Settings</h3>
-    <label for="style">Style</label>
-    <select name="style" type="range">
-        <option name="Gallery">Fade in/out</option>
-        <option name="DotGain">DotGain</option>
-        <option name="Roam">Roam</option>
-        <option name="Fader">Fader</option>
-    </select>
-    <label for="transition">Transition Duration</label>
-    <input name="transition" type="range" min="0.1" max="10" onload="this.value = window.gallery.transitionDuration;" onchange="window.gallery.transitionDuration = event.target.value;"/>
-    <h3>Content Filter</h3>
-    <label for="sfw">Adult Content (NSFW)</label>
-    <input name="sfw" type="checkbox" />
-</form>
+        <h3>Transition Settings</h3>
+        <label for="style">Style</label>
+        <select name="style" type="range">
+            <option value="Gallery">Fade in/out</option>
+            <option value="DotGain">DotGain</option>
+            <option value="Roam">Roam</option>
+            <option value="Fader">Fader</option>
+        </select>
+        <label for="transitionDuration">Transition Duration</label>
+        <input name="transitionDuration" type="range" min="0.1" max="10" onload="this.value = window.gallery.transitionDuration;" onchange="window.gallery.transitionDuration = event.target.value;"/>
+        <label for="zoomspeed">ZoomIn Speed</label>
+        <input name="zoomspeed" type="range" min="0.1" max="10"/>
+        <h3>Content Filter</h3>
+        <label for="safety">Adult Content (NSFW)</label>
+        <select name="filters.safety" multiple value="1">
+            <option value="0">safe</option>
+            <option value="1">moderate</option>
+            <option value="2">restricted</option>
+        </select>
+        <button>apply changes</button>
+    </form>
+</body>

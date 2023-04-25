@@ -71,6 +71,11 @@ export default class Sandwich extends HTMLElement {
             }
         }
     }
+    _onLoadPage(document, url, object) {
+        if (typeof this.onLoadPage === 'function') {
+            this.onLoadPage(document, url, object);
+        }
+    }
     selectMenuItemNum(itemNum) {
         itemNum = itemNum !== undefined ? itemNum : this.selectMenuItemNum;
         let item = this.items[itemNum];
@@ -84,7 +89,8 @@ export default class Sandwich extends HTMLElement {
                 this.target.innerHTML = '';
                 if (doc.body) {
                     let docObj = this.target.appendChild(doc.body);
-                    docObj.style.minHeight = docObj.scrollHeight+"px";
+//                    docObj.style.minHeight = docObj.scrollHeight+"px";
+                    this._onLoadPage(docObj, page, item);
                 } else {
                     this.target.innerHTML = 'Ressource '+page+' could not be loaded';
                 }
