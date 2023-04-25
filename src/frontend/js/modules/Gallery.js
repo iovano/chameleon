@@ -15,24 +15,22 @@ class Gallery {
     meta = {title: "Chameleon | Image Gallery", delimiter: " | "}
 
     /* USER SETTINGS */
-    breakTimeDuration = 10; /* slideshow duration in seconds */
-    userIdleTimeDuration = 7.5; /* slideshow will not continue before user idle Time exceeds this threshold */
-    transitionDuration = 2;
-    showCursorDuration = 10; /* hide the mouse cursor after x seconds */
-    width = undefined;
-    height = undefined;
-    lazyLoad = false;
-    afterTransition = undefined; /* function */
-    direction = "random";
-    fps = 20;
-    pauseMode = "smooth";
-
-    imgStyle = {marginLeft: 'auto', marginRight: 'auto', objectFit: 'contain', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}};
-    imgLayerStyle = {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'};
-
-    alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
-    changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
-
+    preferences = {
+        breakTimeDuration: 10, /* slideshow duration in seconds */
+        userIdleTimeDuration: 7.5, /* slideshow will not continue before user idle Time exceeds this threshold */
+        transitionDuration: 2,
+        showCursorDuration: 10, /* hide the mouse cursor after x seconds */
+        filters : {safety: ["0","1","2"]}, /* filter NSFW- (adult-) content. 0 = safe for work content, 1 = moderate adult content, 2 = explicit content */
+        width: undefined,
+        height: undefined,
+        direction: "random",
+        fps: 20,
+        pauseMode: "smooth",
+        imgStyle: {marginLeft: 'auto', marginRight: 'auto', objectFit: 'contain', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}},
+        imgLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'},
+        changeAlbumOnImageNumOverflow: true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
+    };
+    
     /* transition variables */
     transitionFrame = 0;
     breakTimeFrame = 0;
@@ -40,7 +38,7 @@ class Gallery {
     suspended = false; /* "suspend" prevents premature state changes during transitions or while images are loading */
 
     /* internal control variables */
-    currentFPS = Array.isArray(this.fps) ? this.fps[0] : this.fps;
+    afterTransition = undefined; /* function */
     workload = 0; /* calculates the current workload */ 
     timer = [Date.now()];
     keysPressed = []
@@ -73,19 +71,74 @@ class Gallery {
     };
 
 
-    constructor(targetObject, images = undefined, width = undefined, height = undefined) {
-        if (images) {
-            this.setImages(images);
+    constructor(targetObject, albums = undefined, preferences = undefined) {
+        if (albums) {
+            this.setAlbums(albums);
         }
-        if (width !== undefined) {
-            this.width = width;
-        }
-        if (height !== undefined) {
-            this.height = height;
+        if (preferences) {
+            this.setPreferences(preferences);
         }
         this.target = targetObject;
         this.addEventListeners();
         this.dispatchEvent('Resize');
+    }
+    get(key) { /* outsource to Preferences class */
+        if (this.preferences[key] === undefined) {
+            console.warn('preference "'+key+'" not found');
+        }
+        return this.preferences[key];
+    }
+    read(query) { /* outsource to Preferences class */ 
+        let tokens = query.split('.');
+        let payload = this.preferences;
+        for (let token of tokens) {
+            payload = payload?.[token];
+        }
+        return payload;
+    }
+    set(key, value) { /* outsource to Preferences class */
+        const setProperty = (obj, path, value) => {
+            const [head, ...rest] = path.split('.')
+            return {
+                ...obj,
+                [head]: rest.length
+                    ? setProperty(obj[head], rest.join('.'), value)
+                    : value
+            }
+        }
+        console.log(key,value);
+        this.preferences = setProperty(this.preferences, key, value);
+    }
+    setPreferences(preferences, merge = true) { /* outsource to Preferences class */
+        if (merge && this.preferences) {
+            this.preferences = {...this.preferences, ...preferences};
+        } else {
+            this.preferences = preferences;
+        }
+    }
+    getPreferences(flat = false) { /* outsource to Preferences class */
+        if (flat) {
+            function isScalar(v) {
+                return (!isNaN(v) || (v instanceof String || typeof v === 'string'));
+            }
+        
+            function flatten(settings, collected = {}, tokens = []) {
+              for (const [key, value] of Object.entries(settings)) {
+                let t = tokens.concat(key)
+                if (Array.isArray(value) && value.some(isScalar)) {
+                    collected[t.join(".")] = value;      
+                } else if (value instanceof Object) {
+                  flatten(value, collected, tokens.concat(key))
+                } else {
+                    collected[t.join(".")] = value;      
+                }
+                    }
+              return collected;
+            }
+            return flatten(this.preferences);
+        } else {
+            return this.preferences;
+        }
     }
     destroy() {
         this.target.removeChild(this.canvasContainer);
@@ -190,7 +243,7 @@ class Gallery {
         this.suspended = true;
         this.transitionFrame = undefined;
         this.breakTimeFrame = 0;
-        this.currentDirection = (this.direction === 'random' ? Math.random() * 360 : this.direction);
+        this.currentDirection = (this.get('direction') === 'random' ? Math.random() * 360 : this.get('direction'));
         this.updateClipPathTransition();
         this.dispatchEvent("TransitionStart");
         this.showImage();
@@ -236,7 +289,7 @@ class Gallery {
         }
     }
     setCurrentImageNum(newIndex) {
-        if (this.changeAlbumOnImageNumOverflow) {
+        if (this.get('changeAlbumOnImageNumOverflow')) {
             if (newIndex >= this.getAlbumImages().length) {
                 this.setCurrentAlbumNum(this.getCurrentAlbumNum()+1);
                 newIndex = 0;
@@ -251,18 +304,12 @@ class Gallery {
     getCurrentImageNum() {
         return this.currentImageNum;
     }
-    setWidth(width) {
-        this.width = width;
-    }
-    setHeight(height) {
-        this.height = height;
-    }
     setMetaData(metaData) {
         this.meta = {...this.meta, ...metaData};
     }
 
     init(params = undefined, resize = true) {
-        if (resize === true || !this.width && !this.height) {
+        if (resize === true || !this.get('width') && !this.get('height')) {
             this.dispatchEvent('Resize');
         }
         if (this.canvasContainer) {
@@ -271,15 +318,15 @@ class Gallery {
         }
         this.createCanvas();
         this.createInfoBox();
-        this.createFilmStrip();
+        this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
     }
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
             let os = this.overlays[key];
-            if (!this.pureMode && !this.transitionFrame  && !this.suspended && ((os.autostart > 0 && this.breakTimeFrame === os.autostart * this.fps) || (this.breakTimeFrame > 0 && os.idleEnd === true && this.userIdleTime === 0))) {
+            if (!this.pureMode && !this.transitionFrame  && !this.suspended && ((os.autostart > 0 && this.breakTimeFrame === os.autostart * this.get('fps')) || (this.breakTimeFrame > 0 && os.idleEnd === true && this.userIdleTime === 0))) {
                 this[key].classList.remove('hide');
-            } else if (this.pureMode || ((os.idleMax * this.fps === this.userIdleTime) && (!os.duration || this.breakTimeFrame > os.duration * this.fps))) {
+            } else if (this.pureMode || ((os.idleMax * this.get('fps') === this.userIdleTime) && (!os.duration || this.breakTimeFrame > os.duration * this.get('fps')))) {
                 this[key].classList.add('hide');
             }
         }
@@ -300,19 +347,20 @@ class Gallery {
             }
             this.updateClipPathTransition();    
         }
-        if (this.breakTimeFrame > this.breakTimeDuration * this.fps && this.userIdleTime > this.userIdleTimeDuration * this.fps && !this.suspended) {
+        if (this.breakTimeFrame > this.get('breakTimeDuration') * this.get('fps') && this.userIdleTime > this.get('userIdleTimeDuration') * this.get('fps') && !this.suspended) {
             this.navigate("+1");
         }
 
     }
     updateClipPathTransition() {
-        if (this.transitionFrame > this.transitionDuration * this.fps) {
+        if (this.transitionFrame > this.get('transitionDuration') * this.get('fps')) {
             this.dispatchEvent("TransitionEnd");
         } else if (this.transitionFrame) {
+            let transitionProgress =  1 / this.get('transitionDuration') / this.get('fps');
             for (let i = 0; i < this.img.length; i++) {
                 let img = this.img[i];
                 if (img.style.opacity < 1) {
-                    img.style.opacity = parseFloat(img.style.opacity) + (1 / this.transitionDuration / this.fps);
+                    img.style.opacity = parseFloat(img.style.opacity) + transitionProgress;
                 }
                 img.style.zIndex = this.img.length - i;
             }
@@ -330,12 +378,12 @@ class Gallery {
         }
         this.updateOverlays();
         this.update();
-        if (this.userIdleTime === this.showCursorDuration * this.fps) {
+        if (this.userIdleTime === this.get('showCursorDuration') * this.get('fps')) {
             document.body.style.cursor = 'none';
         }
         this.totalFrames ++;
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
-        setTimeout(() => this.run(), 1000 / this.fps);    
+        setTimeout(() => this.run(), 1000 / this.get('fps'));    
     }
     getImageNumByPropertyValue(imageName, props = ['id', 'title', 'name'], preferredAlbum = undefined) {
         if (typeof props === 'string' || props instanceof String) {
@@ -379,11 +427,31 @@ class Gallery {
                 this.dispatchEvent('Error', undefined, error);
             });
     }
-    setImages(images, lazyLoad = undefined) {
-        if (lazyLoad !== undefined) {
-            this.lazyLoad = lazyLoad;
+    applyFilters(albums = undefined, filters = undefined) {
+        albums = albums || this.loadedAlbums || this.albums;
+        filters = filters || this.get('filters');
+        let filteredAlbums = [];
+        for (let a = 0; a < albums.length ; a++) {
+            let filteredAlbum = {...albums[a]};
+            filteredAlbum.photos = [];
+            for (let p = 0; p < albums[a].photos.length; p++) {
+                let photo = albums[a].photos[p];
+                if (this.get('filters')?.safety.indexOf(photo.safety) !== -1) {
+                    filteredAlbum.photos.push(photo);
+                }
+            }
+            if (filteredAlbum.photos.length > 0) {
+                filteredAlbums.push(filteredAlbum);
+            }
         }
-        this.albums = images;
+        this.albums = filteredAlbums;
+    }
+    resetFilters() {
+        this.albums = this.loadedAlbums;
+    }
+    setAlbums(albums) {
+        this.loadedAlbums = albums;
+        this.applyFilters(albums);
     }
     getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.albumslots.length - 1)));
@@ -412,7 +480,7 @@ class Gallery {
         if (value === true) {
             if (this.transitionFrame && !this.isPaused()) {
                 this.afterTransition = () => this.dispatchEvent("PauseStart");
-                this.userIdleTime = this.infoBoxDuration * this.fps - 1;
+                this.userIdleTime = this.infoBoxDuration * this.get('fps') - 1;
             } else {
                 this.dispatchEvent("PauseStart");
             }    
@@ -476,14 +544,14 @@ class Gallery {
 
     }
     _onResize(event) {
-        this.width = this.target.clientWidth || this.target.width || document.clientWidth || 800;
-        this.height = this.target.clientHeight || this.target.height || document.clientHeight || 600;
-        this.canvas?.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
-        console.debug("canvas size: " + (this.width + "x" + this.height) + " fullscreen: "+this.isFullscreen());
+        this.set('width', this.target.clientWidth || this.target.width || document.clientWidth || 800);
+        this.set('height', this.target.clientHeight || this.target.height || document.clientHeight || 600);
+        this.canvas?.setAttribute("viewBox", "0 0 " + this.get('width') + " " + this.get('height'));
+        console.debug("canvas size: " + (this.get('width') + "x" + this.get('height')) + " fullscreen: "+this.isFullscreen());
         let iSlot = this.getImageSlot(1);
         if (iSlot) {
-            iSlot.background.setAttributeNS(null, 'width', this.width);
-            iSlot.background.setAttributeNS(null, 'height', this.height);    
+            iSlot.background.setAttributeNS(null, 'width', this.get('width'));
+            iSlot.background.setAttributeNS(null, 'height', this.get('height'));    
         }
     }
     _onIdleEnd() {
@@ -526,21 +594,25 @@ class Gallery {
         this.suspended = false;
         this.transitionFrame = 0;
     }
-    set(element, props) {
+    setProps(element, props) {
         for (let a of Object.keys(props)) {
             let value = props[a];
             element[a] = value;
         }
+    }
+    showMessage(message) {
+        /* TODO: make this an overlay dialogue */
+        console.error(message);
     }
     showImage() {
         let imgLayer = document.createElement('div');
         let img = document.createElement('img');
         img.src = this.getImageSrc(this.getCurrentImage());
         img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
-        this.set(img.style,this.imgStyle);
+        this.setProps(img.style,this.get('imgStyle'));
         this.img.unshift(imgLayer);
-        this.set(imgLayer.style,this.imgLayerStyle);
-        this.set(imgLayer.style.zIndex, this.img.length+1);
+        this.setProps(imgLayer.style,this.get('imgLayerStyle'));
+        this.setProps(imgLayer.style.zIndex, this.img.length+1);
         imgLayer.appendChild(img);
         this.suspended = true;
         this.transitionFrame = undefined;
@@ -555,15 +627,15 @@ class Gallery {
         console.log("creating canvas");
         this.canvasContainer = document.createElement('div');
         this.target.appendChild(this.canvasContainer);
-        this.set(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
+        this.setProps(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
         this.canvasContainer.setAttribute('class', 'canvasContainer');
         this.imageContainer = document.createElement('div');
         this.canvasContainer.appendChild(this.imageContainer);
     
     }    
 
-    createFilmStrip() {
-        if (!this.filmstrip) {
+    createFilmStrip(forceRecreation = false) {
+        if (!this.filmstrip || forceRecreation) {
             /* create and append film strip */
             this.filmStrip = new AlbumStrip(this.albums, this.currentImageNum, this.currentAlbumNum);
             this.filmStrip.classList.add('filmStrip', 'hide');

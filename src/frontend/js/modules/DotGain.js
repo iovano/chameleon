@@ -1,5 +1,10 @@
 import Gallery from "./Gallery.js";
 class DotGain extends Gallery {
+    additionalSettings = {
+        grid: 25,
+        clipPathTransitionSpeed: 2,
+        transitionDuration: 40        
+    }
     grid = 25;
     transitionDuration = 40;
     clipPathTransitionSpeed = 2;
@@ -7,9 +12,13 @@ class DotGain extends Gallery {
     clipPathId = "clipPathMask";
     maskedImage = undefined;
     debugMask = false;
+    constructor(targetObject, albums, width, height) {
+        super(targetObject, albums, width, height);
+        this.setPreferences(this.additionalSettings);
+    }
     _onTransitionEnd() {
         super._onTransitionEnd();
-//        this.clipPathTransitionSpeed = Math.floor(20 / (this.currentFPS / 5 + 1)); 
+//        this.get('clipPathTransitionSpeed') = Math.floor(20 / (this.currentFPS / 5 + 1)); 
     }
     _onResize() {
         super._onResize();
@@ -23,9 +32,9 @@ class DotGain extends Gallery {
     updateClipPathTransition() {
         let parameters = {
             frame: this.transitionFrame -1, 
-            x: - this.grid * 4, 
-            y: Math.max(this.height, this.width) - ((this.transitionFrame || 0) - 5) * this.grid * this.clipPathTransitionSpeed, 
-            limitY: - this.height - this.clipPathNetSize.height,
+            x: - this.get('grid') * 4, 
+            y: Math.max(this.get('height'), this.get('width')) - ((this.transitionFrame || 0) - 5) * this.get('grid') * this.get('clipPathTransitionSpeed'), 
+            limitY: - this.get('height') - this.clipPathNetSize.height,
             direction: this.currentDirection,
             suspended: this.suspended,
             userIdleTime: this.userIdleTime
@@ -41,15 +50,15 @@ class DotGain extends Gallery {
     }
     createClipPath(clipPathId = undefined) {
         let clipPath = document.createElementNS(this.svgNS, this.debugMask ? "g" : "clipPath");
-        let w = this.width;
-        let h = this.height;
-        let cols = w / this.grid * this.transitionDuration / 50;
-        let rows = h / this.grid * this.transitionDuration / 50;
-        let maxRadius = this.grid * Math.PI / 4;
+        let w = this.get('width');
+        let h = this.get('height');
+        let cols = w / this.get('grid') * this.get('transitionDuration') / 50;
+        let rows = h / this.get('grid') * this.get('transitionDuration') / 50;
+        let maxRadius = this.get('grid') * Math.PI / 4;
         let r,x,y;
         for (y = 0; y <= Math.max(cols,rows) * 2; y += 1) {
             for (x = 0; x <= Math.max(cols,rows) * 2; x += 1) {
-                r = y * maxRadius / (this.transitionDuration || 10);
+                r = y * maxRadius / (this.get('transitionDuration') || 10);
                 if (r < 1) {
                     continue;
                 }
@@ -58,8 +67,8 @@ class DotGain extends Gallery {
                 }
                 /* draw dotgain circle and append to mask group */
                 let circle = document.createElementNS(this.svgNS, "circle");
-                circle.setAttribute("cx", x * this.grid);
-                circle.setAttribute("cy", y * this.grid);
+                circle.setAttribute("cx", x * this.get('grid'));
+                circle.setAttribute("cy", y * this.get('grid'));
                 circle.setAttribute("r", r < maxRadius ? r : maxRadius);
                 circle.setAttribute("fill", "white");
                 circle.setAttribute("stroke", "none");        
@@ -70,13 +79,13 @@ class DotGain extends Gallery {
             }
 
         }
-        this.clipPathNetSize = {width: w * 4 + this.grid * 2, height: (y-1) * this.grid};
+        this.clipPathNetSize = {width: w * 4 + this.get('grid') * 2, height: (y-1) * this.get('grid')};
         /* create full coverage mask section path with previously collected coordinates */
         let filler = document.createElementNS(this.svgNS, "rect");
         filler.setAttributeNS(null, "x", -w);
-        filler.setAttributeNS(null, "y", (y - 1) * this.grid);
-        filler.setAttributeNS(null, "width", w*4 + this.grid * 2);
-        filler.setAttributeNS(null, "height", h*4 + this.grid * 2);
+        filler.setAttributeNS(null, "y", (y - 1) * this.get('grid'));
+        filler.setAttributeNS(null, "width", w*4 + this.get('grid') * 2);
+        filler.setAttributeNS(null, "height", h*4 + this.get('grid') * 2);
         filler.setAttributeNS(null, "stroke", "none");
         filler.setAttributeNS(null, "fill", "red");
         clipPath.appendChild(filler);
@@ -94,8 +103,8 @@ class DotGain extends Gallery {
             const ctx = this.target.getContext("2d");
             ctx.drawImage(event.target, 0, 0);
         } else if (this.target instanceof HTMLElement) {
-            event.target.setAttributeNS(null, "x", (this.width - event.target.getBBox().width) * this.imgStyle.alignment.x);
-            event.target.setAttributeNS(null, "y", (this.height - event.target.getBBox().height) * this.imgStyle.alignment.y);
+            event.target.setAttributeNS(null, "x", (this.get('width') - event.target.getBBox().width) * this.get('imgStyle').alignment.x);
+            event.target.setAttributeNS(null, "y", (this.get('height') - event.target.getBBox().height) * this.get('imgStyle').alignment.y);
 
             if (event.target === this.getImageSlot(1)) {
                 /* active/current image (foreground) */
@@ -133,8 +142,8 @@ class DotGain extends Gallery {
         }
     }
     createCanvas() {
-        let w = this.width;
-        let h = this.height;
+        let w = this.get('width');
+        let h = this.get('height');
         let context = this.target;
         let clipPath = null;
 
@@ -158,8 +167,8 @@ class DotGain extends Gallery {
 
             /* create background */
             let background = document.createElementNS(this.svgNS, "rect");
-            background.setAttributeNS(null, 'width', this.width);
-            background.setAttributeNS(null, 'height', this.height);
+            background.setAttributeNS(null, 'width', this.get('width'));
+            background.setAttributeNS(null, 'height', this.get('height'));
             background.setAttributeNS(null, 'fill', 'black');
             image.background = background;
 
@@ -182,8 +191,8 @@ class DotGain extends Gallery {
         context.appendChild(div);
         this.canvasContainer = div;
         this.canvasContainer.setAttribute('class', 'canvasContainer');
-        this.canvasContainer.style.width = "100%";/* this.width+"px" */
-        this.canvasContainer.style.height = "100%";/* this.height+"px" */
+        this.canvasContainer.style.width = "100%";/* this.get('width')+"px" */
+        this.canvasContainer.style.height = "100%";/* this.get('height')+"px" */
 
         /* add svg to container/canvas */
         if (context instanceof HTMLCanvasElement) {
