@@ -2,7 +2,7 @@ import css from '../../css/filmstrip.css' assert { type: 'css' }; /* this curren
 
 //document.adoptedStyleSheets.push(css);
 
-class FilmStrip extends HTMLElement {
+export default class FilmStrip extends HTMLElement {
     images = [];
     tabs = [];
     info = undefined;
@@ -134,5 +134,3 @@ class FilmStrip extends HTMLElement {
     }
 }
 customElements.define('film-strip',FilmStrip);
-
-export default FilmStrip;

@@ -83,6 +83,11 @@ export default class AlbumStrip extends FilmStrip {
                     album.titleImageNum = p;
                 }
             }
+            if (album.titleImage === undefined) {
+                /* use first album image as title image if primary album image is not present (e.g. because it has been filtered out) */
+                album.titleImage = album.photos[0];
+                album.titleImageNum = 0;
+            }
             albums.push(album);
         }
         return albums;
