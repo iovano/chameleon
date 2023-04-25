@@ -26,6 +26,10 @@ class Gallery {
     direction = "random";
     fps = 20;
     pauseMode = "smooth";
+
+    imgStyle = {marginLeft: 'auto', marginRight: 'auto', objectFit: 'contain', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}};
+    imgLayerStyle = {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'};
+
     alignImages = { x: 0.5, y: 0.5 }; // 0 = left, 0.5 = center, 1 = right
     changeAlbumOnImageNumOverflow = true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
 
@@ -47,6 +51,9 @@ class Gallery {
 
     /* gallery image storage */
     albums = [];
+    img = [];
+    imageLayersMax = 3;
+    imageContainer;
     previousImage = undefined;
     currentImageNum = 0;
     currentAlbumNum = 0;
@@ -278,7 +285,7 @@ class Gallery {
         }
     }
     update() {
-        //console.log(this.transitionFrame, this.breakTimeFrame, this.userIdleTime);
+        //this.img[0].firstChild.style.transform;
 
         this.userIdleTime++;
         if (this.userIdleTime % 20 === 0) {
@@ -299,13 +306,16 @@ class Gallery {
 
     }
     updateClipPathTransition() {
-        if (this.suspended && this.transitionFrame !== 0) {
-            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", 1);
-        } else if (this.transitionFrame !== undefined && this.transitionFrame <= (this.transitionDuration * this.fps) && !this.suspended) {
-            document.getElementById('imageGroup1').setAttributeNS(null, "opacity", (this.transitionFrame) / ((this.transitionDuration * this.fps) || 10));
-        }
         if (this.transitionFrame > this.transitionDuration * this.fps) {
-            this.dispatchEvent('TransitionEnd');
+            this.dispatchEvent("TransitionEnd");
+        } else if (this.transitionFrame) {
+            for (let i = 0; i < this.img.length; i++) {
+                let img = this.img[i];
+                if (img.style.opacity < 1) {
+                    img.style.opacity = parseFloat(img.style.opacity) + (1 / this.transitionDuration / this.fps);
+                }
+                img.style.zIndex = this.img.length - i;
+            }
         }
     }
     updateFilmStrip() {
@@ -512,34 +522,9 @@ class Gallery {
     _onOffline(event){
         console.log("offline", event);
     }
-    _onImageLoad(event, image) {
-        if (this.target instanceof HTMLCanvasElement) {
-            const ctx = this.target.getContext("2d");
-            ctx.drawImage(event.target, 0, 0);
-        } else if (this.target instanceof HTMLElement) {
-            event.target.setAttributeNS(null, "x", (this.width - event.target.getBBox().width) * this.alignImages.x);
-            event.target.setAttributeNS(null, "y", (this.height - event.target.getBBox().height) * this.alignImages.y);
-
-            if (event.target === this.getImageSlot(1)) {
-                /* active/current image (foreground) */
-                if (!this.debugMask && this.clipPath) {
-                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
-                }
-                let iSlot = this.getImageSlot(1);
-                iSlot.setAttributeNS(null, "visibility", "visible");
-                this.suspended = false;
-                this.transitionFrame = 0;
-                this.updateClipPathTransition();
-            } else if (event.target === this.getImageSlot(0)) {
-                /* inactive/previous image (background) */
-                let img = this.getCurrentImage();
-                this.getImageSlot(1).setAttributeNS(null, "href", this.getImageSrc(img));
-                if (!this.debugMask && this.clipPath) {
-                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
-                }
-                this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
-            }
-        }
+    _onImageLoad(event) {
+        this.suspended = false;
+        this.transitionFrame = 0;
     }
     set(element, props) {
         for (let a of Object.keys(props)) {
@@ -548,81 +533,35 @@ class Gallery {
         }
     }
     showImage() {
-        let current = this.getImageSlot(1);
-        let previous = this.getImageSlot(0);
-        if (current.getAttributeNS(null, "href")) {
-            /* deactivate clip path for foreground image */
-            document.getElementById('imageGroup1').removeAttributeNS(null, "clip-path");
-            /* copy previous image from main to background image slot */
-            previous.setAttributeNS(null, "href", current.getAttributeNS(null, "href"));
-        } else {
-            let img = this.getCurrentImage();
-            current.setAttributeNS(null, "visibility", "hidden");
-            current.setAttributeNS(null, "href", this.getImageSrc(img));
+        let imgLayer = document.createElement('div');
+        let img = document.createElement('img');
+        img.src = this.getImageSrc(this.getCurrentImage());
+        img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
+        this.set(img.style,this.imgStyle);
+        this.img.unshift(imgLayer);
+        this.set(imgLayer.style,this.imgLayerStyle);
+        this.set(imgLayer.style.zIndex, this.img.length+1);
+        imgLayer.appendChild(img);
+        this.suspended = true;
+        this.transitionFrame = undefined;
+        img.onload = (event) => this._onImageLoad();
+        this.imageContainer.insertBefore(imgLayer, this.imageContainer.firstChild);
+        for (let idx = this.imageLayersMax; idx < this.imageContainer.children.length ; idx++) {
+            this.imageContainer.removeChild(this.imageContainer.children[idx]);
+            this.img.pop();
         }
     }
     createCanvas() {
-        let w = this.width;
-        let h = this.height;
-        let context = this.target;
-        let clipPath = null;
-
-        /* create svg object which contains dotGain - mask */
-        let svg = document.createElementNS(this.svgNS, "svg");
-        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-
-        for (let i = 0; i < 2; i++) {
-            /* create image group (containing image + background) for each image slot */
-            let imageGroup = document.createElementNS(this.svgNS, "g");
-            imageGroup.id = 'imageGroup' + i;
-            imageGroup.setAttributeNS(null, 'class', 'imageGroup');
-
-            /* create placeholder image element */
-            let image = document.createElementNS(this.svgNS, "image");
-            image.id = 'imageSlot' + i;
-            image.setAttributeNS(null, "visibility", "visible");
-            /* assign internal onload - handler for image */
-            image.addEventListener("error", (event) => this.dispatchEvent('Error', event));
-            image.onload = (event) => this.dispatchEvent('ImageLoad', event, this.getCurrentImage());
-
-            /* create background */
-            let background = document.createElementNS(this.svgNS, "rect");
-            background.setAttributeNS(null, 'width', this.width);
-            background.setAttributeNS(null, 'height', this.height);
-            background.setAttributeNS(null, 'fill', 'black');
-            image.background = background;
-
-            /* append elements to svg canvas */
-            imageGroup.appendChild(background);
-            imageGroup.appendChild(image);
-            svg.appendChild(imageGroup);
-        }
-
-        if (this.createClipPath) {
-            clipPath = this.createClipPath();
-            /* append clipPath */
-            svg.appendChild(clipPath);
-            this.clipPath = clipPath;
-        }
-
-
-        /* create div element add it to gallery context element */
-        let div = document.createElement('div')
-        context.appendChild(div);
-        this.canvasContainer = div;
+        console.log("creating canvas");
+        this.canvasContainer = document.createElement('div');
+        this.target.appendChild(this.canvasContainer);
+        this.set(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
         this.canvasContainer.setAttribute('class', 'canvasContainer');
-        this.canvasContainer.style.width = "100%";/* this.width+"px" */
-        this.canvasContainer.style.height = "100%";/* this.height+"px" */
+        this.imageContainer = document.createElement('div');
+        this.canvasContainer.appendChild(this.imageContainer);
+    
+    }    
 
-        /* add svg to container/canvas */
-        if (context instanceof HTMLCanvasElement) {
-            context.getContext("2d").drawImage(svg, 0, 0);
-        } else {
-            div.appendChild(svg);
-        }
-        this.canvas = svg;
-        this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
-    }
     createFilmStrip() {
         if (!this.filmstrip) {
             /* create and append film strip */

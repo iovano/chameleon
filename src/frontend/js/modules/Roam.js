@@ -1,5 +1,5 @@
-import Fader from "./Fader.js";
-export default class Roam extends Fader {
+import Gallery from "./Gallery.js";
+export default class Roam extends Gallery {
     transitionDuration = 2;
     clipPathTransitionSpeed = 4;
     fps = 40;
