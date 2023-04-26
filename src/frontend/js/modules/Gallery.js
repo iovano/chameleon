@@ -8,7 +8,7 @@ import TagsUL from '../elements/TagsUL.js';
 
 //document.adoptedStyleSheets.push(css);
 
-class Gallery {
+export default class Gallery extends HTMLElement {
     /* namespaces */
     svgNS = "http://www.w3.org/2000/svg";
 
@@ -57,7 +57,6 @@ class Gallery {
     currentAlbumNum = 0;
 
     /* canvas elements */
-    target = undefined;
     canvasContainer = undefined;
     canvas = undefined;
     mask = undefined;
@@ -71,14 +70,14 @@ class Gallery {
     };
 
 
-    constructor(targetObject, albums = undefined, preferences = undefined) {
+    constructor(albums = undefined, preferences = undefined) {
+        super();
         if (albums) {
             this.setAlbums(albums);
         }
         if (preferences) {
             this.setPreferences(preferences);
         }
-        this.target = targetObject;
         this.addEventListeners();
         this.dispatchEvent('Resize');
     }
@@ -141,9 +140,8 @@ class Gallery {
         }
     }
     destroy() {
-        this.target.removeChild(this.canvasContainer);
+        this.removeChild(this.canvasContainer);
         this.removeEventListeners();
-        this.target = undefined;
         this.run = undefined;
     }
     requestFullscreen(clickableElement, fullscreenTarget) {
@@ -314,7 +312,7 @@ class Gallery {
         }
         if (this.canvasContainer) {
             /* remove existing canvasContainer first */
-            this.target.removeChild(this.canvasContainer);
+            this.removeChild(this.canvasContainer);
         }
         this.createCanvas();
         this.createInfoBox();
@@ -544,8 +542,8 @@ class Gallery {
 
     }
     _onResize(event) {
-        this.set('width', this.target.clientWidth || this.target.width || document.clientWidth || 800);
-        this.set('height', this.target.clientHeight || this.target.height || document.clientHeight || 600);
+        this.set('width', this.clientWidth || this.width || document.clientWidth || 800);
+        this.set('height', this.clientHeight || this.height || document.clientHeight || 600);
         this.canvas?.setAttribute("viewBox", "0 0 " + this.get('width') + " " + this.get('height'));
         console.debug("canvas size: " + (this.get('width') + "x" + this.get('height')) + " fullscreen: "+this.isFullscreen());
         let iSlot = this.getImageSlot(1);
@@ -626,7 +624,7 @@ class Gallery {
     createCanvas() {
         console.log("creating canvas");
         this.canvasContainer = document.createElement('div');
-        this.target.appendChild(this.canvasContainer);
+        this.appendChild(this.canvasContainer);
         this.setProps(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
         this.canvasContainer.setAttribute('class', 'canvasContainer');
         this.imageContainer = document.createElement('div');
@@ -718,4 +716,4 @@ class Gallery {
     }
 
 }
-export default Gallery;
+customElements.define('chameleon-gallery', Gallery);

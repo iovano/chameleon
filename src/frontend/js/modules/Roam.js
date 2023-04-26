@@ -18,8 +18,8 @@ export default class Roam extends Gallery {
     };
     animationFrame = 0;
     imageContainer;
-    constructor(targetObject, albums, width, height) {
-        super(targetObject, albums, width, height);
+    constructor(albums) {
+        super(albums);
         this.setPreferences(this.additionalSettings);
     }
     updateClipPathTransition() {
@@ -50,3 +50,4 @@ export default class Roam extends Gallery {
     }
 
 }
+customElements.define('chameleon-roam', Roam);

@@ -61,20 +61,7 @@ window.onSubmitSettings = function (event, form) {
   }
 }
 function start(theme) {
-
-  const canvas = document.getElementById("gallery");
-  if (gallery) {
-    gallery.destroy();
-  }    
-  if (theme == 'Fader') {
-    gallery = new Fader(canvas);
-  } else if (theme === 'Roam') {
-    gallery = new Roam(canvas);
-  } else if (theme === 'Gallery') {
-    gallery = new Gallery(canvas);
-  } else {
-    gallery = new DotGain(canvas);
-  }
+  gallery = document.getElementById("gallery");
   window.gallery = gallery;
   document.querySelectorAll('.requestFullscreen').forEach(
     (el) => {

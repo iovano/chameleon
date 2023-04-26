@@ -1,5 +1,5 @@
 import Gallery from "./Gallery.js";
-class DotGain extends Gallery {
+export default class DotGain extends Gallery {
     additionalSettings = {
         grid: 25,
         clipPathTransitionSpeed: 2,
@@ -12,8 +12,8 @@ class DotGain extends Gallery {
     clipPathId = "clipPathMask";
     maskedImage = undefined;
     debugMask = false;
-    constructor(targetObject, albums, width, height) {
-        super(targetObject, albums, width, height);
+    constructor(albums) {
+        super(albums);
         this.setPreferences(this.additionalSettings);
     }
     _onTransitionEnd() {
@@ -99,32 +99,27 @@ class DotGain extends Gallery {
         return clipPath;
     }
     _onImageLoad(event, image) {
-        if (this.target instanceof HTMLCanvasElement) {
-            const ctx = this.target.getContext("2d");
-            ctx.drawImage(event.target, 0, 0);
-        } else if (this.target instanceof HTMLElement) {
-            event.target.setAttributeNS(null, "x", (this.get('width') - event.target.getBBox().width) * this.get('imgStyle').alignment.x);
-            event.target.setAttributeNS(null, "y", (this.get('height') - event.target.getBBox().height) * this.get('imgStyle').alignment.y);
+        event.target.setAttributeNS(null, "x", (this.get('width') - event.target.getBBox().width) * this.get('imgStyle').alignment.x);
+        event.target.setAttributeNS(null, "y", (this.get('height') - event.target.getBBox().height) * this.get('imgStyle').alignment.y);
 
-            if (event.target === this.getImageSlot(1)) {
-                /* active/current image (foreground) */
-                if (!this.debugMask && this.clipPath) {
-                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
-                }
-                let iSlot = this.getImageSlot(1);
-                iSlot.setAttributeNS(null, "visibility", "visible");
-                this.suspended = false;
-                this.transitionFrame = 0;
-                this.updateClipPathTransition();
-            } else if (event.target === this.getImageSlot(0)) {
-                /* inactive/previous image (background) */
-                let img = this.getCurrentImage();
-                this.getImageSlot(1).setAttributeNS(null, "href", this.getImageSrc(img));
-                if (!this.debugMask && this.clipPath) {
-                    document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
-                }
-                this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
+        if (event.target === this.getImageSlot(1)) {
+            /* active/current image (foreground) */
+            if (!this.debugMask && this.clipPath) {
+                document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
             }
+            let iSlot = this.getImageSlot(1);
+            iSlot.setAttributeNS(null, "visibility", "visible");
+            this.suspended = false;
+            this.transitionFrame = 0;
+            this.updateClipPathTransition();
+        } else if (event.target === this.getImageSlot(0)) {
+            /* inactive/previous image (background) */
+            let img = this.getCurrentImage();
+            this.getImageSlot(1).setAttributeNS(null, "href", this.getImageSrc(img));
+            if (!this.debugMask && this.clipPath) {
+                document.getElementById('imageGroup1').setAttributeNS(null, "clip-path", "url(#" + this.clipPathId + ")");
+            }
+            this.getImageSlot(1).setAttributeNS(null, "visibility", "visible");
         }
     }    
     showImage() {
@@ -144,7 +139,6 @@ class DotGain extends Gallery {
     createCanvas() {
         let w = this.get('width');
         let h = this.get('height');
-        let context = this.target;
         let clipPath = null;
 
         /* create svg object which contains dotGain - mask */
@@ -188,21 +182,17 @@ class DotGain extends Gallery {
 
         /* create div element add it to gallery context element */
         let div = document.createElement('div')
-        context.appendChild(div);
+        this.appendChild(div);
         this.canvasContainer = div;
         this.canvasContainer.setAttribute('class', 'canvasContainer');
         this.canvasContainer.style.width = "100%";/* this.get('width')+"px" */
         this.canvasContainer.style.height = "100%";/* this.get('height')+"px" */
 
         /* add svg to container/canvas */
-        if (context instanceof HTMLCanvasElement) {
-            context.getContext("2d").drawImage(svg, 0, 0);
-        } else {
-            div.appendChild(svg);
-        }
+        div.appendChild(svg);
         this.canvas = svg;
-        this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath, context: context });
+        this.dispatchEvent("CanvasCreated", { canvasContainer: this.canvasContainer, canvas: svg, clipPath: clipPath});
     }
 
 }
-export default DotGain;
+customElements.define('chameleon-dotgain', DotGain);
