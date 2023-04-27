@@ -684,6 +684,7 @@ menu-sandwich > button.sandwich.active {
     background-image:url('../icons/icon_sandwich2.svg');
 }
 menu-sandwich > div.fill {
+    cursor: pointer;
     background-color: rgba(0,0,0,0.4);
     flex-grow: 100;
     height: 100%;
