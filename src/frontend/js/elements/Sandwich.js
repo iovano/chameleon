@@ -90,10 +90,13 @@ export default class Sandwich extends HTMLElement {
             }
         }
     }
-    _onLoadPage(document, page, object) {
+    _onLoadPage(doc, page, menuItem) {
         if (typeof this.onLoadPage === 'function') {
-            this.onLoadPage(document, page, object);
+            this.onLoadPage(doc, page, menuItem);
         }
+        doc.style.display = 'none';
+        doc.style.display = 'block';
+        console.log("pageload", doc);
     }
     setPage(page) {
         this.page = page;

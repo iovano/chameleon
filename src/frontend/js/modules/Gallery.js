@@ -1,7 +1,6 @@
 import AlbumStrip from '../elements/AlbumStrip.js';
 
 import css from '../../css/gallery.css' assert { type: 'css' };
-import styles from '../../css/default.css' assert { type: 'css' };
 import infobox from '../../css/infobox.css' assert { type: 'css' };
 
 import TagsUL from '../elements/TagsUL.js';

@@ -55,17 +55,17 @@ header h1, header h2, header h3 {
 header .buttons {
     font-size: 0.6em;
 }
-header button {
-    background: rgba(180,180,180,0.3);
+button {
+    background: rgba(180,180,180,0.5);
     transition: background-color 0.5s, color 0.5s;
     border: none;
     border-radius: 0.25em;
     cursor: pointer;
 }
-header div.buttons button:hover {
+button:hover {
     background: rgba(180,180,180,0.8);
 }
-header div.buttons button.active {
+button.active {
     background: rgba(180,180,180,0.5);
 }
 

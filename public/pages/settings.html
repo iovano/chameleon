@@ -2,7 +2,7 @@
     <form method="POST" onsubmit="window.onSubmitSettings(event, document.forms[0]); return false;">
         <h3>Gallery Preferences</h3>
         <label for="duration">Duration</label>
-        <input name="breakTimeDuration" type="range" min="2" max="180" value="window.getSettings('breakTimeDuration')"/>
+        <input name="breakTimeDuration" type="range" step="0.5" min="2" max="180" value="window.getSettings('breakTimeDuration')"/>
         <label for="imgStyle.objectFit">Image size</label>
         <select name="imgStyle.objectFit">
             <option value="cover">Cover</option>
@@ -11,16 +11,16 @@
 
         <h3>Transition Settings</h3>
         <label for="style">Style</label>
-        <select name="style" type="range">
+        <select name="style" type="range" onchange="window.startTheme(event.target.value);window.setFormValues(event.target.parent);">
             <option value="Gallery">Fade in/out</option>
             <option value="DotGain">DotGain</option>
             <option value="Roam">Roam</option>
             <option value="Fader">Fader</option>
         </select>
         <label for="transitionDuration">Transition Duration</label>
-        <input name="transitionDuration" type="range" min="0.1" max="10" onload="this.value = window.gallery.transitionDuration;" onchange="window.gallery.transitionDuration = event.target.value;"/>
-        <label for="zoomspeed">ZoomIn Speed</label>
-        <input name="zoomspeed" type="range" min="0.1" max="10"/>
+        <input name="transitionDuration" type="range" step="0.1"  min="0.1" max="10"/>
+        <label for="zoomspeed">Zoom-In/Out Speed</label>
+        <input name="zoomspeed" type="range" min="-50" step="0.5" max="50"/>
         <h3>Content Filter</h3>
         <label for="safety">Adult Content (NSFW)</label>
         <select name="filters.safety" multiple value="1">

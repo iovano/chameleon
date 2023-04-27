@@ -4,6 +4,9 @@ import Roam from './modules/Roam.js';
 import Gallery from './modules/Gallery.js'
 import Sandwich from './elements/Sandwich.js';
 
+import styles from '../css/default.css' assert { type: 'css' };
+import forms from '../css/forms.css' assert { type: 'css' };
+
 
 import debug from 'debug';
 const log = debug('app:log');
@@ -17,22 +20,30 @@ if (ENV !== 'production') {
 }
 
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
-  let form = doc.querySelector('form');
+  window.setFormValues(doc.querySelector('form'));
+}
+window.setFormValues = function (form) {
+  form = form || document.querySelector('form');
   let prefs = gallery.getPreferences(true);
   if (form) {
+    /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
       const el = form.querySelector('[name="'+key+'"]');
       if (el) {
         if (el.options) {
           for (let i = 0 ; i < el.options.length ; i++) {
             let option = el.options[i];
-            el.options[i].setAttribute('selected', (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) ? 'selected' : '');
+            if (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) {
+              el.options[i].setAttribute('selected', '');
+            }
           }
+        } else {
+          el.value = value;
         }
-        el.value = value;
       }
     }
   }
+
 }
 window.onSubmitSettings = function (event, form) {
   event.preventDefault();
@@ -59,22 +70,25 @@ window.onSubmitSettings = function (event, form) {
     gallery.setCurrentImageNum(0);
     gallery.init();  
   }
+  window.setFormValues();
 }
 function start(theme) {
   const urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
   theme = theme || params?.theme || 'DotGain';
-  
+  window.theme = theme;
   gallery = document.getElementById("gallery");
-  if (!gallery) {
-    switch (theme.toLowerCase()) {
-      case "dotgain": gallery = new DotGain(); break;
-      case "roam": gallery = new Roam(); break;
-      default: gallery = new Gallery();
-    }
-    gallery.setAttribute('id', 'gallery');
-    document.body.appendChild(gallery);
+  if (gallery) {
+    gallery.destroy();
+    document.body.removeChild(gallery);
   }
+  switch (theme.toLowerCase()) {
+    case "dotgain": gallery = new DotGain(); break;
+    case "roam": gallery = new Roam(); break;
+    default: gallery = new Gallery();
+  }
+  gallery.setAttribute('id', 'gallery');
+  document.body.appendChild(gallery);
   window.gallery = gallery;
 
   gallery.loadData('./data/albums.json').then(data => {
