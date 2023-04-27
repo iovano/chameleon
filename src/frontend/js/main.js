@@ -7,6 +7,7 @@ import Sandwich from './elements/Sandwich.js';
 
 import debug from 'debug';
 const log = debug('app:log');
+let gallery;
 
 if (ENV !== 'production') {
   debug.enable('*');
@@ -15,7 +16,6 @@ if (ENV !== 'production') {
   debug.disable();
 }
 
-let gallery;
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
   let form = doc.querySelector('form');
   let prefs = gallery.getPreferences(true);
@@ -61,8 +61,36 @@ window.onSubmitSettings = function (event, form) {
   }
 }
 function start(theme) {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  let params = Object.fromEntries(urlSearchParams.entries());
+  theme = theme || params?.theme || 'DotGain';
+  
   gallery = document.getElementById("gallery");
+  if (!gallery) {
+    switch (theme.toLowerCase()) {
+      case "dotgain": gallery = new DotGain(); break;
+      case "roam": gallery = new Roam(); break;
+      default: gallery = new Gallery();
+    }
+    gallery.setAttribute('id', 'gallery');
+    document.body.appendChild(gallery);
+  }
   window.gallery = gallery;
+
+  gallery.loadData('./data/albums.json').then(data => {
+    gallery.setAlbums(data);
+    gallery.init(params);
+    gallery.run();
+  /*
+    }).catch(error => {
+    gallery.loadData('./data/example.json').then(data => {
+      gallery.setImages(data);
+      gallery.init(params);
+      gallery.run();
+  })
+      */
+  });
+
   document.querySelectorAll('.requestFullscreen').forEach(
     (el) => {
       gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
@@ -89,8 +117,6 @@ function start(theme) {
       }
     })
   ;
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
 
   gallery.loadData('./data/meta.json').then(data => {
     if (data) {
@@ -99,20 +125,6 @@ function start(theme) {
     }
   });
 
-  gallery.loadData('./data/albums.json').then(data => {
-    gallery.setAlbums(data);
-    gallery.init(params);
-    gallery.run();
-/*
-  }).catch(error => {
-  gallery.loadData('./data/example.json').then(data => {
-    gallery.setImages(data);
-    gallery.init(params);
-    gallery.run();
-})
-    */
-
-});
   
   //gallery.setImages(albums);
 
@@ -206,7 +218,7 @@ function move(delta) {
 }
 window.startTheme = start;
 document.addEventListener("DOMContentLoaded", function () {
-  start('dotgain');
+  start();
   document.querySelectorAll('button.topic').forEach(
     button =>
       button.addEventListener("click", () => start(button.dataset.topic))
