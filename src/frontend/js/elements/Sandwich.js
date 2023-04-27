@@ -7,15 +7,17 @@ export default class Sandwich extends HTMLElement {
     title = undefined;
     expanded = false;
     items = [];
-    hideClass = undefined;
-    activeClass = undefined;
+    queryParam = 'page';
+    hideClass = 'hide';
+    activeClass = 'active';
     defaultMenuItemNum = undefined;
     selectedMenuItemNum = undefined;
     constructor(menu = undefined) {
         super();
         this.menu = menu;
-        this.hideClass = this.attributes.hideClass?.value || 'hide';
-        this.activeClass = this.attributes.activeClass?.value || 'active';
+        this.queryParam = this.attributes.queryParam?.value || this.queryParam || 'page';
+        this.hideClass = this.attributes.hideClass?.value || this.hideClass || 'hide';
+        this.activeClass = this.attributes.activeClass?.value || this.activeClass || 'active';
         this.buttons = this.querySelectorAll(this.attributes.button?.value || 'button.sandwich');
         this.buttons.forEach((element) => {
             element.addEventListener('click', (event) => this._onClick(event));
@@ -39,13 +41,27 @@ export default class Sandwich extends HTMLElement {
             this.appendChild(this.menu);
         } else {
             this.menu.querySelectorAll('li').forEach((element) => {
+                element.dataset.link = this.buildPageUrl(element.innerHTML.toLowerCase());
                 let idx = this.items.push(element);
                 element.addEventListener('click', (event) => this._onClickMenuItem(idx - 1));
                 }   
             );
         }
         this.createMenuItems();
-        this._onToggle(false);
+        let userSelectedPage = this.getMenuItemNumByUrl(this.getPage());
+        this._onToggle(userSelectedPage !== undefined);
+        this.selectMenuItemNum(userSelectedPage ?? this.defaultMenuItemNum)
+        this.updateQuery();
+    }
+    buildPageUrl(page) {
+        return "/pages/"+page+".html";
+    }
+    getMenuItemNumByUrl(url) {
+        for (let i in this.items) {
+            if (this.items[i].dataset.link === url) {
+                return i;
+            }
+        }
     }
     createMenuItems() {
         if (this.attributes.items.value) {
@@ -61,27 +77,51 @@ export default class Sandwich extends HTMLElement {
                             li.dataset[ki] = items[i][ki];
                         }
                     }
+                    if (!li.dataset['link']) {
+                        li.dataset.link = this.buildPageUrl(li.innerHTML.toLowerCase());
+                    }
                     this.menu.appendChild(li);
                     let idx = this.items.push(li) - 1;
                     li.addEventListener('click', (event) => this._onClickMenuItem(idx));
                     if (items[i].default === true) {
                         this.defaultMenuItemNum = idx;
-                        this.selectMenuItemNum(idx);
                     }
                 }    
             }
         }
     }
-    _onLoadPage(document, url, object) {
+    _onLoadPage(document, page, object) {
         if (typeof this.onLoadPage === 'function') {
-            this.onLoadPage(document, url, object);
+            this.onLoadPage(document, page, object);
         }
+    }
+    setPage(page) {
+        this.page = page;
+        this.updateQuery(page);
+    }
+    updateQuery(page = undefined) {
+        page = page ?? this.getPage();
+        const url = new URL(window.location);
+        if (!this.expanded || page === undefined) {
+            url.searchParams.delete(this.queryParam);
+        } else {
+            url.searchParams.set(this.queryParam, page);
+        }
+        history.pushState({}, "", url);
+    }
+    getPage() {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let params = Object.fromEntries(urlSearchParams.entries());      
+        if (params[this.queryParam]) {
+            this.page = params[this.queryParam];
+        }
+        return this.page;
     }
     selectMenuItemNum(itemNum) {
         itemNum = itemNum !== undefined ? itemNum : this.selectMenuItemNum;
         let item = this.items[itemNum];
         let page = item.dataset?.link;
-        if (!page) page = "/pages/"+item.innerHTML.toLowerCase()+".html";
+        this.setPage(page);
         if (this.target) {
             fetch(page).then((response) => {return response.text();}).then((html) => {
                 // Convert the HTML string into a document object
@@ -123,7 +163,7 @@ export default class Sandwich extends HTMLElement {
             }
         }
         this.style.pointerEvents = this.expanded ? 'all' : 'none';
-
+        this.updateQuery(this.getPage());
         if (this.onToggle) {
             this.onToggle(this.expanded);
         }
