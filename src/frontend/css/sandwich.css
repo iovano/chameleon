@@ -31,6 +31,7 @@ menu-sandwich > div.menu ul.menu {
 menu-sandwich ul > li {
     padding: 0.5em;
     opacity: 0.6;
+    cursor: pointer;
     transition: opacity 1s;
 }
 menu-sandwich ul > li.active {

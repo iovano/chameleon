@@ -137,6 +137,11 @@ div.curtain {
 .hide {
     opacity: 0;
     user-select: none;
+}
+.permanent {
+    pointer-events: all;
+}
+.hide:not(.permanent) {
     pointer-events: none;
 }
 div.disabled {

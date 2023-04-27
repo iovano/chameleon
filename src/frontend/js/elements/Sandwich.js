@@ -7,14 +7,17 @@ export default class Sandwich extends HTMLElement {
     title = undefined;
     expanded = false;
     items = [];
+    hideClass = undefined;
+    activeClass = undefined;
     defaultMenuItemNum = undefined;
     selectedMenuItemNum = undefined;
     constructor(menu = undefined) {
         super();
         this.menu = menu;
+        this.hideClass = this.attributes.hideClass?.value || 'hide';
+        this.activeClass = this.attributes.activeClass?.value || 'active';
         this.buttons = this.querySelectorAll(this.attributes.button?.value || 'button.sandwich');
         this.buttons.forEach((element) => {
-            element.style = 'pointer-events: all;';
             element.addEventListener('click', (event) => this._onClick(event));
         }); 
         if (this.attributes.target) {
@@ -38,7 +41,6 @@ export default class Sandwich extends HTMLElement {
             this.menu.querySelectorAll('li').forEach((element) => {
                 let idx = this.items.push(element);
                 element.addEventListener('click', (event) => this._onClickMenuItem(idx - 1));
-                element.style = 'cursor: pointer';
                 }   
             );
         }
@@ -59,7 +61,6 @@ export default class Sandwich extends HTMLElement {
                             li.dataset[ki] = items[i][ki];
                         }
                     }
-                    li.style = 'cursor: pointer';
                     this.menu.appendChild(li);
                     let idx = this.items.push(li) - 1;
                     li.addEventListener('click', (event) => this._onClickMenuItem(idx));
@@ -99,9 +100,9 @@ export default class Sandwich extends HTMLElement {
                 console.error("error loading ressource",item,error);
             });
         }
-        this.items[this.selectedMenuItemNum]?.classList.remove('active');
+        this.items[this.selectedMenuItemNum]?.classList.remove(this.activeClass);
         this.selectedMenuItemNum = itemNum;
-        this.items[this.selectedMenuItemNum].classList.add('active');
+        this.items[this.selectedMenuItemNum].classList.add(this.activeClass);
     }
     _onClickMenuItem(itemNum) {
         this.selectMenuItemNum(itemNum);
@@ -115,9 +116,9 @@ export default class Sandwich extends HTMLElement {
         for(let i = 0; i < items.length; i++) {
             if (!items[i].classList.contains(this.attributes.permanent.value)) {
                 if (this.expanded) {
-                    items[i].classList.remove('hide');
+                    items[i].classList.remove(this.hideClass);
                 } else {
-                    items[i].classList.add('hide');
+                    items[i].classList.add(this.hideClass);
                 }
             }
         }
