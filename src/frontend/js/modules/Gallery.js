@@ -4,6 +4,7 @@ import css from '../../css/gallery.css' assert { type: 'css' };
 import infobox from '../../css/infobox.css' assert { type: 'css' };
 
 import TagsUL from '../elements/TagsUL.js';
+import Dispatcher from '../classes/Dispatcher.js';
 
 //document.adoptedStyleSheets.push(css);
 
@@ -62,6 +63,10 @@ export default class Gallery extends HTMLElement {
     imageInfoBox = undefined;
     filmStrip = undefined;
 
+    /* Event Listeners */
+    dispatcher = undefined;
+    listeners = {document: ['MouseMove', 'KeyUp', 'KeyDown', 'TouchStart', 'TouchEnd', 'TouchMove'], window: ['Resize', ['orientationchange', 'Resize'], 'Offline', 'Online']};
+
     /* overlays */
     overlays = {
         imageInfoBox: {autostart: 2.5, duration: 5, idleEnd: true, idleMax: 5, pauseHide: true},
@@ -77,8 +82,8 @@ export default class Gallery extends HTMLElement {
         if (preferences) {
             this.setPreferences(preferences);
         }
-        this.addEventListeners();
-        this.dispatchEvent('Resize');
+        this.dispatcher = new Dispatcher(this, this.listeners);
+        this.dispatcher.fire('Resize');
     }
     get(key) { /* outsource to Preferences class */
         if (this.preferences[key] === undefined) {
@@ -140,7 +145,7 @@ export default class Gallery extends HTMLElement {
     }
     destroy() {
         this.removeChild(this.canvasContainer);
-        this.removeEventListeners();
+        this.dispatcher.destroy();
         this.run = undefined;
     }
     requestFullscreen(clickableElement, fullscreenTarget) {
@@ -167,24 +172,8 @@ export default class Gallery extends HTMLElement {
     isFullscreen() {
         return (window.fullScreen) || (window.innerWidth == screen.width && window.innerHeight == screen.height);
     }
-    removeEventListeners() {
-        document.removeEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
-        document.removeEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
-        document.removeEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
-        window.removeEventListener('resize', (event) => this.dispatchEvent('Resize', event));
-        window.removeEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
-        window.removeEventListener("offline", (event) => this.dispatchEvent('Offline', event));
-        window.removeEventListener("online", (event) => this.dispatchEvent('Online', event));    
-    }
-
-    addEventListeners() {
-        document.addEventListener('mousemove', (event) => this.dispatchEvent('MouseMove', event));
-        document.addEventListener('keyup', (event) => this.dispatchEvent('KeyUp', event));
-        document.addEventListener('keydown', (event) => this.dispatchEvent('KeyDown', event));
-        window.addEventListener('resize', (event) => this.dispatchEvent('Resize', event));
-        window.addEventListener("orientationchange", (event) => this.dispatchEvent('Resize', event));
-        window.addEventListener("offline", (event) => this.dispatchEvent('Offline', event));
-        window.addEventListener("online", (event) => this.dispatchEvent('Online', event));    
+    dispatchEvent(eventName, event) {
+        this.dispatcher.fire(eventName, event);
     }
     navigate(targetImage = "+1", targetAlbum = "+0") {
         if (this.isPaused()) {
@@ -452,20 +441,6 @@ export default class Gallery extends HTMLElement {
     }
     getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.albumslots.length - 1)));
-    }
-    dispatchEvent(eventName, ...args) {
-        let callbackName = 'on'+eventName;
-        let internalCallbackName = '_on'+eventName;
-        if (typeof this.onEvent === 'function') {
-            this.onEvent(eventName, ...args);
-        }
-
-        if (typeof this[internalCallbackName] === 'function') {
-            this[internalCallbackName](...args);
-        }
-        if (typeof this[callbackName] === 'function') {
-            this[callbackName](...args);
-        }
     }
     isPaused() {
         return this.paused > 0;
