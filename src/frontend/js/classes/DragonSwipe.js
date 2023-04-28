@@ -32,7 +32,6 @@ export default class DragonSwipe {
         this.dispatcher.fire('MouseEnd', this.mouse, event);
     }
     _onTouchStart(event) {
-        event.preventDefault();
         const ct = event.changedTouches;
         for (let i = 0; i < ct.length ; i++) {
             let t = ct[i];
