@@ -120,6 +120,7 @@ function start(theme) {
           gallery.dispatchEvent("PureEnd");
         }
       }
+      el.init();
     }
   );
 

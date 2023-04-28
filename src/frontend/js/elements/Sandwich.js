@@ -12,8 +12,13 @@ export default class Sandwich extends HTMLElement {
     activeClass = 'active';
     defaultMenuItemNum = undefined;
     selectedMenuItemNum = undefined;
-    constructor(menu = undefined) {
+    constructor(menu = undefined, autostart = false) {
         super();
+        if (autostart) {
+            this.init(menu);
+        }
+    }
+    init(menu) {
         this.menu = menu;
         this.queryParam = this.attributes.queryParam?.value || this.queryParam || 'page';
         this.hideClass = this.attributes.hideClass?.value || this.hideClass || 'hide';
@@ -52,6 +57,7 @@ export default class Sandwich extends HTMLElement {
         this._onToggle(userSelectedPage !== undefined);
         this.selectMenuItemNum(userSelectedPage ?? this.defaultMenuItemNum)
         this.updateQuery();
+         
     }
     buildPageUrl(page) {
         return "/pages/"+page+".html";
