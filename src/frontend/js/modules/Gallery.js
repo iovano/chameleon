@@ -482,6 +482,12 @@ export default class Gallery extends HTMLElement {
             } else if (mouse.dx < -50) {
                 this.navigate("+1","+0");
             }
+            if (mouse.dy> 50) {
+                this.navigate("+0","-1");
+            } else if (mouse.dy < -50) {
+                this.navigate("+0","+1");
+            }
+
         }
     }
     _onLastTouch(touch) {
@@ -491,17 +497,25 @@ export default class Gallery extends HTMLElement {
             } else if (touch.dx < -50) {
                 this.navigate("+1","+0");
             }
+            if (touch.dy > 50) {
+                this.navigate("+0","-1");
+            } else if (touch.dy < -50) {
+                this.navigate("+0","+1");
+            }
         }
     }
+    _onTouchStart(event) {
+        this.dispatchEvent('IdleEnd');
+    }
     _onScroll(event) {
-        this._onIdleEnd();
+        this.dispatchEvent('IdleEnd');
     }
     _onPureStart() {
         this.pureMode = true;
     }
     _onPureEnd() {
         this.pureMode = false;
-        this._onIdleEnd();
+        this.dispatchEvent('IdleEnd');
     }
     /* internal event listeners */
     _onKeyUp(event) {
