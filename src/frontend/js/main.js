@@ -11,6 +11,7 @@ import forms from '../css/forms.css' assert { type: 'css' };
 import debug from 'debug';
 const log = debug('app:log');
 let gallery;
+let theme;
 let firstRun = true;
 
 if (ENV !== 'production') {
@@ -26,6 +27,7 @@ document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) 
 window.setFormValues = function (form) {
   form = form || document.querySelector('form');
   let prefs = gallery.getPreferences(true);
+  prefs.theme = window.theme || 'DotGain';
   if (form) {
     /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
@@ -73,11 +75,22 @@ window.onSubmitSettings = function (event, form) {
   }
   window.setFormValues();
 }
-function start(theme) {
+function start(newTheme) {
+
   const urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
-  theme = theme || params?.theme || 'DotGain';
+  theme = newTheme || params?.theme || 'DotGain';
   window.theme = theme;
+
+  const url = new URL(window.location);
+  if (theme) {
+    url.searchParams.set('theme', theme);
+  } else {
+    url.searchParams.delete('theme');
+  }
+  history.pushState({}, "", url);    
+
+
   gallery = document.getElementById("gallery");
   if (gallery) {
     gallery.destroy();
