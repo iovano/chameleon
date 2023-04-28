@@ -5,6 +5,7 @@ import infobox from '../../css/infobox.css' assert { type: 'css' };
 
 import TagsUL from '../elements/TagsUL.js';
 import Dispatcher from '../classes/Dispatcher.js';
+import DragonSwipe from '../classes/DragonSwipe.js';
 
 //document.adoptedStyleSheets.push(css);
 
@@ -46,6 +47,7 @@ export default class Gallery extends HTMLElement {
     userIdleTime = 0;
     pureMode = false;
     firstRun = true;
+    userMove = {};
 
     /* gallery image storage */
     albums = [];
@@ -65,7 +67,7 @@ export default class Gallery extends HTMLElement {
 
     /* Event Listeners */
     dispatcher = undefined;
-    listeners = {document: ['MouseMove', 'KeyUp', 'KeyDown', 'TouchStart', 'TouchEnd', 'TouchMove'], window: ['Resize', ['orientationchange', 'Resize'], 'Offline', 'Online']};
+    listeners = {document: ['MouseMove', 'KeyUp', 'KeyDown'], window: ['Resize', ['orientationchange', 'Resize'], 'Offline', 'Online']};
 
     /* overlays */
     overlays = {
@@ -306,6 +308,11 @@ export default class Gallery extends HTMLElement {
         this.createInfoBox();
         this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
+        this.swiper = new DragonSwipe();
+        this.swiper.onEvent = (eventName, ...args) => {
+            this.dispatchEvent(eventName, ...args);
+        }
+    
     }
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
@@ -467,17 +474,27 @@ export default class Gallery extends HTMLElement {
             event.preventDefault();
         }
     }
+    _onMouseEnd(mouse) {
+        if (mouse.y2 > 0 && mouse.x2 > 0 && mouse.dt > 50 && mouse.dt < 4000) {
+            if (mouse.dx > 50) {
+                this.navigate("-1","+0");
+            } else if (mouse.dx < -50) {
+                this.navigate("+1","+0");
+            }
+        }
+    }
+    _onLastTouch(touch) {
+        if (touch.y2 > 0 && touch.x2 > 0 && touch.dt > 50 && touch.dt < 4000) {
+            if (touch.dx > 50) {
+                this.navigate("-1","+0");
+            } else if (touch.dx < -50) {
+                this.navigate("+1","+0");
+            }
+        }
+        console.log("LastTouch", touch);
+    }
     _onScroll(event) {
         this._onIdleEnd();
-    }
-    _onTouchStart(event) {
-        console.log("touchstart", event);
-    }
-    _onTouchMove(event) {
-        console.log("touchmove", event);
-    }
-    _onTouchEnd(event) {
-        console.log("touchend", event);
     }
     _onPureStart() {
         this.pureMode = true;

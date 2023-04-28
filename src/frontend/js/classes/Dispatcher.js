@@ -1,10 +1,12 @@
 export default class Dispatcher {
     context = undefined;
     listeners = undefined;
-    constructor(context, listeners = []) {
+    constructor(context, listeners = undefined) {
         this.setContext(context);
-        this.setListeners(listeners);
-        this.init();
+        if (listeners) {
+            this.setListeners(listeners);
+            this.init();    
+        }
     }
     setContext(context) {
         this.context = context;
