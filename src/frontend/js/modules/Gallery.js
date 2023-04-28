@@ -304,9 +304,6 @@ export default class Gallery extends HTMLElement {
             this.removeChild(this.canvasContainer);
         }
         this.createCanvas();
-        this.swiper = new Swiper(this.canvasContainer);
-        this.swiper.onLeft(() => {alert('swiped left.')});
-        this.swiper.onRight(() => {alert('swiped right.')});
         this.createInfoBox();
         this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
@@ -473,6 +470,15 @@ export default class Gallery extends HTMLElement {
     }
     _onScroll(event) {
         this._onIdleEnd();
+    }
+    _onTouchStart(event) {
+        console.log("touchstart", event);
+    }
+    _onTouchMove(event) {
+        console.log("touchmove", event);
+    }
+    _onTouchEnd(event) {
+        console.log("touchend", event);
     }
     _onPureStart() {
         this.pureMode = true;
