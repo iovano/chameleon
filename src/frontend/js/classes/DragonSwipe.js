@@ -43,7 +43,6 @@ export default class DragonSwipe {
         }
     }   
     _onTouchEnd(event) {
-        event.preventDefault();
         const ct = event.changedTouches;
         for (let i = 0; i < ct.length ; i++) {
             let t = ct[i];
@@ -56,7 +55,6 @@ export default class DragonSwipe {
         }
     }
     _onTouchCancel(event) {
-        event.preventDefault();
         const ct = event.changedTouches;
         for (let i = 0; i < ct.length; i++) {
           let idx = this.getTouchNum(ct[i].identifier);
