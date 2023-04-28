@@ -37,6 +37,7 @@ export default class DragonSwipe {
             let t = ct[i];
 
             this.touches.push({id: t.identifier, x: i.pageX, y: i.pageY, target: event.target, t: event.timeStamp});
+            console.log(this.touches.length);
             if (this.touches.length === 1) {
                 this.dispatcher.fire('FirstTouch', t, event);
             }
@@ -48,6 +49,7 @@ export default class DragonSwipe {
             let t = ct[i];
             let idx = this.getTouchNum(ct[i].identifier);
             let old = this.touches[idx];
+            console.log(this.touches.length);
             if (this.touches.length === 1) {
                 this.dispatcher.fire('LastTouch', {x: old.x, y: old.y, x2: t.pageX, y2: t.pageY, dx: t.pageX - old.x, dy: t.pageY - old.y, t: old.t, t2: t.timeStamp, dt: t.timeStamp - old.t}, event);
             }
