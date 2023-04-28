@@ -5,6 +5,7 @@ import infobox from '../../css/infobox.css' assert { type: 'css' };
 
 import TagsUL from '../elements/TagsUL.js';
 import Dispatcher from '../classes/Dispatcher.js';
+import Swiper from '../classes/Swiper.js';
 
 //document.adoptedStyleSheets.push(css);
 
@@ -303,6 +304,9 @@ export default class Gallery extends HTMLElement {
             this.removeChild(this.canvasContainer);
         }
         this.createCanvas();
+        this.swiper = new Swiper(this.canvasContainer);
+        this.swiper.onLeft(() => {alert('swiped left.')});
+        this.swiper.onRight(() => {alert('swiped right.')});
         this.createInfoBox();
         this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
