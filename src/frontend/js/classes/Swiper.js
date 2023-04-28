@@ -7,6 +7,10 @@ export default class Swiper {
             this.xDown = evt.touches[0].clientX;
             this.yDown = evt.touches[0].clientY;
         }, false);
+        this.element.addEventListener('touchmove', function(evt) {
+            this.handleTouchMove(evt).bind(this);
+        }, false);
+
     }
 
     onLeft(callback) {
@@ -59,11 +63,5 @@ export default class Swiper {
         // Reset values.
         this.xDown = null;
         this.yDown = null;
-    }
-
-    run() {
-        this.element.addEventListener('touchmove', function(evt) {
-            this.handleTouchMove(evt).bind(this);
-        }, false);
     }
 }
