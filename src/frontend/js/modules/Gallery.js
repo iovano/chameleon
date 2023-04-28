@@ -310,6 +310,7 @@ export default class Gallery extends HTMLElement {
         this.navigate(params || this.currentImageNum);
         this.swiper = new DragonSwipe();
         this.swiper.onEvent = (eventName, ...args) => {
+            console.log(eventName, ...args);
             this.dispatchEvent(eventName, ...args);
         }
     
