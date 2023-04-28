@@ -8,7 +8,6 @@ export default class DragonSwipe {
     mouse = {};
     constructor(element = undefined) {
         this.dispatcher = new Dispatcher(this, this.listeners);
-        console.log("Dragon", this.dispatcher);
         this.element = typeof(element) === 'string' ? document.querySelector(element) : element;
     }
     getTouchNum(id) {
@@ -36,8 +35,7 @@ export default class DragonSwipe {
         for (let i = 0; i < ct.length ; i++) {
             let t = ct[i];
 
-            this.touches.push({id: t.identifier, x: i.pageX, y: i.pageY, target: event.target, t: event.timeStamp});
-            console.log(this.touches.length, t.identifier);
+            this.touches.push({id: t.identifier, x: t.pageX, y: t.pageY, target: event.target, t: event.timeStamp});
             if (this.touches.length === 1) {
                 this.dispatcher.fire('FirstTouch', t, event);
             }
@@ -49,9 +47,8 @@ export default class DragonSwipe {
             let t = ct[i];
             let idx = this.getTouchNum(t.identifier);
             let old = this.touches[idx];
-            console.log(this.touches.length, t.identifier);
             if (this.touches.length === 1) {
-                this.dispatcher.fire('LastTouch', {x: old.x, y: old.y, x2: t.pageX, y2: t.pageY, dx: t.pageX - old.x, dy: t.pageY - old.y, t: old.t, t2: t.timeStamp, dt: t.timeStamp - old.t}, event);
+                this.dispatcher.fire('LastTouch', {x: old.x, y: old.y, x2: t.pageX, y2: t.pageY, dx: t.pageX - old.x, dy: t.pageY - old.y, t: old.t, t2: event.timeStamp, dt: event.timeStamp - old.t}, event);
             }
             this.touches.splice(idx,1);
         }

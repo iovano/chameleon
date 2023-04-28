@@ -485,7 +485,6 @@ export default class Gallery extends HTMLElement {
         }
     }
     _onLastTouch(touch) {
-        console.log(touch.x+" "+touch.y+" "+touch.x2+" "+touch.y2+" "+touch.dt+" "+touch.dx+" "+touch.dy);
         if (touch.y2 > 0 && touch.x2 > 0 && touch.dt > 50 && touch.dt < 4000) {
             if (touch.dx > 50) {
                 this.navigate("-1","+0");
@@ -493,7 +492,6 @@ export default class Gallery extends HTMLElement {
                 this.navigate("+1","+0");
             }
         }
-        console.log("LastTouch", touch);
     }
     _onScroll(event) {
         this._onIdleEnd();
