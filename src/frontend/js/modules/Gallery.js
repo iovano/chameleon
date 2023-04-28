@@ -5,7 +5,6 @@ import infobox from '../../css/infobox.css' assert { type: 'css' };
 
 import TagsUL from '../elements/TagsUL.js';
 import Dispatcher from '../classes/Dispatcher.js';
-import Swiper from '../classes/Swiper.js';
 
 //document.adoptedStyleSheets.push(css);
 
