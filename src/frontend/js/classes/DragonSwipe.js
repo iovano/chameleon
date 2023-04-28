@@ -47,10 +47,10 @@ export default class DragonSwipe {
         const ct = event.changedTouches;
         console.log("_onTouchEnd", ct.length);
         for (let i = 0; i < ct.length ; i++) {
-            console.log("_onTouchEnd", i);
             let t = ct[i];
             let idx = this.getTouchNum(t.identifier);
             let old = this.touches[idx];
+            console.log("_onTouchEnd", i, idx, old);
             console.log(this.touches.length, t.identifier);
             if (this.touches.length === 1) {
                 this.dispatcher.fire('LastTouch', {x: old.x, y: old.y, x2: t.pageX, y2: t.pageY, dx: t.pageX - old.x, dy: t.pageY - old.y, t: old.t, t2: t.timeStamp, dt: t.timeStamp - old.t}, event);
