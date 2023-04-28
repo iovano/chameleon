@@ -11,6 +11,7 @@ import forms from '../css/forms.css' assert { type: 'css' };
 import debug from 'debug';
 const log = debug('app:log');
 let gallery;
+let firstRun = true;
 
 if (ENV !== 'production') {
   debug.enable('*');
@@ -105,24 +106,32 @@ function start(theme) {
       */
   });
 
-  document.querySelectorAll('.requestFullscreen').forEach(
-    (el) => {
-      gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
-    }
-  );
-  //gallery.setPaused(true);
-  document.querySelectorAll('menu-sandwich').forEach(
-    (el) => {
-      el.onToggle = (expanded) => {
-        if (expanded) {
-          gallery.dispatchEvent("PureStart");
-        } else {            
-          gallery.dispatchEvent("PureEnd");
-        }
+  if (firstRun) {
+    document.querySelectorAll('.requestFullscreen').forEach(
+      (el) => {
+        gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
       }
-      el.init();
-    }
-  );
+    );
+    document.querySelectorAll('menu-sandwich').forEach(
+      (el) => {
+        el.onToggle = (expanded) => {
+          if (expanded) {
+            gallery.dispatchEvent("PureStart");
+          } else {            
+            gallery.dispatchEvent("PureEnd");
+          }
+        }
+        el.init();
+      }
+    );  
+    gallery.loadData('./data/meta.json').then(data => {
+      if (data) {
+        gallery.setMetaData(data);
+        document.querySelectorAll('.meta-title')?.forEach((element) => element.innerHTML=data?.title);  
+      }
+    });
+  
+  }
 
   document.querySelectorAll('button.topic').forEach((button) => {
       if (button.dataset.topic === theme) {
@@ -133,12 +142,6 @@ function start(theme) {
     })
   ;
 
-  gallery.loadData('./data/meta.json').then(data => {
-    if (data) {
-      gallery.setMetaData(data);
-      document.querySelectorAll('.meta-title')?.forEach((element) => element.innerHTML=data?.title);  
-    }
-  });
 
   
   //gallery.setImages(albums);
@@ -208,6 +211,7 @@ function start(theme) {
         window.scrollTo(0,0);
       }
   }
+  firstRun = false;
 }
 function updatePauseButtons(paused) {
   document.querySelectorAll('.controls .button.toggle').forEach( (el) => {
