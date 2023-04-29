@@ -606,7 +606,6 @@ export default class Gallery extends HTMLElement {
         console.log("offline", event);
     }
     _onImageLoad(event) {
-        console.log("image/video loaded");
         if (this.suspended) {
             this.suspended = false;
             this.transitionFrame = 0;    
@@ -631,12 +630,11 @@ export default class Gallery extends HTMLElement {
             img.setAttribute('autoplay', '');
             img.setAttribute('muted', '');
             img.setAttribute('loop','');
-            img.src = this.getImageSrc(cImage,3);
+            img.src = this.getImageSrc(cImage,1);
             this.setProps(img.style,this.get('videoStyle'));
             this.setProps(imgLayer.style,this.get('videoLayerStyle'));
             img.addEventListener('canplay', (event) => this._onImageLoad(event));
             img.addEventListener('canplaythrough', (event) => this._onImageLoad(event));
-            console.log(img);
         } else {
             img = document.createElement('img');
             img.src = this.getImageSrc(cImage);
