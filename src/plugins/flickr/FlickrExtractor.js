@@ -140,7 +140,7 @@ export default class FlickrExtractor extends FlickrConnector {
     }
 
     async collectPhotoInfo(data, 
-        mapping = ['id', {'title': 'title._content'}, {'description': 'description._content'}, {'safety': 'safety_level'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif'], 
+        mapping = ['id', 'media', {'title': 'title._content'}, {'description': 'description._content'}, {'safety': 'safety_level'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif'], 
         collectExif = ['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool']
         ) {
         let cache = this.useCache ? this.cacheData(data, 'photoinfo', 'readOnly') : undefined;

@@ -26,7 +26,10 @@ export default class Gallery extends HTMLElement {
         height: undefined,
         direction: "random",
         fps: 20,
+        shuffle: true,
         pauseMode: "smooth",
+        videoStyle: {marginLeft: 'auto', objectFit: 'cover', position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%'},
+        videoLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'},
         imgStyle: {marginLeft: 'auto', marginRight: 'auto', objectFit: 'contain', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}},
         imgLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'},
         changeAlbumOnImageNumOverflow: true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
@@ -266,12 +269,13 @@ export default class Gallery extends HTMLElement {
     getAlbumImages(index = undefined) {
         return this.albums[index || this.currentAlbumNum]?.photos || this.albums?.photos || this.photos || this.albums[index || this.currentAlbumNum]?.images || this.albums?.images || this.albums;
     }
-    getImageSrc(img, size = 0) {
+    getImageSrc(img, size = 0, media = undefined) {
         if (typeof img === 'string' || img instanceof String) { 
             return img;
         }
+        media = media ?? img?.media;
         try {
-            return img?.src || img?.size[size];
+            return img?.src || img?.size[media][size];
         } catch (error) {
             console.log("image #"+(img.id || img.title)+" does not provide src/sizes", error, img);
         }
@@ -310,7 +314,6 @@ export default class Gallery extends HTMLElement {
         this.navigate(params || this.currentImageNum);
         this.swiper = new DragonSwipe();
         this.swiper.onEvent = (eventName, ...args) => {
-            console.log(eventName, ...args);
             this.dispatchEvent(eventName, ...args);
         }
     
@@ -603,8 +606,11 @@ export default class Gallery extends HTMLElement {
         console.log("offline", event);
     }
     _onImageLoad(event) {
-        this.suspended = false;
-        this.transitionFrame = 0;
+        console.log("image/video loaded");
+        if (this.suspended) {
+            this.suspended = false;
+            this.transitionFrame = 0;    
+        }
     }
     setProps(element, props) {
         for (let a of Object.keys(props)) {
@@ -618,17 +624,32 @@ export default class Gallery extends HTMLElement {
     }
     showImage() {
         let imgLayer = document.createElement('div');
-        let img = document.createElement('img');
-        img.src = this.getImageSrc(this.getCurrentImage());
-        img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
-        this.setProps(img.style,this.get('imgStyle'));
+        let cImage = this.getCurrentImage();
+        let img;
+        if (cImage.media === 'video') {
+            img = document.createElement('video');
+            img.setAttribute('autoplay', '');
+            img.setAttribute('muted', '');
+            img.setAttribute('loop','');
+            img.src = this.getImageSrc(cImage,3);
+            this.setProps(img.style,this.get('videoStyle'));
+            this.setProps(imgLayer.style,this.get('videoLayerStyle'));
+            img.addEventListener('canplay', (event) => this._onImageLoad(event));
+            img.addEventListener('canplaythrough', (event) => this._onImageLoad(event));
+            console.log(img);
+        } else {
+            img = document.createElement('img');
+            img.src = this.getImageSrc(cImage);
+            this.setProps(img.style,this.get('imgStyle'));
+            this.setProps(imgLayer.style,this.get('imgLayerStyle'));
+            img.addEventListener('load', (event) => this._onImageLoad(event));
+        }
         this.img.unshift(imgLayer);
-        this.setProps(imgLayer.style,this.get('imgLayerStyle'));
+        img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
         this.setProps(imgLayer.style.zIndex, this.img.length+1);
         imgLayer.appendChild(img);
         this.suspended = true;
         this.transitionFrame = undefined;
-        img.onload = (event) => this._onImageLoad();
         this.imageContainer.insertBefore(imgLayer, this.imageContainer.firstChild);
         for (let idx = this.imageLayersMax; idx < this.imageContainer.children.length ; idx++) {
             this.imageContainer.removeChild(this.imageContainer.children[idx]);

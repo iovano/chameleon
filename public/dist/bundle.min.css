@@ -46,7 +46,7 @@
 
 }
 
-#gallery .canvasContainer .filmStrip ul li img {
+#gallery .canvasContainer .filmStrip ul li img, #gallery .canvasContainer .filmStrip ul li video {
     transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
     background-color: rgba(0,0,0,0.8);
     background-size: cover;
@@ -110,7 +110,7 @@
     #gallery .canvasContainer .filmStrip {
         top: 0em; 
     }
-    #gallery .canvasContainer .filmStrip ul li img {
+    #gallery .canvasContainer .filmStrip ul li img, #gallery .canvasContainer .filmStrip ul li video {
         transition: background-color 0.5s, border 0.5s, opacity 0.25s, filter 2s;
         background-color: rgba(0,0,0,0.8);
         padding: 0;

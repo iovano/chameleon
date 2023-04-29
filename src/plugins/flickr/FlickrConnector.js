@@ -73,13 +73,23 @@ export default class FlickrConnector extends Connector {
 
     async getPhotoSizes(data, fieldName = 'size', amount = undefined) {
         let response = await this.flickr._('GET', 'flickr.photos.getSizes', {user_id: this.userId, photo_id: data.id});
-        let preferences = ['Original', 'Large 1600', 'Large', 'Medium 800', 'Medium 640', 'Medium', 'Small 400', 'Square'];
+        let preferences = {
+            photo: ['Original', 'Large 1600', 'Large', 'Medium 800', 'Medium 640', 'Medium', 'Small 400', 'Square'],
+            video: ['Video Original', '1080p', '720p', '360p']
+        };
         let sizes = response.body.sizes.size;
-        data[fieldName] = [];
-        for (let i = 0 ; i < preferences.length ; i ++) {
-            for (let s = 0 ; s < sizes.length ; s ++) {
-                if (sizes[s].label === preferences[i] && (!amount || data.files.length < amount)) {
-                    data[fieldName].push(sizes[s].source);
+        data[fieldName] = {};
+//        data['oSize'] = sizes;
+        for (let media of Object.keys(preferences)) {
+            let catSizes = preferences[media]; 
+            for (let i = 0 ; i < catSizes.length ; i ++) {
+                for (let s = 0 ; s < sizes.length ; s ++) {
+                    if (sizes[s].label === catSizes[i] && (!amount || data.files.length < amount)) {
+                        if (!Array.isArray(data[fieldName][media])) {
+                            data[fieldName][media] = [];
+                        }
+                        data[fieldName][media].push(sizes[s].source);
+                    }
                 }
             }
         }

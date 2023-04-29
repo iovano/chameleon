@@ -76,11 +76,18 @@ export default class FilmStrip extends HTMLElement {
             } else {
                 li.classList.remove('selected');
             }
-            let img = document.createElement('img');
-            if (items[i]?.size && Array.isArray(items[i].size)) {
-                img.src = items[i].size[items[i].size.length -1];
+            let media = items[i]?.media;
+            let img;
+            if (media === 'video') {
+                img = document.createElement('video');
             } else {
-                img.src = items[i]?.src || items[i];
+                img = document.createElement('img');
+            }
+            let sizes = items[i]?.size?.[media];
+            if (sizes && Array.isArray(sizes)) {
+                img.src = sizes[sizes.length -1];
+            } else {
+                img.src = sizes.src || items[i];
             }
             img.addEventListener("click", (event) => this._onSelectImage(event, items[i], i));
             if (items[i]?.title) {
