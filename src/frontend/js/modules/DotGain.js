@@ -101,7 +101,6 @@ export default class DotGain extends Gallery {
     _onImageLoad(event, image) {
         event.target.setAttributeNS(null, "x", (this.get('width') - event.target.getBBox().width) * this.get('imgStyle').alignment.x);
         event.target.setAttributeNS(null, "y", (this.get('height') - event.target.getBBox().height) * this.get('imgStyle').alignment.y);
-
         if (event.target === this.getImageSlot(1)) {
             /* active/current image (foreground) */
             if (!this.debugMask && this.clipPath) {
@@ -136,7 +135,7 @@ export default class DotGain extends Gallery {
             current.setAttributeNS(null, "href", this.getImageSrc(img));
         }
     }
-    createCanvas() {
+    createCanvasContainer() {
         let w = this.get('width');
         let h = this.get('height');
         let clipPath = null;

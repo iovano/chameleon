@@ -2,6 +2,7 @@ import DotGain from './modules/DotGain.js';
 import Fader from './modules/Fader.js';
 import Roam from './modules/Roam.js';
 import Gallery from './modules/Gallery.js'
+import Canvas from './modules/Canvas.js'
 import Sandwich from './elements/Sandwich.js';
 
 import styles from '../css/default.css' assert { type: 'css' };
@@ -99,6 +100,7 @@ function start(newTheme) {
   switch (theme.toLowerCase()) {
     case "dotgain": gallery = new DotGain(); break;
     case "roam": gallery = new Roam(); break;
+    case "canvas": gallery = new Canvas(); break;
     default: gallery = new Gallery();
   }
   gallery.setAttribute('id', 'gallery');

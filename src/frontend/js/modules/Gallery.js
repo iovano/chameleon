@@ -231,13 +231,13 @@ export default class Gallery extends HTMLElement {
         this.dispatchEvent("Navigation", { target: this.currentImageNum });
     }
     startTransition() {
-        this.suspended = true;
-        this.transitionFrame = undefined;
-        this.breakTimeFrame = 0;
+        this.suspended = true; /* hold transition ignition until media has been loaded */
+        this.transitionFrame = undefined; /* reset transitionFrame counter */
+        this.breakTimeFrame = 0; /* reset slide show duration counter */
         this.currentDirection = (this.get('direction') === 'random' ? Math.random() * 360 : this.get('direction'));
         this.updateClipPathTransition();
+        this.showImage(this.getCurrentImage(), this.getImageSrc(this.getCurrentImage()));
         this.dispatchEvent("TransitionStart");
-        this.showImage();
     }
     getCurrentImage() {
         return this.getAlbumImages()[this.currentImageNum];
@@ -308,7 +308,7 @@ export default class Gallery extends HTMLElement {
             /* remove existing canvasContainer first */
             this.removeChild(this.canvasContainer);
         }
-        this.createCanvas();
+        this.createCanvasContainer();
         this.createInfoBox();
         this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
@@ -642,27 +642,26 @@ export default class Gallery extends HTMLElement {
             this.setProps(imgLayer.style,this.get('imgLayerStyle'));
             img.addEventListener('load', (event) => this._onImageLoad(event));
         }
-        this.img.unshift(imgLayer);
         img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
-        this.setProps(imgLayer.style.zIndex, this.img.length+1);
         imgLayer.appendChild(img);
-        this.suspended = true;
-        this.transitionFrame = undefined;
+        this.addImageLayer(imgLayer);
+    }
+    addImageLayer(imgLayer) {
+        this.img.unshift(imgLayer);
+        this.setProps(imgLayer.style.zIndex, this.img.length+1);
         this.imageContainer.insertBefore(imgLayer, this.imageContainer.firstChild);
         for (let idx = this.imageLayersMax; idx < this.imageContainer.children.length ; idx++) {
             this.imageContainer.removeChild(this.imageContainer.children[idx]);
             this.img.pop();
         }
     }
-    createCanvas() {
-        console.log("creating canvas");
-        this.canvasContainer = document.createElement('div');
+    createCanvasContainer(canvasElement = 'div') {
+        this.canvasContainer = document.createElement(canvasElement);
         this.appendChild(this.canvasContainer);
         this.setProps(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
         this.canvasContainer.setAttribute('class', 'canvasContainer');
         this.imageContainer = document.createElement('div');
         this.canvasContainer.appendChild(this.imageContainer);
-    
     }    
 
     createFilmStrip(forceRecreation = false) {
