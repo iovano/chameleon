@@ -3,38 +3,38 @@ export default class Canvas extends Gallery {
     constructor(albums) {
         super(albums);
     }
+    drawImage(slot = 0, scale = 1) {
+        let canvas = this.img[slot];
+        let image = canvas.image;
+        let width = this.canvasContainer.clientWidth * scale;
+        let height = this.canvasContainer.clientHeight * scale;
+        let style = this.get('imgStyle');
+
+        if (['contain', 'cover'].indexOf(style.objectFit) !== -1) {
+            width = (width * image.height / image.width <= height || style.objectFit === 'cover') ? width : height * image.width / image.height;
+            height = width / image.width * image.height;
+        }
+        canvas.getContext('2d').drawImage (image,(canvas.width - width) * style.alignment.x, (canvas.height - height) * style.alignment.y, width, height);
+    }
     showImage(cImage, src) {
-        console.log("loading image", cImage, src);
         let canvas = document.createElement('canvas');
-        let context = canvas.getContext('2d');
-        let width = this.canvasContainer.clientWidth;
-        let height = this.canvasContainer.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = this.canvasContainer.clientWidth;
+        canvas.height = this.canvasContainer.clientHeight;
         canvas.style.opacity = 0;
+
         let image = new Image();
-        canvas.image = image;
-        this.setProps(image.style, this.preferences.imgStyle);
         this.setProps(canvas.style, this.preferences.imgLayerStyle);
+        this.setProps(image.style, this.preferences.imgStyle);
         image.src = src;
-        image.onload = (event) => {
-            let s1 = {w: width, h: width * image.height / image.width};
-            let s2 = {w: height * image.width / image.height, h: height};
-            if (this.preferences.imgStyle.objectFit === 'contain') {
-                width = (s1.w <= width && s1.h <= height) ? s1.w : s2.w;
-                height = width / image.width * image.height;
-            } else if (this.preferences.imgStyle.objectFit === 'cover') {
-                width = (s1.w <= width && s1.h <= height) ? s2.w : s1.w;    
-                height = width / image.width * image.height;
-            }
-            image.x1 = (canvas.width - width) * this.preferences.imgStyle.alignment.x;
-            image.y1 = (canvas.height - height) * this.preferences.imgStyle.alignment.y;
-            image.w = width;
-            image.h = height;
-            context.drawImage (event.target,(canvas.width - width) * this.preferences.imgStyle.alignment.x, (canvas.height - height) * this.preferences.imgStyle.alignment.y, width, height);
+        /* additional attributes */
+        canvas.image = image;
+        canvas.frame = 0;
+        this.addImageLayer(canvas);
+        image.onload = () => {
+            this.drawImage();
             this.dispatchEvent('ImageLoad');
         }
-        this.addImageLayer(canvas);
+
     }
     createCanvasContainer() {
         super.createCanvasContainer('div');

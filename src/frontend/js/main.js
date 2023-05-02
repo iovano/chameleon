@@ -1,9 +1,4 @@
-import DotGain from './modules/DotGain.js';
-import Fader from './modules/Fader.js';
-import Roam from './modules/Roam.js';
-import Gallery from './modules/Gallery.js'
-import Pipe from './modules/Pipe.js'
-import Canvas from './modules/Canvas.js'
+import Transitions from './modules/Transitions.js'
 import Sandwich from './elements/Sandwich.js';
 
 import styles from '../css/default.css' assert { type: 'css' };
@@ -98,13 +93,8 @@ function start(newTheme) {
     gallery.destroy();
     document.body.removeChild(gallery);
   }
-  switch (theme.toLowerCase()) {
-    case "dotgain": gallery = new DotGain(); break;
-    case "roam": gallery = new Roam(); break;
-    case "pipe": gallery = new Pipe(); break;
-    case "canvas": gallery = new Canvas(); break;
-    default: gallery = new Gallery();
-  }
+  gallery = new Transitions();
+  gallery.preferences.transition = theme || 'random';
   gallery.setAttribute('id', 'gallery');
   document.body.appendChild(gallery);
   window.gallery = gallery;

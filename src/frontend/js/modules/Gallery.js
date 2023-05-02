@@ -90,11 +90,11 @@ export default class Gallery extends HTMLElement {
         this.dispatcher = new Dispatcher(this, this.listeners);
         this.dispatcher.fire('Resize');
     }
-    get(key) { /* outsource to Preferences class */
+    get(key, defaultValue = undefined) { /* outsource to Preferences class */
         if (this.preferences[key] === undefined) {
             console.warn('preference "'+key+'" not found');
         }
-        return this.preferences[key];
+        return this.preferences[key] || defaultValue;
     }
     read(query) { /* outsource to Preferences class */ 
         let tokens = query.split('.');
