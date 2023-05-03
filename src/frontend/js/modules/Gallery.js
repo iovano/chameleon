@@ -639,6 +639,8 @@ export default class Gallery extends HTMLElement {
             img.setAttribute('autoplay', '');
             img.setAttribute('muted', '');
             img.setAttribute('loop','');
+            img.setAttribute('hidden','');
+            img.setAttribute('playsinline', '');
             img.src = this.getImageSrc(cImage,1);
             this.setProps(img.style,this.get('videoStyle'));
         } else {
