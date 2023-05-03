@@ -90,11 +90,25 @@ function start(newTheme) {
   }
 
   if (params?.debug === 'screen') {
+    let lastMessage;
+    let repetitions = 0;
     function debug(event, ...payload) {
+      let target = debugContent;
+      if (event === lastMessage) {
+        repetitions ++;
+        return;
+      } else if (repetitions > 1) {
+        let span = document.createElement('span'); 
+        span.classList.add("repetitions ");
+        span.innerHTML = ".."+repetitions+"x ";
+        target.appendChild(span);
+      }
+      repetitions = 0;
+      let atBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 1
       let span = document.createElement('span');
       span.classList.add(event);
       span.innerHTML = event;
-      debugContainer.appendChild(span);
+      target.appendChild(span);
       if (payload !== undefined && payload.length > 0) {
         for (let i = 0; i < payload.length; i++) {
           if (payload[i] === undefined) {
@@ -102,21 +116,46 @@ function start(newTheme) {
           }
           span = document.createElement('span');
           span.classList.add(event, "payload");
-          span.innerHTML = JSON.stringify(payload[i]);
-          debugContainer.appendChild(span);  
+          span.innerHTML = " "+JSON.stringify(payload[i]);
+          target.appendChild(span);  
         }  
       }
       span = document.createElement('span');
       span.innerHTML = ' ';
-      debugContainer.appendChild(span);
-      debugContainer.scrollTo(0, debugContainer.scrollHeight);
+      target.appendChild(span);
+      if (atBottom) {
+        target.scrollTo(0, target.scrollHeight);
+      }
+      lastMessage = event;
     }
 
     let debugContainer = document.createElement('div');
     debugContainer.classList.add('debugContainer');
     document.body.appendChild(debugContainer);
+    let debugHeader = document.createElement('div');
+    debugHeader.classList.add('header');
+    debugContainer.appendChild(debugHeader);
+    let debugContent = document.createElement('div');
+    debugContent.classList.add('content');
+    debugContainer.appendChild(debugContent);
+
     gallery.onEvent = (event, ...props) => {
-      debug(event, ...props);
+      let p = ['suspended', 'transitionFrame', 'breakTimeFrame', 'currentImageNum', 'currentAlbumNum', 'userIdleTime'];
+      debugHeader.innerHTML = '';
+      for (let i = 0; i < p.length ; i++) {
+        let div = document.createElement('div');
+        let span = document.createElement('span');
+        span.classList.add('label', p[i]);
+        span.innerHTML = p[i];
+        div.appendChild(span);
+        span = document.createElement('span');
+        span.classList.add('value', p[i]);
+        span.innerHTML = gallery[p[i]];
+        div.appendChild(span);
+        debugHeader.appendChild(div);
+      }
+      
+      if (['Paused', 'Idle'].indexOf(event) === -1) debug(event, ...props);
     }
     console.log = function (message, ...props) {
       if (typeof message == 'object') {

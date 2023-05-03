@@ -912,17 +912,49 @@ input[type=range] {
 .debugContainer {
     position: absolute;
     left: 0;
-    min-height: 4em;
+    min-height: 8em;
     max-height: 20%;
-    overflow-y: auto;
     bottom: 0;
     right: 0;
     left: 0;
     z-index: 10000;
-    background-color: rgba(0,0,255,0.85);
-    color: rgba(200,200,255,0.8);
+    color: rgb(200,200,255);
     font-size: 0.8em;
 }
+.debugContainer .header {
+    background-color: rgba(25,25,100,0.85);
+    padding: 0.5em;
+    top: 0;
+    left: 0;
+    height: 2em;
+    right: 0;
+    display: flex;
+    flex-wrap: nowrap;
+}
+.debugContainer .header div {
+    margin-right: 2em;
+}
+.debugContainer .header span.value {
+    font-weight: bolder;
+    display: inline-flex;
+    margin-left: 1em;
+    min-width: 6em;
+}
+.debugContainer .content {
+    position: absolute;
+    padding: 0.5em;
+    top: 2em;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(50,50,200,0.85);
+    height: 100%;
+    overflow-y: auto;
+}
+
 .debugContainer span.payload {
-    opacity: 0.5;
+    color: rgb(20,20,55);
+}
+.debugContainer span.repetitions {
+    color: rgb(120,120,180);
 }

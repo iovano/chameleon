@@ -4,7 +4,6 @@ export default class Canvas extends Gallery {
         super(albums);
     }
     drawImage(canvas, image, scale = 1) {
-        console.log("draw Image", canvas, image);
         if (canvas instanceof HTMLCanvasElement) {
             let context = canvas.getContext('2d');
             let width = this.canvasContainer.clientWidth;
