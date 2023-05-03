@@ -5,6 +5,7 @@ import Sandwich from './elements/Sandwich.js';
 
 import styles from '../css/default.css' assert { type: 'css' };
 import forms from '../css/forms.css' assert { type: 'css' };
+import debug from '../css/debug.css' assert { type: 'css' };
 
 
 let gallery;
@@ -87,6 +88,28 @@ function start(newTheme) {
     gallery = new Transitions();
     //gallery = new Gallery();
   }
+
+  if (params?.debug === 'screen') {
+    let debug = document.createElement('div');
+    debug.classList.add('debugContainer');
+    document.body.appendChild(debug);
+    gallery.onEvent = (event, ...props) => {
+      let span = document.createElement('span');
+      span.classList.add(event);
+      span.innerHTML = event;
+      debug.appendChild(span);
+      span = document.createElement('span');
+      span.classList.add(event, "payload");
+      span.innerHTML = JSON.stringify(props);
+      debug.appendChild(span);
+      span = document.createElement('span');
+      span.innerHTML = ' ';
+      debug.appendChild(span);
+      debug.scrollTo(0, debug.scrollHeight);
+    }    
+  }
+
+
   gallery.preferences.transition = theme || 'random';
   gallery.setAttribute('id', 'gallery');
   document.body.appendChild(gallery);
