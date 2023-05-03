@@ -147,6 +147,7 @@
     position: relative;
     overflow: hidden;
     display: inline-block;
+    transition: opacity 1s;
 }
 
 @media (hover: hover) {

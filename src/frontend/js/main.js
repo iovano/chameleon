@@ -1,4 +1,6 @@
 import Transitions from './modules/Transitions.js'
+import Gallery from './modules/Gallery.js'
+
 import Sandwich from './elements/Sandwich.js';
 
 import styles from '../css/default.css' assert { type: 'css' };
@@ -89,11 +91,10 @@ function start(newTheme) {
 
 
   gallery = document.getElementById("gallery");
-  if (gallery) {
-    gallery.destroy();
-    document.body.removeChild(gallery);
+  if (!gallery) {
+    gallery = new Transitions();
+    // gallery = new Gallery();
   }
-  gallery = new Transitions();
   gallery.preferences.transition = theme || 'random';
   gallery.setAttribute('id', 'gallery');
   document.body.appendChild(gallery);

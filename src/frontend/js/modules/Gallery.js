@@ -55,7 +55,7 @@ export default class Gallery extends HTMLElement {
     /* gallery image storage */
     albums = [];
     img = [];
-    imageLayersMax = 3;
+    imageLayersMax = 2;
     imageContainer;
     previousImage = undefined;
     currentImageNum = 0;
@@ -379,8 +379,9 @@ export default class Gallery extends HTMLElement {
             document.body.style.cursor = 'none';
         }
         this.totalFrames ++;
+        requestAnimationFrame(() => this.run());
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
-        setTimeout(() => this.run(), 1000 / this.get('fps'));    
+//        setTimeout(() => this.run(), 1000 / this.get('fps'));    
     }
     getImageNumByPropertyValue(imageName, props = ['id', 'title', 'name'], preferredAlbum = undefined) {
         if (typeof props === 'string' || props instanceof String) {
@@ -661,6 +662,7 @@ export default class Gallery extends HTMLElement {
         this.setProps(this.canvasContainer.style, {width: '100%', height: '100%', position: 'absolute'})
         this.canvasContainer.setAttribute('class', 'canvasContainer');
         this.imageContainer = document.createElement('div');
+        this.imageContainer.setAttribute('class', 'imageContainer');
         this.canvasContainer.appendChild(this.imageContainer);
     }    
 

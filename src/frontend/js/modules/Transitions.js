@@ -8,7 +8,8 @@ export default class Transitions extends Canvas {
         transitionEase: 0.2,
         transitionDuration: 2,
         direction: 'random',
-        grid: {x: 30, y: 30},
+        rotation: 0.1,
+        grid: {x: 50, y: 50},
         transition: 'Fader'
 
     }
@@ -38,6 +39,7 @@ export default class Transitions extends Canvas {
 
         context.moveTo(0,0);
         context.translate(canvas.width/2,canvas.height/2);
+        this.preferences.currentDirection += this.get('rotation');
         context.rotate(this.get('currentDirection') * Math.PI / 180);
         context.beginPath();
         let h = this.transitionFrame * max / this.get('transitionDuration') / this.get('fps');
@@ -54,28 +56,29 @@ export default class Transitions extends Canvas {
     }
     transitionDotGain(canvas) {
         function calculateDistance(x1, y1, x2, y2) {
-            const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const distance = ~~ Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
             return distance;
         }
         let context = canvas.getContext('2d');    
+        let max = Math.max(canvas.height, canvas.width);
         context.beginPath();
         if (this.transitionFrame === 1 || !this.preferences.origin) {
             let a = Math.floor(Math.random() * 4);
             this.preferences.origin = {x: a==0 || a==2 ? canvas.width * Math.random() : a==3 ? canvas.width : 0, y: a==1 || a==3 ? canvas.height * Math.random() : a==2 ? canvas.height : 0};
         }
-        let grid = {x: this.get('grid').x || this.get('grid', 30), y: this.get('grid').y || this.get('grid', 30)};
+        let grid = {x: this.get('grid').x || this.get('grid', max / 30), y: this.get('grid').y || this.get('grid', max / 30)};
         let pending = 0;
         for (let x = 0 ; x <= canvas.width / grid.x + 1; x += 1) {
             for (let y = 0 ; y <= canvas.height / grid.y + 1; y += 1) {
                 context.moveTo(0, 0);
-                let r = - calculateDistance(x * grid.x, y * grid.y, this.preferences.origin.x , this.preferences.origin.y) * this.get('transitionDuration') / this.get('fps') + this.get('transitionEase',0) * this.transitionFrame + this.transitionFrame / this.get('fps') * Math.abs(grid.x, grid.y);
+                let r = - calculateDistance(x * grid.x, y * grid.y, this.preferences.origin.x , this.preferences.origin.y) * this.get('transitionDuration') / this.get('fps') / 2 + this.get('transitionEase',0) * this.transitionFrame + this.transitionFrame / this.get('fps') * Math.abs(grid.x, grid.y);
                 if (r < Math.max(grid.x, grid.y)) {
                     pending ++;
                 } else {
                     r = Math.max(grid.x, grid.y);
                 }
                 if (r > 0) {
-                    context.arc( x * grid.x , y * grid.y , r, 0, 2 * Math.PI);
+                    context.arc( ~~ x * grid.x , ~~ y * grid.y ,  r, 0, 2 * Math.PI);
                 }
                 
             }
@@ -99,24 +102,29 @@ export default class Transitions extends Canvas {
         }
         for (let i = 0; i < this.img.length; i++) {
             let canvas = this.img[i];
+            let scale = 1 + canvas.frame * this.get('zoomspeed',0) / 1000 / this.get('fps');
             if (i !== 0 || !this.suspended) {
                 canvas.frame ++;
             }
             canvas.style.zIndex = this.img.length - i;
-            let context = canvas.getContext('2d');    
-            context.globalCompositeOperation = "source-over";
-            if (i === 0) {
-                context.clearRect(0,0,canvas.width,canvas.height);
-                context.fillStyle = "#000";
-                context.fillRect(0,0,canvas.width,canvas.height);
-                this.drawImage(i, 1 + canvas.frame * this.get('zoomspeed',0) / 1000 / this.get('fps'));
-                if (this.transitionFrame) {
-                    context.globalCompositeOperation = "destination-in";
-                    this['transition'+this.currentTransition](canvas);
-                    canvas.style.opacity = 1;
-                }
+            if (canvas instanceof HTMLCanvasElement) {
+                let context = canvas.getContext('2d');    
+                context.globalCompositeOperation = "source-over";
+                if (i === 0) {
+                    context.clearRect(0,0,canvas.width,canvas.height);
+                    context.fillStyle = "#000";
+                    context.fillRect(0,0,canvas.width,canvas.height);
+                    this.drawImage(i, scale);
+                    if (this.transitionFrame) {
+                        context.globalCompositeOperation = "destination-in";
+                        this['transition'+this.currentTransition](canvas);
+                        canvas.style.opacity = 1;
+                    }
+//                } else {
+//                    this.drawImage(i, 1 + canvas.frame * this.get('zoomspeed',0) / 1000 / this.get('fps'));                
+                }    
             } else {
-                this.drawImage(i, 1 + canvas.frame * this.get('zoomspeed',0) / 1000 / this.get('fps'));                
+                canvas.style.transform = "scale("+scale+","+scale+")";
             }
         }
     }
