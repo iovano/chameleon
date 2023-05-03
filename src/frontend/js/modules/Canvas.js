@@ -53,15 +53,22 @@ export default class Canvas extends Gallery {
         let height = this.canvasContainer.clientHeight;
         width = (width * image.height / image.width <= height || style.objectFit === 'cover') ? width : height * image.width / image.height;
         height = width / image.width * image.height;
-        createImageBitmap(image, {
-            resizeWidth: width,
-            resizeHeight: height,
-            resizeQuality: 'high'
-        }).then((bitmap) => {
-            this.img[0].bitmap = bitmap;
+        if (createImageBitmap) {
+            createImageBitmap(image, {
+                resizeWidth: width,
+                resizeHeight: height,
+                resizeQuality: 'high'
+            }).then((bitmap) => {
+                this.img[0].bitmap = bitmap;
+                super._onImageLoad(event);
+                this.drawImage(this.img[0], bitmap);
+            }).catch((error) => {
+                this.dispatchEvent('error', error);
+            });        
+        } else {
             super._onImageLoad(event);
-            this.drawImage(this.img[0], bitmap);
-        });    
+            this.drawImage(this.img[0], image);
+        }
     }
 
     showImage(cImage, src) {
