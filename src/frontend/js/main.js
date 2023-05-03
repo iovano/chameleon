@@ -109,7 +109,7 @@ function start(newTheme) {
       span = document.createElement('span');
       span.innerHTML = ' ';
       debugContainer.appendChild(span);
-      debugContainer.scrollTo(0, debug.scrollHeight);
+      debugContainer.scrollTo(0, debugContainer.scrollHeight);
     }
 
     let debugContainer = document.createElement('div');
