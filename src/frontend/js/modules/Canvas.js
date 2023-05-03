@@ -38,14 +38,12 @@ export default class Canvas extends Gallery {
         div.style.backgroundColor = 'rgb(0,0,0)'
         div.style.opacity = 1;
         div.style.transition = 'opacity 2s';
-        console.log("replace canvas with div (improve image quality after transition)");
         super._onTransitionEnd(...props);
         this.img[1].classList.add('hide');
         this.img[1].style.opacity = 'inherit';
         //requestAnimationFrame(() => {this.imageContainer.removeChild(oldLayer); this.img.splice(1,1);});
     }
     _onVideoLoad(event) {
-        console.log("video ready for playback");
         this.img[0].video = event.target;
     }
     _onImageLoad(event) {
@@ -61,7 +59,6 @@ export default class Canvas extends Gallery {
             resizeQuality: 'high'
         }).then((bitmap) => {
             this.img[0].bitmap = bitmap;
-            console.log("image loaded and bitmapped");
             super._onImageLoad(event);
             this.drawImage(this.img[0], bitmap);
         });    

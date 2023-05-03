@@ -7,18 +7,9 @@ import styles from '../css/default.css' assert { type: 'css' };
 import forms from '../css/forms.css' assert { type: 'css' };
 
 
-import debug from 'debug';
-const log = debug('app:log');
 let gallery;
 let theme;
 let firstRun = true;
-
-if (ENV !== 'production') {
-  debug.enable('*');
-  log('Logging is enabled!');
-} else {
-  debug.disable();
-}
 
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
   window.setFormValues(doc.querySelector('form'));

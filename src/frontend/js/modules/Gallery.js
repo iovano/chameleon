@@ -208,7 +208,7 @@ export default class Gallery extends HTMLElement {
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
-        
+
         if (!this.isFullscreen()) {
             /* window location change does not have any effect in fullscreen mode */
             const url = new URL(window.location);
@@ -380,9 +380,12 @@ export default class Gallery extends HTMLElement {
             document.body.style.cursor = 'none';
         }
         this.totalFrames ++;
-        requestAnimationFrame(() => this.run());
+        if (requestAnimationFrame) {
+            requestAnimationFrame(() => this.run());
+        } else {
+             setTimeout(() => this.run(), 1000 / this.get('fps'));    
+        }
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
-//        setTimeout(() => this.run(), 1000 / this.get('fps'));    
     }
     getImageNumByPropertyValue(imageName, props = ['id', 'title', 'name'], preferredAlbum = undefined) {
         if (typeof props === 'string' || props instanceof String) {
@@ -614,7 +617,6 @@ export default class Gallery extends HTMLElement {
         }
     }
     _onVideoStart(event) {
-        console.log("video started");
         if (this.suspended) {
             this.suspended = false;
             this.transitionFrame = 0;    

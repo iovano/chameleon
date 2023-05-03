@@ -69,8 +69,6 @@ export default class AlbumStrip extends FilmStrip {
         }
         if (this.images) {
             super.render();    
-        } else {
-            console.error("AlbumStrip: No available Images to render");
         }
     }
     getAlbumList() {
