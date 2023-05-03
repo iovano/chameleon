@@ -114,7 +114,7 @@ export default class Transitions extends Canvas {
                     context.clearRect(0,0,canvas.width,canvas.height);
                     context.fillStyle = "#000";
                     context.fillRect(0,0,canvas.width,canvas.height);
-                    this.drawImage(i, scale);
+                    this.drawImage(canvas, canvas.video ?? canvas.bitmap ?? canvas.image, scale);
                     if (this.transitionFrame) {
                         context.globalCompositeOperation = "destination-in";
                         this['transition'+this.currentTransition](canvas);

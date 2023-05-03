@@ -93,7 +93,7 @@ function start(newTheme) {
   gallery = document.getElementById("gallery");
   if (!gallery) {
     gallery = new Transitions();
-    // gallery = new Gallery();
+    //gallery = new Gallery();
   }
   gallery.preferences.transition = theme || 'random';
   gallery.setAttribute('id', 'gallery');

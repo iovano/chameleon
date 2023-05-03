@@ -28,8 +28,8 @@ export default class Gallery extends HTMLElement {
         fps: 20,
         shuffle: true,
         pauseMode: "smooth",
-        videoStyle: {marginLeft: 'auto', objectFit: 'cover', position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%'},
-        videoLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'},
+        videoStyle: {marginLeft: 'auto', objectFit: 'cover', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}},
+        videoLayerStyle: {position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0)'},
         imgStyle: {marginLeft: 'auto', marginRight: 'auto', objectFit: 'contain', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}},
         imgLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,1)'},
         changeAlbumOnImageNumOverflow: true /* specifies how to treat exceeding image index: select previous/next album (true) or start over at the other end of the current album (false) */
@@ -612,6 +612,13 @@ export default class Gallery extends HTMLElement {
             this.transitionFrame = 0;    
         }
     }
+    _onVideoStart(event) {
+        console.log("video started");
+        if (this.suspended) {
+            this.suspended = false;
+            this.transitionFrame = 0;    
+        }
+    }
     setProps(element, props) {
         for (let a of Object.keys(props)) {
             let value = props[a];
@@ -622,29 +629,32 @@ export default class Gallery extends HTMLElement {
         /* TODO: make this an overlay dialogue */
         console.error(message);
     }
-    showImage() {
-        let imgLayer = document.createElement('div');
-        let cImage = this.getCurrentImage();
+    createMediaElement(cImage = undefined) {
+        cImage = cImage ?? this.getCurrentImage();
         let img;
         if (cImage.media === 'video') {
             img = document.createElement('video');
+            img.addEventListener('loadeddata', (event) => this.dispatchEvent('VideoLoad', event));
+            img.addEventListener('play', (event) => this.dispatchEvent('VideoStart', event));
             img.setAttribute('autoplay', '');
             img.setAttribute('muted', '');
             img.setAttribute('loop','');
             img.src = this.getImageSrc(cImage,1);
             this.setProps(img.style,this.get('videoStyle'));
-            this.setProps(imgLayer.style,this.get('videoLayerStyle'));
-            img.addEventListener('canplay', (event) => this._onImageLoad(event));
-            img.addEventListener('canplaythrough', (event) => this._onImageLoad(event));
         } else {
             img = document.createElement('img');
+            img.addEventListener('load', (event) => this.dispatchEvent('ImageLoad', event));
             img.src = this.getImageSrc(cImage);
             this.setProps(img.style,this.get('imgStyle'));
-            this.setProps(imgLayer.style,this.get('imgLayerStyle'));
-            img.addEventListener('load', (event) => this._onImageLoad(event));
         }
         img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
-        imgLayer.appendChild(img);
+        return img;
+    }
+    showImage() {
+        let imgLayer = document.createElement('div');
+        let media = this.createMediaElement();
+        imgLayer.appendChild(media);
+        this.setProps(imgLayer.style,this.get(media instanceof HTMLVideoElement ? 'videoLayerStyle' : 'imgLayerStyle'));
         this.addImageLayer(imgLayer);
     }
     addImageLayer(imgLayer) {
