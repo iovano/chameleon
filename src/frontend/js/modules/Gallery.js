@@ -208,6 +208,7 @@ export default class Gallery extends HTMLElement {
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
+        
         if (!this.isFullscreen()) {
             /* window location change does not have any effect in fullscreen mode */
             const url = new URL(window.location);

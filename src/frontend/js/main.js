@@ -81,14 +81,15 @@ function start(newTheme) {
   theme = newTheme || params?.theme || 'DotGain';
   window.theme = theme;
 
-  const url = new URL(window.location);
-  if (theme) {
-    url.searchParams.set('theme', theme);
-  } else {
-    url.searchParams.delete('theme');
+  if (window.screenTop || window.screenY) {
+    const url = new URL(window.location);
+    if (theme) {
+      url.searchParams.set('theme', theme);
+    } else {
+      url.searchParams.delete('theme');
+    }
+    history.pushState({}, "", url);    
   }
-  history.pushState({}, "", url);    
-
 
   gallery = document.getElementById("gallery");
   if (!gallery) {
