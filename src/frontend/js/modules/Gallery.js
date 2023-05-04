@@ -292,7 +292,8 @@ export default class Gallery extends HTMLElement {
             this.shuffleIndex = this.getShuffleIndex();
             this.dispatchEvent('ShuffleIndexCreated', this.index);    
         }
-        this.shufflePosition = (shufflePositionNum + this.shuffleIndex.length) % this.shuffleIndex.length;
+        this.shufflePosition = (shufflePositionNum || 0 + this.shuffleIndex.length) % this.shuffleIndex.length;
+        console.log(this.shufflePosition, this.shuffleIndex);
         let photo = this.shuffleIndex[this.shufflePosition];
         this.setCurrentAlbumNum(photo.albumNum);
         this.setCurrentImageNum(photo.imageNum);
