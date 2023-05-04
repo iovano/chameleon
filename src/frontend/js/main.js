@@ -32,6 +32,8 @@ window.setFormValues = function (form) {
               el.options[i].setAttribute('selected', '');
             }
           }
+        } else if (el.type === 'checkbox') {
+          el.checked = (prefs[el.name] == true);
         } else {
           el.value = value;
         }
@@ -55,6 +57,7 @@ window.onSubmitSettings = function (event, form) {
       settings[key] = value;
     }
   }
+  console.log(settings);
   for (const [key, value] of Object.entries(settings)) {
     gallery.set(key, value);
   }
@@ -114,6 +117,10 @@ function start(newTheme) {
     })
         */
   });
+
+  if (params?.order === 'shuffle') {
+    gallery.setShuffleMode(true);
+  }
 
   if (firstRun) {
     document.querySelectorAll('.requestFullscreen').forEach(

@@ -53,7 +53,6 @@ export default class Canvas extends Gallery {
         let height = this.canvasContainer.clientHeight;
         width = (width * image.height / image.width <= height || style.objectFit === 'cover') ? width : height * image.width / image.height;
         height = width / image.width * image.height;
-        console.debug(image, image.width, image.height, width, height);
         if (typeof createImageBitmap === 'function') {
             createImageBitmap(image, {
                 resizeWidth: width,

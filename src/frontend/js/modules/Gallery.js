@@ -26,7 +26,7 @@ export default class Gallery extends HTMLElement {
         height: undefined,
         direction: "random",
         fps: 20,
-        shuffle: true,
+        shuffle: false,
         pauseMode: "smooth",
         videoStyle: {marginLeft: 'auto', objectFit: 'cover', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', top: 0, left: 0, alignment: {x: 0.5, y: 0.5 /* 0 = left, 0.5 = center, 1 = right */}},
         videoLayerStyle: {position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0)'},
@@ -60,6 +60,7 @@ export default class Gallery extends HTMLElement {
     previousImage = undefined;
     currentImageNum = 0;
     currentAlbumNum = 0;
+    shufflePosition = 0;
 
     /* canvas elements */
     canvasContainer = undefined;
@@ -91,7 +92,7 @@ export default class Gallery extends HTMLElement {
         this.dispatcher.fire('Resize');
     }
     get(key, defaultValue = undefined) { /* outsource to Preferences class */
-        if (this.preferences[key] === undefined) {
+        if (!(key in this.preferences)) {
             console.warn('preference "'+key+'" not found');
         }
         return this.preferences[key] || defaultValue;
@@ -117,14 +118,14 @@ export default class Gallery extends HTMLElement {
         console.log(key,value);
         this.preferences = setProperty(this.preferences, key, value);
     }
-    setPreferences(preferences, merge = true) { /* outsource to Preferences class */
+    setPreferences(preferences, merge = true) {
         if (merge && this.preferences) {
             this.preferences = {...this.preferences, ...preferences};
         } else {
             this.preferences = preferences;
         }
     }
-    getPreferences(flat = false) { /* outsource to Preferences class */
+    getPreferences(flat = false) {
         if (flat) {
             function isScalar(v) {
                 return (!isNaN(v) || (v instanceof String || typeof v === 'string'));
@@ -201,9 +202,13 @@ export default class Gallery extends HTMLElement {
             if (targetAlbum !== undefined) {
                 this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
             }
-            if (targetImage !== undefined) {
+            if (this.get('shuffle') == true && targetAlbum === undefined && (targetImage === undefined || typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1)) {
+                console.log("shuffle mode active");
+                this.setShufflePosition(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getShufflePosition() : 0));
+            } else if (targetImage !== undefined) {
                 this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
             }
+
         }
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
@@ -255,6 +260,16 @@ export default class Gallery extends HTMLElement {
             this.setCurrentImageNum(imageNum);
         }
         return this.currentAlbumNum;
+    }
+    setShufflePosition(shufflePositionNum) {
+        this.shufflePosition = shufflePositionNum % this.shuffleIndex.length;
+        let photo = this.shuffleIndex[this.shufflePosition];
+        console.log(photo);
+        this.setCurrentAlbumNum(photo.albumNum);
+        this.setCurrentImageNum(photo.imageNum);
+    }
+    getShufflePosition() {
+        return this.shufflePosition;
     }
     getAlbum(index = undefined) {
         return this.albums[index || this.currentAlbumNum];
@@ -313,11 +328,11 @@ export default class Gallery extends HTMLElement {
         this.createInfoBox();
         this.createFilmStrip(true);
         this.navigate(params || this.currentImageNum);
+        this.setShuffleMode(this.get('shuffle'));
         this.swiper = new DragonSwipe();
         this.swiper.onEvent = (eventName, ...args) => {
             this.dispatchEvent(eventName, ...args);
         }
-    
     }
     updateOverlays() {
         for(let key of Object.keys(this.overlays)) {
@@ -447,19 +462,49 @@ export default class Gallery extends HTMLElement {
             }
         }
         this.albums = filteredAlbums;
+        this.dispatchEvent('FilterApplied', filteredAlbums);
+        return filteredAlbums;
     }
     resetFilters() {
         this.albums = this.loadedAlbums;
+        this.dispatchEvent('FilterReset');
     }
     setAlbums(albums) {
         this.loadedAlbums = albums;
         this.applyFilters(albums);
+        this.index = this.getIndex();
+        this.dispatchEvent('IndexCreated', this.index);
+    }
+    getShuffleIndex(index) {
+        index = index || this.index;
+        if (!index) {
+            index = this.getIndex();
+        }
+        let shuffledIndex = index.sort((a, b) => 0.5 - Math.random());
+        return shuffledIndex;
+    }
+    getIndex(albums) {
+        let index = [];
+        albums = albums || this.albums || this.loadedAlbums;
+        for (let a = 0; a < albums.length ; a++) {
+            for (let p = 0; p < albums[a].photos.length; p++) {
+                let photo = albums[a].photos[p];
+                let ph = {id: photo.id, title: photo.title, num: p};
+                ph.albumNum = a;
+                ph.photoNum = p;
+                ph.albumId = albums[a].id;
+                ph.albumTitle = albums[a].title;
+                index.push(ph);
+            }
+        }
+        return index;
     }
     getImageSlot(index = undefined) {
         return document.getElementById("imageSlot" + (index !== undefined ? index : (this.albumslots.length - 1)));
     }
     isPaused() {
         return this.paused > 0;
+    
     }
     setPaused(value = undefined) {
         if (value === undefined) {
@@ -476,6 +521,15 @@ export default class Gallery extends HTMLElement {
             this.dispatchEvent("PauseEnd");
         }
         return value;
+    }
+    setShuffleMode(value) {
+        this.preferences.shuffle = value;
+        if (value === true) {
+            this.shuffleIndex = this.getShuffleIndex();
+            console.log(this.shuffleIndex);
+            this.shufflePosition = 0;
+            this.dispatchEvent('ShuffleIndexCreated', this.index);    
+        }
     }
     _onFullscreenChange(event) {
         if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
