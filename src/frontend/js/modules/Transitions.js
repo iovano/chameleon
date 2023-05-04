@@ -11,7 +11,7 @@ export default class Transitions extends Canvas {
         direction: 'random',
         rotation: 0.1,
         grid: 'auto',
-        transition: 'Fader'
+        transition: 'random'
 
     }
     constructor(albums) {
