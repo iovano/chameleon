@@ -210,7 +210,11 @@ export default class Gallery extends HTMLElement {
         if (this.isPaused()) {
             this.dispatchEvent("PauseEnd");
         }
-        if (typeof targetImage === 'object' || targetImage === undefined) {
+        if (this.get('shuffle') == true && (targetImage === undefined || (!targetImage?.album && !targetImage?.image && isNaN(targetImage)) || ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1)))) {
+            console.log("shuffle!");
+            console.log(targetImage);
+            this.setShufflePosition(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getShufflePosition() : 0));
+        } else if (typeof targetImage === 'object' || targetImage === undefined) {
             if (targetImage.album) {
                 /* select album first (this is important if queried image exists in more than one album) */
                 this.setCurrentAlbumNum(this.getAlbumNumByPropertyValue(targetImage.album));
@@ -227,9 +231,7 @@ export default class Gallery extends HTMLElement {
             if (targetAlbum !== undefined) {
                 this.setCurrentAlbumNum(parseInt(targetAlbum) + ((typeof targetAlbum === 'string' || targetAlbum instanceof String) && ["+", "-"].indexOf((targetAlbum || 0).substring(0, 1) !== -1) ? this.getCurrentAlbumNum() : 0));
             }
-            if (this.get('shuffle') == true && (targetImage === undefined || typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1)) {
-                this.setShufflePosition(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getShufflePosition() : 0));
-            } else if (targetImage !== undefined) {
+            if (targetImage !== undefined) {
                 this.setCurrentImageNum(parseInt(targetImage) + ((typeof targetImage === 'string' || targetImage instanceof String) && ["+", "-"].indexOf((targetImage || 0).substring(0, 1) !== -1) ? this.getCurrentImageNum() : 0));
             }
 
@@ -290,7 +292,7 @@ export default class Gallery extends HTMLElement {
             this.shuffleIndex = this.getShuffleIndex();
             this.dispatchEvent('ShuffleIndexCreated', this.index);    
         }
-        this.shufflePosition = shufflePositionNum % this.shuffleIndex.length;
+        this.shufflePosition = (shufflePositionNum + this.shuffleIndex.length) % this.shuffleIndex.length;
         let photo = this.shuffleIndex[this.shufflePosition];
         this.setCurrentAlbumNum(photo.albumNum);
         this.setCurrentImageNum(photo.imageNum);
