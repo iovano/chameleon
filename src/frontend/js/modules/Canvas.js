@@ -54,8 +54,6 @@ export default class Canvas extends Gallery {
         width = (width * image.height / image.width <= height || style.objectFit === 'cover') ? width : height * image.width / image.height;
         height = width / image.width * image.height;
         console.debug(image, image.width, image.height, width, height);
-        this.dispatchEvent("Debuggy", [event.target.src, width, height]);
-        this.dispatchEvent("Debug", [width, height]);
         if (typeof createImageBitmap === 'function') {
             createImageBitmap(image, {
                 resizeWidth: width,
@@ -63,14 +61,12 @@ export default class Canvas extends Gallery {
                 resizeQuality: 'high'
             }).then((bitmap) => {
                 this.img[0].bitmap = bitmap;
-                this.dispatchEvent("Debug", "call me mother");
                 super._onImageLoad(event);
                 this.drawImage(this.img[0], bitmap);
             }).catch((error) => {
                 this.dispatchEvent('Error', error);
             });        
         } else {
-            this.dispatchEvent("Debug", "call me mother");
             super._onImageLoad(event);
             this.drawImage(this.img[0], image);
         }

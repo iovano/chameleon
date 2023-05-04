@@ -4,7 +4,7 @@ export default class Debugger extends HTMLElement {
   lastMessage;
   keepEventsNum = 50;
   repetitions = 0;
-  skipRedundantMessages = false;
+  skipRedundantMessages = true;
   debugContainer;
   debugHeader;
   debugContent;
