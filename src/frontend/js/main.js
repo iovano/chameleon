@@ -19,7 +19,7 @@ document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) 
 window.setFormValues = function (form) {
   form = form || document.querySelector('form');
   let prefs = gallery.getPreferences(true);
-  prefs.theme = window.theme || 'DotGain';
+  prefs.theme = window.theme || 'random';
   if (form) {
     /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
@@ -71,7 +71,7 @@ function start(newTheme) {
 
   const urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
-  theme = newTheme || params?.theme || 'DotGain';
+  theme = newTheme || params?.theme || 'random';
   window.theme = theme;
 
   if (window.screenTop || window.screenY) {

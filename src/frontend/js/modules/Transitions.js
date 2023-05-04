@@ -1,6 +1,7 @@
+import Star from "../shapes/Star.js";
 import Canvas from "./Canvas.js";
 export default class Transitions extends Canvas {
-    transitions = ['DotGain','Pipe','Grinder','Fader'];
+    transitions = ['DotGain','Pipe','Grinder','Fader', 'Star'];
     additionalSettings = {
         imgLayerStyle: {opacity: 0, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'transparent'},
         fps: 60,
@@ -28,18 +29,25 @@ export default class Transitions extends Canvas {
             this.dispatchEvent("TransitionEnd");
         }
     }
+    transitionStar(canvas) {
+        let star = new Star(canvas);
+        let r = Math.max(canvas.width, canvas.height) * this.get('transitionDuration') / this.get('fps') * this.transitionFrame / 2;
+
+        star.draw({
+            outerRadius: r,
+            innerRadius: r / 2,
+            rotation: this.get('currentDirection')
+        });
+        if (r > Math.max(canvas.width, canvas.height)) {
+            this.dispatchEvent("TransitionEnd");
+        }
+    }
     transitionGrinder(canvas) {
         let context = canvas.getContext('2d');    
         let max = Math.max(canvas.height, canvas.width)*2;
-        let grid = this.get('grid') === 'auto' ? (grid = Math.floor(max / 10) + 1) : this.get('grid').x || this.get('grid');
+        let grid = this.get('grid') === 'auto' ? (grid = Math.floor(max / 30) + 1) : this.get('grid').x || this.get('grid');
         let cols = grid ? (max / grid) : 0;
-        if (this.transitionFrame === 1) {
-            this.preferences.currentDirection = this.get('direction') === 'random' ? Math.random()*360 : this.get('direction', 90);
-        }
-
-        context.moveTo(0,0);
         context.translate(canvas.width/2,canvas.height/2);
-        this.preferences.currentDirection += this.get('rotation');
         context.rotate(this.get('currentDirection') * Math.PI / 180);
         context.beginPath();
         let h = this.transitionFrame * max / this.get('transitionDuration') / this.get('fps');
@@ -122,6 +130,11 @@ export default class Transitions extends Canvas {
                     this.drawImage(canvas, canvas.video ?? canvas.bitmap ?? canvas.image, scale);
                     if (this.transitionFrame) {
                         context.globalCompositeOperation = "destination-in";
+                        if (this.transitionFrame === 1) {
+                            this.preferences.currentDirection = this.get('direction') === 'random' ? Math.random()*360 : this.get('direction', 90);
+                        }
+                        context.moveTo(0,0);
+                        this.preferences.currentDirection += this.get('rotation');
                         this['transition'+this.currentTransition](canvas);
                         canvas.style.opacity = 1;
                     }
