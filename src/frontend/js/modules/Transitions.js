@@ -9,7 +9,7 @@ export default class Transitions extends Canvas {
         transitionDuration: 2,
         direction: 'random',
         rotation: 0.1,
-        grid: {x: 50, y: 50},
+        grid: 'auto',
         transition: 'Fader'
 
     }
@@ -31,7 +31,7 @@ export default class Transitions extends Canvas {
     transitionGrinder(canvas) {
         let context = canvas.getContext('2d');    
         let max = Math.max(canvas.height, canvas.width)*2;
-        let grid = this.get('grid').x || this.get('grid');
+        let grid = this.get('grid') === 'auto' ? (grid = Math.floor(max / 10) + 1) : this.get('grid').x || this.get('grid');
         let cols = grid ? (max / grid) : 0;
         if (this.transitionFrame === 1) {
             this.preferences.currentDirection = this.get('direction') === 'random' ? Math.random()*360 : this.get('direction', 90);
@@ -66,7 +66,12 @@ export default class Transitions extends Canvas {
             let a = Math.floor(Math.random() * 4);
             this.preferences.origin = {x: a==0 || a==2 ? canvas.width * Math.random() : a==3 ? canvas.width : 0, y: a==1 || a==3 ? canvas.height * Math.random() : a==2 ? canvas.height : 0};
         }
-        let grid = {x: this.get('grid').x || this.get('grid', max / 30), y: this.get('grid').y || this.get('grid', max / 30)};
+        let grid;
+        if (this.get('grid') === 'auto') {
+            grid = {x: max / 25, y: max / 25};
+        } else {
+            grid = {x: this.get('grid').x || this.get('grid', max / 30), y: this.get('grid').y || this.get('grid', max / 30)};
+        }
         let pending = 0;
         for (let x = 0 ; x <= canvas.width / grid.x + 1; x += 1) {
             for (let y = 0 ; y <= canvas.height / grid.y + 1; y += 1) {
