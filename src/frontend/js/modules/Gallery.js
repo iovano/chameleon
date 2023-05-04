@@ -611,6 +611,8 @@ export default class Gallery extends HTMLElement {
         console.log("offline", event);
     }
     _onImageLoad(event) {
+        this.dispatchEvent("Debug", "hi. mother here!");
+
         if (this.suspended) {
             this.suspended = false;
             this.transitionFrame = 0;    
@@ -652,6 +654,7 @@ export default class Gallery extends HTMLElement {
             img.src = this.getImageSrc(cImage);
             this.setProps(img.style,this.get('imgStyle'));
         }
+        this.dispatchEvent("Debug", img.src);
         img.addEventListener("error", (event) => this.dispatchEvent('Error', event));
         return img;
     }

@@ -2,7 +2,9 @@ import debug from '../../css/debug.css' assert { type: 'css' };
 
 export default class Debugger extends HTMLElement {
   lastMessage;
+  keepEventsNum = 50;
   repetitions = 0;
+  skipRedundantMessages = false;
   debugContainer;
   debugHeader;
   debugContent;
@@ -34,7 +36,6 @@ export default class Debugger extends HTMLElement {
     }
   }
   onWatch(event, ...props) {
-    console.log("onWatch", event);
     let p = this.watchProperties;
     this.debugHeader.innerHTML = '';
     for (let i = 0; i < p.length ; i++) {
@@ -51,6 +52,11 @@ export default class Debugger extends HTMLElement {
     }
     if (this.ignoreEvents.indexOf(event) === -1) this.debug(event, ...props);
   }
+  cutOff() {
+    while (this.debugContent.children.length > this.keepEventsNum) {
+      this.debugContent.removeChild(this.debugContent.firstChild);
+    }
+  }
   buildContainer() {
     this.debugContainer = document.createElement('div');
     this.debugContainer.classList.add('debugContainer');
@@ -66,39 +72,42 @@ export default class Debugger extends HTMLElement {
   }
   debug(event, ...payload) {
     let target = this.debugContent;
-    if (event === this.lastMessage) {
-      this.repetitions++;
-      return;
-    } else if (this.repetitions > 1) {
-      let span = document.createElement('span');
-      span.classList.add("repetitions");
-      span.innerHTML = ".." + this.repetitions + "x ";
-      target.appendChild(span);
+    let atBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 1
+    if (this.skipRedundantMessages) {
+      if (event === this.lastMessage) {
+        this.repetitions++;
+        return;
+      } else if (this.repetitions > 1) {
+        let span = document.createElement('span');
+        span.classList.add("repetitions");
+        span.innerHTML = ".." + this.repetitions + "x ";
+        target.appendChild(span);
+      }  
     }
     this.repetitions = 0;
-    let atBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 1
+    let div = document.createElement('div');
+    div.classList.add('event', event);
     let span = document.createElement('span');
-    span.classList.add(event);
     span.innerHTML = event;
-    target.appendChild(span);
-    if (payload !== undefined && payload.length > 0) {
-      for (let i = 0; i < payload.length; i++) {
-        if (payload[i] === undefined) {
-          continue;
-        }
-        span = document.createElement('span');
-        span.classList.add(event, "payload");
-        span.innerHTML = " " + JSON.stringify(payload[i]);
-        target.appendChild(span);
-      }
+    div.appendChild(span);
+
+    if (payload) {
+      span = document.createElement('span');
+      span.classList.add(event, "payload");
+      span.innerHTML = " " + JSON.stringify(payload);
+      div.appendChild(span);
+  
     }
+
     span = document.createElement('span');
     span.innerHTML = ' ';
-    target.appendChild(span);
+    div.appendChild(span);
+    target.appendChild(div);
     if (atBottom) {
       target.scrollTo(0, target.scrollHeight);
     }
     this.lastMessage = event;
+    this.cutOff();
   }
 }
 customElements.define('screen-debugger',Debugger);

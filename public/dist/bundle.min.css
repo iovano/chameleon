@@ -391,7 +391,7 @@
 }
 .debugContainer {
     position: absolute;
-    pointer-events: none;
+    pointer-events:stroke;
     left: 0;
     min-height: 8em;
     max-height: 20%;
@@ -421,6 +421,15 @@
     display: inline-flex;
     margin-left: 1em;
     min-width: 6em;
+}
+.debugContainer .content div.event {
+    display: inline-block;
+    margin-right: 1em;
+    margin-bottom: 0.5em;
+}
+.debugContainer .content div.event.error {
+    background-color: rgba(255,0,100,0.5);
+    color: #fff;
 }
 .debugContainer .content {
     position: absolute;
