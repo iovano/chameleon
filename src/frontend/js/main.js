@@ -10,7 +10,6 @@ import forms from '../css/forms.css' assert { type: 'css' };
 
 
 let gallery;
-let theme;
 let firstRun = true;
 
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
@@ -19,17 +18,21 @@ document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) 
 window.setFormValues = function (form) {
   form = form || document.querySelector('form');
   let prefs = gallery.getPreferences(true);
-  prefs.theme = window.theme || 'random';
   if (form) {
     /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
-      const el = form.querySelector('[name="' + key + '"]');
+      let el = form.querySelector('[name="' + key + '"]');
+      if (Array.isArray(value) && !el) {
+        el = form.querySelector('[name="' + key + '[]"]');        
+      }
       if (el) {
         if (el.options) {
           for (let i = 0; i < el.options.length; i++) {
             let option = el.options[i];
             if (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) {
               el.options[i].setAttribute('selected', '');
+            } else {
+              el.options[i].removeAttribute('selected');
             }
           }
         } else if (el.type === 'checkbox') {
@@ -44,12 +47,13 @@ window.setFormValues = function (form) {
 }
 window.onSubmitSettings = function (event, form) {
   event.preventDefault();
+  //gallery.digestFormData(form);
   let formData = new FormData(form);
   let settings = {};
   for (const [key, value] of formData.entries()) {
-    if (settings[key]) {
+    if (key.substring(key.length-2) === '[]') {
       if (!Array.isArray(settings[key])) {
-        settings[key] = [settings[key]];
+        settings[key] = [];
       }
       /* append to existing key */
       settings[key].push(value);
@@ -57,35 +61,29 @@ window.onSubmitSettings = function (event, form) {
       settings[key] = value;
     }
   }
-  console.log(settings);
-  for (const [key, value] of Object.entries(settings)) {
+  let changeset = {};
+  const url = new URL(window.location);
+  for (let [key, value] of Object.entries(settings)) {
+    url.searchParams.set("p."+key, value);
+    key = key.substring(key.length-2) === '[]' ? key.substring(0, key.length - 2) : key;
+    changeset[key] = value;
     gallery.set(key, value);
   }
-  if (settings['filters.safety']) {
+  history.pushState({}, "", url);
+  if (changeset['filters.safety']) {
     /* TODO: make gallery reinitialize when filters affect current image selection */
     gallery.applyFilters();
     gallery.setCurrentAlbumNum(0);
     gallery.setCurrentImageNum(0);
     gallery.init();
+    
   }
   window.setFormValues();
 }
-function start(newTheme) {
+function start() {
 
   const urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
-  theme = newTheme || params?.theme || 'random';
-  window.theme = theme;
-
-  if (window.screenTop || window.screenY) {
-    const url = new URL(window.location);
-    if (theme) {
-      url.searchParams.set('theme', theme);
-    } else {
-      url.searchParams.delete('theme');
-    }
-    history.pushState({}, "", url);
-  }
 
   gallery = document.getElementById("gallery");
   if (!gallery) {
@@ -98,16 +96,16 @@ function start(newTheme) {
     document.body.appendChild(debug);
   }
 
-
-  gallery.preferences.transition = theme || 'random';
   gallery.setAttribute('id', 'gallery');
   document.body.appendChild(gallery);
   window.gallery = gallery;
 
   gallery.loadData('./data/albums.json').then(data => {
     gallery.setAlbums(data);
+    gallery.importPreferences(params);
     gallery.init(params);
     gallery.run();
+    window.setFormValues();
     /*
       }).catch(error => {
       gallery.loadData('./data/example.json').then(data => {
@@ -150,7 +148,7 @@ function start(newTheme) {
   }
 
   document.querySelectorAll('button.topic').forEach((button) => {
-    if (button.dataset.topic === theme) {
+    if (button.dataset.topic === gallery.preferences.transition) {
       button.classList.add('active')
     } else {
       button.classList.remove('active');
@@ -251,7 +249,7 @@ function move(delta) {
   gallery.navigate(delta);
   // gallery.direction = "random" /* in order to change direction permanently, change "direction"-parameter instead */
 }
-window.startTheme = start;
+
 document.addEventListener("DOMContentLoaded", function () {
   start();
   document.querySelectorAll('button.topic').forEach(

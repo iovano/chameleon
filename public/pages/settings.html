@@ -1,5 +1,5 @@
 <body>
-    <form method="POST" onsubmit="window.onSubmitSettings(event, document.forms[0]); return false;">
+    <form method="GET" onsubmit="window.onSubmitSettings(event, document.forms[0]); return false;">
         <h3>Gallery Preferences</h3>
         <label for="duration">Duration</label>
         <input name="breakTimeDuration" type="range" step="0.5" min="2" max="180" value="window.getSettings('breakTimeDuration')"/>
@@ -11,8 +11,8 @@
         <label for="shuffle">Shuffle</label>
         <input type="checkbox" name="shuffle" value=true>
         <h3>Transition Settings</h3>
-        <label for="theme">Style</label>
-        <select name="theme" type="range" onchange="window.startTheme(event.target.value);window.setFormValues(event.target.parent);">
+        <label for="transition">Style</label>
+        <select name="transition" type="range">
             <option value="random">Random</option>
             <option value="DotGain">DotGain</option>
             <option value="Pipe">Pipe</option>
@@ -25,7 +25,7 @@
         <input name="zoomspeed" type="range" min="-50" step="0.5" max="50"/>
         <h3>Content Filter</h3>
         <label for="safety">Adult Content (NSFW)</label>
-        <select name="filters.safety" multiple value="1">
+        <select name="filters.safety[]" multiple value="1">
             <option value="0">safe</option>
             <option value="1">moderate</option>
             <option value="2">restricted</option>

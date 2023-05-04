@@ -105,7 +105,7 @@ export default class Gallery extends HTMLElement {
         }
         return payload;
     }
-    set(key, value) { /* outsource to Preferences class */
+    set(key, value) { /* recursively set preferences (using dot-syntax) */
         const setProperty = (obj, path, value) => {
             const [head, ...rest] = path.split('.')
             return {
@@ -115,8 +115,26 @@ export default class Gallery extends HTMLElement {
                     : value
             }
         }
-        console.log(key,value);
-        this.preferences = setProperty(this.preferences, key, value);
+        let changeset = setProperty(this.preferences, key, value);
+        this.preferences = changeset;
+        return changeset;
+    }
+    importPreferences(preferences, prefix = 'p.', arraySuffix = '[]', arraySeparator = ',') {
+        if (!preferences) {
+            return;
+        }
+        for(let [key, value] of Object.entries(preferences)) {
+            if (key.indexOf(prefix) === 0) {
+                key = key.substring(prefix.length);
+                if (key.substring(key.length - arraySuffix.length) === arraySuffix) {
+                    key = key.substring(0,key.length - arraySuffix.length);
+                    value = value.split(arraySeparator);
+                }
+                this.set(key,value);
+            }
+        }
+        this.applyFilters();
+
     }
     setPreferences(preferences, merge = true) {
         if (merge && this.preferences) {
@@ -324,6 +342,7 @@ export default class Gallery extends HTMLElement {
             /* remove existing canvasContainer first */
             this.removeChild(this.canvasContainer);
         }
+        this.importPreferences(params);
         this.createCanvasContainer();
         this.createInfoBox();
         this.createFilmStrip(true);
