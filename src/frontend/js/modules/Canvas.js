@@ -56,7 +56,7 @@ export default class Canvas extends Gallery {
         console.debug(image, image.width, image.height, width, height);
         this.dispatchEvent("Debuggy", [event.target.src, width, height]);
         this.dispatchEvent("Debug", [width, height]);
-        if (createImageBitmap) {
+        if (typeof createImageBitmap === 'function') {
             createImageBitmap(image, {
                 resizeWidth: width,
                 resizeHeight: height,
