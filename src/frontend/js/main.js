@@ -22,7 +22,7 @@ window.setFormValues = function (form) {
     /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
       let elements = form.querySelectorAll('[name="' + key + '"]');
-      if (Array.isArray(value) && !elements) {
+      if (Array.isArray(value) && elements.length === 0) {
         elements = form.querySelectorAll('[name="' + key + '[]"]');        
       }
       elements.forEach(
@@ -30,6 +30,7 @@ window.setFormValues = function (form) {
           if (el.options) {
             for (let i = 0; i < el.options.length; i++) {
               let option = el.options[i];
+              console.log(option.value, value);
               if (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) {
                 el.options[i].setAttribute('selected', '');
               } else {
