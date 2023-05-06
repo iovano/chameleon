@@ -21,26 +21,28 @@ window.setFormValues = function (form) {
   if (form) {
     /* set form values of "settings"-page according to current gallery preferences */
     for (const [key, value] of Object.entries(prefs)) {
-      let el = form.querySelector('[name="' + key + '"]');
-      if (Array.isArray(value) && !el) {
-        el = form.querySelector('[name="' + key + '[]"]');        
+      let elements = form.querySelectorAll('[name="' + key + '"]');
+      if (Array.isArray(value) && !elements) {
+        elements = form.querySelectorAll('[name="' + key + '[]"]');        
       }
-      if (el) {
-        if (el.options) {
-          for (let i = 0; i < el.options.length; i++) {
-            let option = el.options[i];
-            if (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) {
-              el.options[i].setAttribute('selected', '');
-            } else {
-              el.options[i].removeAttribute('selected');
+      elements.forEach(
+        (el) => {
+          if (el.options) {
+            for (let i = 0; i < el.options.length; i++) {
+              let option = el.options[i];
+              if (option.value === value || (Array.isArray(value) && value.indexOf(option.value) !== -1)) {
+                el.options[i].setAttribute('selected', '');
+              } else {
+                el.options[i].removeAttribute('selected');
+              }
             }
+          } else if (el.type === 'checkbox') {
+            el.checked = (prefs[el.name] == true);
+          } else if (el.type !== 'hidden') {
+            el.value = value;
           }
-        } else if (el.type === 'checkbox') {
-          el.checked = (prefs[el.name] == true);
-        } else {
-          el.value = value;
         }
-      }
+      );
     }
   }
 
