@@ -7,7 +7,7 @@ export default class FlickrExtractor extends FlickrConnector {
     retryDelay = 2000;
     requestDelay = 1000;
     useCache = true;
-    stats = {albums: {failed: [], cached: [], processed: []}, photos: {failed: [], cached: [], processed: []}}
+    stats = {albums: {failed: [], cached: [], processed: [], skipped: []}, photos: {failed: [], cached: [], processed: [], skipped: []}}
     setParams(params) {
         for (const [key, value] of Object.entries(params)) {
             this[key] = value;
@@ -151,23 +151,28 @@ export default class FlickrExtractor extends FlickrConnector {
         } else {
             try {
                 data = await this.enrichPhotoData(data);
-                data = await this.getPhotoSizes(data);
-                data = await this.enrichPhotoData(data, 'flickr.photos.getExif');
-                data = await this.buildPhotoUri(data);
-                await this.sleep();  
-                data = this.condenseData(data, mapping);
-                data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);      
-                let collectedExif = {};
-                data.exif?.forEach((exif) => {if (collectExif.indexOf(exif.tag) !==-1) { collectedExif[exif.tag] = exif.raw._content}});
-                data.exif = collectedExif;
-                if (this.useCache) {
-                    this.cacheData(data, 'photoinfo', true);
-                }            
-                this.stats.photos.processed.push(data.id);
-                return data;
+                if (data.ispublic == 0) {
+                    this.stats.photos.skipped.push(data.id);
+                } else {
+                    data = await this.getPhotoSizes(data);
+                    data = await this.enrichPhotoData(data, 'flickr.photos.getExif');
+                    data = await this.buildPhotoUri(data);
+                    await this.sleep();  
+                    data = this.condenseData(data, mapping);
+                    data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);      
+                    let collectedExif = {};
+                    data.exif?.forEach((exif) => {if (collectExif.indexOf(exif.tag) !==-1) { collectedExif[exif.tag] = exif.raw._content}});
+                    data.exif = collectedExif;
+                    if (this.useCache) {
+                        this.cacheData(data, 'photoinfo', true);
+                    }            
+                    this.stats.photos.processed.push(data.id);
+                    return data;
+                }
             } catch (error) {
-                this.stats.photos.failed.push(data.id);
+
             }
+            this.stats.photos.failed.push(data.id);
         }
     }
 
@@ -176,9 +181,7 @@ export default class FlickrExtractor extends FlickrConnector {
         this.log("collecting photo information for "+collected.length+ "items");
         collected.forEach(async (data, key) => {
             let result = await this.collectPhotoInfo(data);
-            if (result === undefined) {
-                this.stats.photos.failed.push(photo.id);
-            } else {
+            if (result !== undefined) {
                 collected[key] = result;
             }
         });
@@ -228,8 +231,8 @@ export default class FlickrExtractor extends FlickrConnector {
         this.log("photoset collection ("+jobs.completed+" photos ,"+data.length+" bytes) finished. ", 6);
         this.log("done");
         console.table({
-            albums: {cached: this.stats.albums.cached.length, processed: this.stats.albums.processed.length, failed: this.stats.albums.failed.length},
-            photos: {cached: this.stats.photos.cached.length, processed: this.stats.photos.processed.length, failed: this.stats.photos.failed.length}
+            albums: {cached: this.stats.albums.cached.length, processed: this.stats.albums.processed.length, skipped: this.stats.albums.skipped.length, failed: this.stats.albums.failed.length},
+            photos: {cached: this.stats.photos.cached.length, processed: this.stats.photos.processed.length, skipped: this.stats.photos.skipped.length ,failed: this.stats.photos.failed.length}
             });
         if (this.errors) {
             console.error(this.errors);
