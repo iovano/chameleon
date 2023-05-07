@@ -102,7 +102,6 @@ export default class Sandwich extends HTMLElement {
         }
         doc.style.display = 'none';
         doc.style.display = 'block';
-        console.log("pageload", doc);
     }
     setPage(page) {
         this.page = page;

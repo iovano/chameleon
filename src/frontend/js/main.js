@@ -143,11 +143,12 @@ function start() {
     );
     gallery.loadData('./data/meta.json').then(data => {
       if (data) {
+        console.log("meta data loaded", data);
         gallery.setMetaData(data);
         document.querySelectorAll('.meta-title')?.forEach((element) => element.innerHTML = data?.title);
       }
     });
-
+    firstRun = false;
   }
 
   document.querySelectorAll('button.topic').forEach((button) => {
@@ -228,7 +229,6 @@ function start() {
       window.scrollTo(0, 0);
     }
   }
-  firstRun = false;
   gallery.onRequireInteraction = function (video) {
     updatePauseButtons('requiresInteraction');
     console.log("Gallery requires interaction");
@@ -242,7 +242,6 @@ function updatePauseButtons(state) {
       el.classList.remove(el.previousState);
       el.previousState = undefined;
     }
-    console.log("update pause ", el);
     el.classList.add('stress', state);
     el.previousState = state;
     setTimeout(() => {
@@ -252,7 +251,6 @@ function updatePauseButtons(state) {
   );
 }
 function interactionHappened() {
-  console.log("start video");
   updatePauseButtons('running');
   gallery.dispatchEvent("VideoPlay");
   interactionRequired = false;

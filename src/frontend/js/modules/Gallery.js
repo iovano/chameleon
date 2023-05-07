@@ -234,17 +234,8 @@ export default class Gallery extends HTMLElement {
             }
 
         }
-        let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
-        let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
-        document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
+        this.updateTitle();
 
-        if (!this.isFullscreen()) {
-            /* window location change does not have any effect in fullscreen mode */
-            const url = new URL(window.location);
-            url.searchParams.set('album', albumName);
-            url.searchParams.set('image', imageName);
-            history.pushState({}, "", url);    
-        }
 
         if (this.firstRun) {
             /* first image -- jump to the end of a transition */
@@ -341,6 +332,20 @@ export default class Gallery extends HTMLElement {
     }
     setMetaData(metaData) {
         this.meta = {...this.meta, ...metaData};
+        this.updateTitle();
+    }
+    updateTitle() {
+        let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
+        let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
+        document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
+
+        if (!this.isFullscreen()) {
+            /* window location change does not have any effect in fullscreen mode */
+            const url = new URL(window.location);
+            url.searchParams.set('album', albumName);
+            url.searchParams.set('image', imageName);
+            history.pushState({}, "", url);    
+        }        
     }
 
     init(params = undefined, resize = true) {
