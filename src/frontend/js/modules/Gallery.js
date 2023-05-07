@@ -676,16 +676,13 @@ export default class Gallery extends HTMLElement {
         this.showMessage("An error occurred", event);
         console.error(event);
     }
-    _onOnline(event){
+    _onOnline(){
         this.navigate("+0","+0");
     }
     _onOffline(event){
         console.log("offline", event);
     }
-    _onMediaReady(event) {
-        if (event.target instanceof HTMLVideoElement && event.target.currentTime === 0) {
-            event.target.play();
-        }
+    _onMediaReady() {
         if (this.suspended) {
             this.suspended = false;
             this.transitionFrame = 0;    
@@ -694,11 +691,21 @@ export default class Gallery extends HTMLElement {
     _onImageLoad(event) {
         this.dispatchEvent('MediaReady', event);
     }
-    _onVideoLoad(event) {
+    _onVideoLoaded(event) {
         this.img[0].video = event.target;
+        this.dispatchEvent("VideoPlay", event);
     }
-    _onVideoStart(event) {
-        this.dispatchEvent('MediaReady', event);
+    _onVideoPlay(event) {
+        let video = event?.target ?? this.img[0].video;
+        if (video instanceof HTMLVideoElement && video.currentTime === 0) {
+            video.play().then(() => {
+                this.dispatchEvent("MediaReady")
+            })
+            .catch((error) => {
+                this.dispatchEvent("RequireInteraction", video);
+                console.warn("video could not be played", error);
+            });
+        }
     }
     setProps(element, props) {
         for (let a of Object.keys(props)) {
@@ -715,9 +722,9 @@ export default class Gallery extends HTMLElement {
         let img;
         if (cImage.media === 'video') {
             img = document.createElement('video');
-            img.addEventListener('loadeddata', (event) => this.dispatchEvent('VideoLoad', event));
-            img.addEventListener('play', (event) => this.dispatchEvent('VideoStart', event));
-            img.addEventListener('canplaythrough', (event) => this.dispatchEvent('MediaReady', event));
+            img.addEventListener('loadeddata', (event) => this.dispatchEvent('VideoLoading', event));
+            img.addEventListener('play', (event) => this.dispatchEvent('MediaReady', event));
+            img.addEventListener('canplaythrough', (event) => this.dispatchEvent('VideoLoaded', event));
             img.setAttribute('autoplay', '');
             img.setAttribute('muted', '');
             img.setAttribute('loop','');

@@ -107,6 +107,9 @@ div.curtain {
     background: rgba(0,0,0,1);
 }
 
+.controls div.button.hide:not(.requiresInteraction) {
+    display: none;
+}
 .controls div.button {
     cursor: pointer;
     display: flex;
@@ -168,24 +171,28 @@ div.curtain.hide {
     width: 44px;
     height: 24px;
 }
-.controls div.stress {
+.controls div.stress, .controls div.requiresInteraction {
     background-color: rgba(255,255,255,0.5);
     opacity: 1 !important;
     animation: blink 0.1s !important;
     animation-iteration-count: 2 !important;
+}
+.controls div.requiresInteraction {
+    animation: blink 0.8s !important;
+    animation-iteration-count: infinite !important;
 }
 .controls div.stress div.icon {
     opacity: 1 !important;
 }
 @keyframes blink { 50% { background-color:rgba(0,0,0,0.5) ; opacity: 1}  }    
 
-.controls div.icon.more::before {
+.controls div.icon.more::before { 
     display: inline-block;
     width: 44px;
     height: 24px;
     content: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4 L22 20 L40 4' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E");
 }
-.controls div.toggle.paused div.icon, .controls div.toggle div.icon {
+.controls div.toggle.paused div.icon, .controls div.toggle.requiresInteraction div.icon, .controls div.toggle div.icon {
     content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' style='width: 24px; height: 24px;'%3E%3Cpath d='M8 5v14l11-7z' stroke-linecap='round' stroke-linejoin='round' style='fill: %23FFF; stroke: %23fff; stroke-width: 2px; rx: 4px; ry: 4px;'/%3E%3C/svg%3E");
     width: 30px;
     height: 30px;

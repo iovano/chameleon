@@ -11,6 +11,7 @@ import forms from '../css/forms.css' assert { type: 'css' };
 
 let gallery;
 let firstRun = true;
+let interactionRequired = false;
 
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
   window.setFormValues(doc.querySelector('form'));
@@ -194,10 +195,10 @@ function start() {
     }
   }
   gallery.onPauseStart = () => {
-    updatePauseButtons(true);
+    updatePauseButtons('paused');
   }
   gallery.onPauseEnd = () => {
-    updatePauseButtons(false);
+    updatePauseButtons('running');
   }
   gallery.onIdleEnd = (idleTime) => {
     if (!gallery.pureMode) {
@@ -228,24 +229,40 @@ function start() {
     }
   }
   firstRun = false;
+  gallery.onRequireInteraction = function (video) {
+    updatePauseButtons('requiresInteraction');
+    console.log("Gallery requires interaction");
+    interactionRequired = true;
+  }
 }
-function updatePauseButtons(paused) {
+
+function updatePauseButtons(state) {
   document.querySelectorAll('.controls .button.toggle').forEach((el) => {
-    console.log("update pause ", el);
-    el.classList.add('stress');
-    if (paused) {
-      el.classList.add('paused');
-    } else {
-      el.classList.remove('paused');
+    if (el.previousState) {
+      el.classList.remove(el.previousState);
+      el.previousState = undefined;
     }
+    console.log("update pause ", el);
+    el.classList.add('stress', state);
+    el.previousState = state;
     setTimeout(() => {
       el.classList.remove('stress')
-    }, 1000);
-  }
+    }, 1000);  
+    }
   );
 }
+function interactionHappened() {
+  console.log("start video");
+  updatePauseButtons('running');
+  gallery.dispatchEvent("VideoPlay");
+  interactionRequired = false;
+}
 function togglePause(value = undefined) {
-  gallery.setPaused(value);
+  if (interactionRequired) {
+    interactionHappened();
+  } else {
+    gallery.setPaused(value);
+  }
 }
 function move(delta) {
   gallery.navigate(delta);
@@ -262,7 +279,12 @@ document.addEventListener("DOMContentLoaded", function () {
     button =>
       button.addEventListener("click", () => togglePause())
   );
-
+  document.addEventListener('mousedown', () => {
+    interactionHappened();
+  });
+  document.addEventListener('keydown', () => {
+    interactionHappened();
+  });
   document.querySelectorAll('.controls .button.navi').forEach(
     button =>
       button.addEventListener("click", () => move(button.dataset.target))
