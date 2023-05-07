@@ -111,9 +111,13 @@ export default class Transitions extends Canvas {
     updateClipPathTransition() {
         if (this.currentTransition === 'Fader') {
             if (this.transitionFrame === 1) {
+                this.imageLayersMax = 4;
                 this.replaceCanvasWithDiv();
+                this.imageContainer.removeChild(this.img[1]);
+                this.img.splice(1,1);    
+                this.img[0].style.backgroundColor = 'rgba(0,0,0,1)';
+                this.img[0].style.opacity = 0;
             }
-            this.img[0].style.backgroundColor = 'rgba(0,0,0,1)';
             return super.updateClipPathTransition();
         }
         for (let i = 0; i < this.img.length; i++) {
