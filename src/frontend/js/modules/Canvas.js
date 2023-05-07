@@ -24,27 +24,29 @@ export default class Canvas extends Gallery {
         }
     }
     _onTransitionEnd(...props) {
-        let div = document.createElement('div');
-        let img = this.img[0].video ?? this.img[0].image;
-        let oldLayer = this.img[0];
-        div.appendChild(img);
-
-        div.image = img;
-        div.frame = oldLayer.frame;
-
-        this.addImageLayer(div);
-        this.setProps(div.style, this.preferences[img instanceof HTMLVideoElement ? 'videoLayerStyle' : 'imgLayerStyle']);
-        div.classList.add(img instanceof HTMLVideoElement ? 'video' : 'image')
-        div.style.backgroundColor = 'rgb(0,0,0)'
-        div.style.opacity = 1;
-        div.style.transition = 'opacity 2s';
+        this.replaceCanvasWithDiv();
         super._onTransitionEnd(...props);
-        this.img[1].classList.add('hide');
-        this.img[1].style.opacity = 'inherit';
-        //requestAnimationFrame(() => {this.imageContainer.removeChild(oldLayer); this.img.splice(1,1);});
     }
-    _onVideoLoad(event) {
-        this.img[0].video = event.target;
+    replaceCanvasWithDiv() {
+        if (this.img[0] instanceof HTMLCanvasElement) {
+            /* replace canvas with div once transition is done because native html image quality is superior to canvas image renderer */
+            let div = document.createElement('div');
+            let img = this.img[0].video ?? this.img[0].image;
+            let oldLayer = this.img[0];
+            div.appendChild(img);
+
+            div.image = img;
+            div.frame = oldLayer.frame;
+
+            this.addImageLayer(div);
+            this.setProps(div.style, this.preferences[img instanceof HTMLVideoElement ? 'videoLayerStyle' : 'imgLayerStyle']);
+            div.classList.add(img instanceof HTMLVideoElement ? 'video' : 'image')
+            div.style.backgroundColor = 'rgb(0,0,0)'
+            div.style.opacity = 1;
+            div.style.transition = 'opacity 2s';
+            this.img[1].classList.add('hide');
+            this.img[1].style.opacity = 'inherit';
+        }
     }
     _onImageLoad(event) {
         let image = event.target;

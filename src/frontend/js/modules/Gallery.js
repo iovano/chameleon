@@ -490,7 +490,7 @@ export default class Gallery extends HTMLElement {
         }
         this.albums = filteredAlbums;
         this.index = this.getIndex();
-        this.dispatchEvent('FilterApplied', filteredAlbums);
+        this.dispatchEvent('FilterApplied');
         return filteredAlbums;
     }
     resetFilters() {
@@ -500,7 +500,7 @@ export default class Gallery extends HTMLElement {
     setAlbums(albums) {
         this.loadedAlbums = albums;
         this.applyFilters(albums);
-        this.dispatchEvent('IndexCreated', this.index);
+        this.dispatchEvent('IndexCreated');
     }
     getShuffleIndex(index) {
         index = index || this.index;
@@ -682,17 +682,23 @@ export default class Gallery extends HTMLElement {
     _onOffline(event){
         console.log("offline", event);
     }
-    _onImageLoad(event) {
+    _onMediaReady(event) {
+        if (event.target instanceof HTMLVideoElement && event.target.currentTime === 0) {
+            event.target.play();
+        }
         if (this.suspended) {
             this.suspended = false;
             this.transitionFrame = 0;    
         }
     }
+    _onImageLoad(event) {
+        this.dispatchEvent('MediaReady', event);
+    }
+    _onVideoLoad(event) {
+        this.img[0].video = event.target;
+    }
     _onVideoStart(event) {
-        if (this.suspended) {
-            this.suspended = false;
-            this.transitionFrame = 0;    
-        }
+        this.dispatchEvent('MediaReady', event);
     }
     setProps(element, props) {
         for (let a of Object.keys(props)) {
@@ -711,10 +717,11 @@ export default class Gallery extends HTMLElement {
             img = document.createElement('video');
             img.addEventListener('loadeddata', (event) => this.dispatchEvent('VideoLoad', event));
             img.addEventListener('play', (event) => this.dispatchEvent('VideoStart', event));
+            img.addEventListener('canplaythrough', (event) => this.dispatchEvent('MediaReady', event));
             img.setAttribute('autoplay', '');
             img.setAttribute('muted', '');
             img.setAttribute('loop','');
-            img.setAttribute('hidden','');
+            //img.setAttribute('hidden','');
             img.setAttribute('playsinline', '');
             img.src = this.getImageSrc(cImage,1);
             this.setProps(img.style,this.get('videoStyle'));
