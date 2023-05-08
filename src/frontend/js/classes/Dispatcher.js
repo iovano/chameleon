@@ -33,6 +33,9 @@ export default class Dispatcher {
                   case 'window':
                     nodeObj = window;
                     break;
+                  case 'context':
+                    nodeObj = this.context;
+                    break;
                   default:
                   	nodeObj = document.querySelector(node);
                 }

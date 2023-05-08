@@ -4,12 +4,14 @@ import Gallery from './modules/Gallery.js'
 import Debugger from './elements/Debugger.js';
 
 import Sandwich from './elements/Sandwich.js';
+import Search from './elements/Search.js';
 
 import styles from '../css/default.css' assert { type: 'css' };
 import forms from '../css/forms.css' assert { type: 'css' };
 
 
 let gallery;
+let search;
 let firstRun = true;
 let interactionRequired = false;
 
@@ -79,7 +81,7 @@ window.onSubmitSettings = function (event, form) {
     gallery.setCurrentAlbumNum(0);
     gallery.setCurrentImageNum(0);
     gallery.init();
-    
+   
   }
   window.setFormValues();
 }
@@ -109,6 +111,7 @@ function start() {
     gallery.init(params);
     gallery.run();
     window.setFormValues();
+    updateSearchResults();
     /*
       }).catch(error => {
       gallery.loadData('./data/example.json').then(data => {
@@ -122,13 +125,35 @@ function start() {
   if (params?.order === 'shuffle') {
     gallery.setShuffleMode(true);
   }
-
+  function updateSearchResults(searchterm) {
+    let results = gallery.getFilteredResults({searchterm: searchterm});
+    search.querySelectorAll('.searchResults').forEach(
+      (el) => {
+        el.innerHTML = "<span class='highlight'>"+results.photos.length+"</span> photos in <span class='highlight'>"+results.albums.length+"</span> albums";
+      });
+  }
+  function doSearch(searchterm) {
+    gallery.applyFilters({searchterm: searchterm});
+    gallery.setCurrentAlbumNum(0);
+    gallery.setCurrentImageNum(0);
+    gallery.init();    
+  }
   if (firstRun) {
     document.querySelectorAll('.requestFullscreen').forEach(
       (el) => {
         gallery.requestFullscreen(el, document.getElementById('fullscreenRoot'));
       }
     );
+    search = document.querySelector('div-search');
+    let icon = search.querySelector('.icon');
+    icon.addEventListener('click', (event) => {search.input.value = ''; doSearch('') });
+    
+    search.onKeyUp = (event) => {
+      updateSearchResults(event.target.value);
+    }
+    search.onSubmit = (event) => {
+      doSearch(event.target.value);
+    };
     document.querySelectorAll('menu-sandwich').forEach(
       (el) => {
         el.onToggle = (expanded) => {
@@ -181,7 +206,6 @@ function start() {
 
   gallery.direction = "random";
   gallery.onPureStart = () => {
-    console.log("pure start");
     gallery.onIdle(60);
   }
   gallery.onPureEnd = () => {
@@ -273,6 +297,7 @@ document.addEventListener("DOMContentLoaded", function () {
     button =>
       button.addEventListener("click", () => start(button.dataset.topic))
   );
+
   document.querySelectorAll('.controls .button.toggle').forEach(
     button =>
       button.addEventListener("click", () => togglePause())

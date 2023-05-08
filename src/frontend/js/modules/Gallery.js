@@ -6,6 +6,7 @@ import infobox from '../../css/infobox.css' assert { type: 'css' };
 import TagsUL from '../elements/TagsUL.js';
 import Dispatcher from '../classes/Dispatcher.js';
 import DragonSwipe from '../classes/DragonSwipe.js';
+import FulltextSearch from '../classes/FulltextSearch.js';
 
 //document.adoptedStyleSheets.push(css);
 
@@ -476,27 +477,41 @@ export default class Gallery extends HTMLElement {
                 this.dispatchEvent('Error', undefined, error);
             });
     }
-    applyFilters(albums = undefined, filters = undefined) {
+    getFilteredResults(filters = {}, albums) {
         albums = albums || this.loadedAlbums || this.albums;
-        filters = filters || this.get('filters');
+        filters = {...this.get('filters'), ...filters};
         let filteredAlbums = [];
+        let filteredPhotos = [];
         for (let a = 0; a < albums.length ; a++) {
             let filteredAlbum = {...albums[a]};
             filteredAlbum.photos = [];
             for (let p = 0; p < albums[a].photos.length; p++) {
                 let photo = albums[a].photos[p];
-                if (this.get('filters')?.safety.indexOf(photo.safety) !== -1) {
+                let matches = 0;
+                let score = 0;
+                if (filters?.safety.indexOf(photo.safety) !== -1) {
+                    matches = 1;
+                }
+                if (filters?.searchterm) {
+                    [matches, score] = FulltextSearch.matchAgainst(filters?.searchterm, photo);
+                }
+                if (matches) {
+                    photo._searchScore = score;
+                    photo._searchMatches = matches;
                     filteredAlbum.photos.push(photo);
+                    filteredPhotos.push(photo);
                 }
             }
             if (filteredAlbum.photos.length > 0) {
                 filteredAlbums.push(filteredAlbum);
             }
         }
-        this.albums = filteredAlbums;
+        return {albums: filteredAlbums, photos: filteredPhotos};
+    }
+    applyFilters(filters = {}, albums = undefined) {
+        this.albums = this.getFilteredResults(filters, albums).albums;
         this.index = this.getIndex();
         this.dispatchEvent('FilterApplied');
-        return filteredAlbums;
     }
     resetFilters() {
         this.albums = this.loadedAlbums;
@@ -504,7 +519,7 @@ export default class Gallery extends HTMLElement {
     }
     setAlbums(albums) {
         this.loadedAlbums = albums;
-        this.applyFilters(albums);
+        this.applyFilters();
         this.dispatchEvent('IndexCreated');
     }
     getShuffleIndex(index) {
@@ -563,31 +578,34 @@ export default class Gallery extends HTMLElement {
     _onMouseEnd(mouse) {
         if (mouse.y2 > 0 && mouse.x2 > 0 && mouse.dt > 50 && mouse.dt < 4000) {
             if (mouse.dx > 50) {
-                this.navigate("-1","+0");
+                return this.navigate("-1","+0");
             } else if (mouse.dx < -50) {
-                this.navigate("+1","+0");
+                return this.navigate("+1","+0");
             }
             if (mouse.dy> 50) {
-                this.navigate("+0","-1");
+                return this.navigate("+0","-1");
             } else if (mouse.dy < -50) {
-                this.navigate("+0","+1");
+                return this.navigate("+0","+1");
             }
-
+        }
+        if (this.imageContainer.contains(mouse.target)) {
+            this.togglePureMode();
         }
     }
-    _onLastTouch(touch) {
+    _onLastTouch(touch, event) {
         if (touch.y2 > 0 && touch.x2 > 0 && touch.dt > 50 && touch.dt < 4000) {
             if (touch.dx > 50) {
-                this.navigate("-1","+0");
+                return this.navigate("-1","+0");
             } else if (touch.dx < -50) {
-                this.navigate("+1","+0");
+                return this.navigate("+1","+0");
             }
             if (touch.dy > 50) {
-                this.navigate("+0","-1");
+                return this.navigate("+0","-1");
             } else if (touch.dy < -50) {
-                this.navigate("+0","+1");
+                return this.navigate("+0","+1");
             }
         }
+        this.togglePureMode();
     }
     _onTouchStart(event) {
         this.dispatchEvent('IdleEnd');
@@ -602,14 +620,17 @@ export default class Gallery extends HTMLElement {
         this.pureMode = false;
         this.dispatchEvent('IdleEnd');
     }
+    togglePureMode(pureModeState = undefined) {
+        if (this.pureMode || pureModeState === false) {
+            this.dispatchEvent('PureEnd');
+        } else {
+            this.dispatchEvent('PureStart');
+        }
+    }
     /* internal event listeners */
     _onKeyUp(event) {
         if (event.key === 'Escape') {
-            if (this.pureMode) {
-                this.dispatchEvent('PureEnd');
-            } else {
-                this.dispatchEvent('PureStart');
-            }
+            this.togglePureMode();
             /* escape key can be used to toggle pure mode */
         } else if (event.key === ' ') {
             this.setPaused();

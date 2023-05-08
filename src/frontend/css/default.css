@@ -85,6 +85,7 @@ div.curtain div.welcome {
 }
 
 .controls {
+    pointer-events: none;
     position: absolute;
     z-index: 105;
     display: flex;
@@ -111,6 +112,7 @@ div.curtain {
     display: none;
 }
 .controls div.button {
+    pointer-events: fill;
     cursor: pointer;
     display: flex;
     align-items: center; /** Y-axis align **/

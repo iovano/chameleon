@@ -582,6 +582,51 @@ menu-sandwich > div.content body h3 {
         padding: 0 2em 0 0.5em;
     }
 }
+div-search {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%,0);
+    width: 36em;
+    z-index: 205;
+    color: rgba(0,0,0,0.5);
+    border-radius: 0;
+}
+div-search .highlight {
+    color: rgb(255,255,255,0.75);
+}
+div-search > div {
+    padding: 0.5em;
+}
+div-search .icon {
+    background-image:url('../icons/icon_search.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 0.5em;
+    margin: 0 0.5em;
+}
+div-search .searchResults {
+    background: rgba(0,0,0,0.2);
+}
+div-search input {
+    background: rgba(0,0,0,0.2);
+    transition: 0.5s;
+    color: rgb(255,255,255,0.75);
+    width: 100%;
+    flex: 1;
+    border: 0px;
+    background: none;
+}
+div-search input:focus {
+    outline: none;
+    opacity: 1 !important;
+}
+div-search:hover {
+    background: rgba(255,255,255,0.5);
+}
 html {
     min-height: 100%;
     overflow: hidden;
@@ -669,6 +714,7 @@ div.curtain div.welcome {
 }
 
 .controls {
+    pointer-events: none;
     position: absolute;
     z-index: 105;
     display: flex;
@@ -695,6 +741,7 @@ div.curtain {
     display: none;
 }
 .controls div.button {
+    pointer-events: fill;
     cursor: pointer;
     display: flex;
     align-items: center; /** Y-axis align **/
