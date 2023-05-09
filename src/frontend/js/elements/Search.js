@@ -14,7 +14,6 @@ export default class Search extends HTMLElement {
         this.input.addEventListener('blur', (event) => this._onBlur(event));
         this.input.addEventListener('keyup', (event) => this._onKeyUp(event));
         this.input.addEventListener('change', (event) => this._onChange(event));
-
     }
     _onChange(event) {
         if (typeof this.onChange === 'function') {
@@ -35,11 +34,13 @@ export default class Search extends HTMLElement {
         }
     } 
     _onFocus(event) {
+        this.classList.add('focus');
         if (typeof this.onFocus === 'function') {
             this.onFocus(event);
         }
     }
     _onBlur(event) {
+        this.classList.remove('focus');
         if (typeof this.onBlur === 'function') {
             this.onBlur(event);
         }

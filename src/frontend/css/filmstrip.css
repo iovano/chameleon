@@ -7,7 +7,6 @@
     z-index: 400;
     opacity: 1;
     transition: opacity 1s;
-    max-width: 34.70em;
 }
 #gallery .canvasContainer .filmStrip ul {
     color: rgba(155,155,155,0.4);
@@ -24,7 +23,7 @@
     overflow-x: auto;
     scroll-behavior: smooth;
     margin: 0;
-    width: 100%;
+    width: 35em;
 }
 #gallery .canvasContainer .filmStrip ul::-webkit-scrollbar {
     position: absolute !important;

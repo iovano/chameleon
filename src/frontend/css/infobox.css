@@ -27,11 +27,13 @@
     position: relative;
 }
 .infoBox ul-tags.imageInfo {
+    margin-block-start: 0;
+    margin-block-end: 0;
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
     padding: 1em;
-    width: 33.7em;
+    width: 34em;
 }
 .infoBox ul-tags > li {
     display: flex;

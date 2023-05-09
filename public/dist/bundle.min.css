@@ -7,7 +7,6 @@
     z-index: 400;
     opacity: 1;
     transition: opacity 1s;
-    max-width: 34.70em;
 }
 #gallery .canvasContainer .filmStrip ul {
     color: rgba(155,155,155,0.4);
@@ -24,7 +23,7 @@
     overflow-x: auto;
     scroll-behavior: smooth;
     margin: 0;
-    width: 100%;
+    width: 35em;
 }
 #gallery .canvasContainer .filmStrip ul::-webkit-scrollbar {
     position: absolute !important;
@@ -185,11 +184,13 @@
     position: relative;
 }
 .infoBox ul-tags.imageInfo {
+    margin-block-start: 0;
+    margin-block-end: 0;
     list-style-type: none;
     list-style-position: outside;
     margin: 0;
     padding: 1em;
-    width: 33.7em;
+    width: 34em;
 }
 .infoBox ul-tags > li {
     display: flex;
@@ -585,18 +586,27 @@ menu-sandwich > div.content body h3 {
 div-search {
     position: absolute;
     display: flex;
+    pointer-events: none;
     flex-direction: row;
     justify-content:space-between;
     left: 50%;
     top: 0;
     transform: translate(-50%,0);
-    width: 36em;
+    width: 45em;
+    height: 2.75em;
+    border-radius: 0 0 0.25em 0.25em;
     z-index: 205;
-    color: rgba(0,0,0,0.5);
-    border-radius: 0;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8em;
+}
+div-search.focus {
+    background-color: rgba(0,0,0,0.75);
+}
+div-search.focus .idleHide {
+    opacity: 1 !important;
 }
 div-search .highlight {
-    color: rgb(255,255,255,0.75);
+    color: rgb(255,255,255,1);
 }
 div-search > div {
     padding: 0.5em;
@@ -605,27 +615,35 @@ div-search .icon {
     background-image:url('../icons/icon_search.svg');
     background-repeat: no-repeat;
     background-position: center center;
-    width: 0.5em;
-    margin: 0 0.5em;
+    pointer-events: visibleFill;
+    background-size: 1.25em;
+    width: 1.5em;
+    padding: 0.25 0.5em;
+    transition: 0.5s;
 }
 div-search .searchResults {
-    background: rgba(0,0,0,0.2);
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 15em;
 }
 div-search input {
+    pointer-events: visibleFill;
     background: rgba(0,0,0,0.2);
     transition: 0.5s;
     color: rgb(255,255,255,0.75);
     width: 100%;
+    font-weight: bolder;
+    font-size: 1em;
     flex: 1;
     border: 0px;
     background: none;
 }
 div-search input:focus {
     outline: none;
-    opacity: 1 !important;
 }
-div-search:hover {
-    background: rgba(255,255,255,0.5);
+div-search:hover input {
+}
+div-search:hover .icon {
 }
 html {
     min-height: 100%;
