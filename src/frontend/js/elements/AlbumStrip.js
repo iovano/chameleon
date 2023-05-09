@@ -69,6 +69,12 @@ export default class AlbumStrip extends FilmStrip {
         }
         if (this.images) {
             super.render();    
+            if (!album) {
+                /* when on album selection page, overwrite image titles with album titles */
+                for (let i = 0; i < this.images.length ; i++) {
+                    this.listElements[i].image.setAttribute('title', this.images[i].photosetTitle);
+                }    
+            }
         }
     }
     getAlbumList() {

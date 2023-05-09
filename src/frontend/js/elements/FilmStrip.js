@@ -94,6 +94,7 @@ export default class FilmStrip extends HTMLElement {
                 img.setAttribute('title', items[i].title);
             }    
             li.appendChild(img);
+            li.image = img;
             this.listElements[i] = li;
             ul.appendChild(li);
         }
