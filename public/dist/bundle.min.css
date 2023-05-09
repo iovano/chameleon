@@ -624,6 +624,7 @@ div-search .icon {
 div-search .searchResults {
     margin-top: auto;
     margin-bottom: auto;
+    text-align: right;
     width: 15em;
 }
 div-search input {
@@ -638,6 +639,18 @@ div-search input {
     border: 0px;
     background: none;
 }
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: rgb(255,255,255,0.3);
+  }
+  
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgb(255,255,255,0.3);
+  }
+  
+  ::-ms-input-placeholder { /* Microsoft Edge */
+    color: rgb(255,255,255,0.3);
+  }
+
 div-search input:focus {
     outline: none;
 }
