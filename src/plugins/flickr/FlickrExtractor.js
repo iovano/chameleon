@@ -7,7 +7,11 @@ export default class FlickrExtractor extends FlickrConnector {
     retryDelay = 2000;
     requestDelay = 1000;
     useCache = true;
-    stats = {albums: {failed: [], cached: [], processed: [], skipped: []}, photos: {failed: [], cached: [], processed: [], skipped: []}}
+    stats = {
+        albums: {failed: 0, cached: 0, processed: 0, skipped: 0}, 
+        photos: {failed: 0, cached: 0, processed: 0, skipped: 0},
+        videos: {failed: 0, cached: 0, processed: 0, skipped: 0}
+    }
     setParams(params) {
         for (const [key, value] of Object.entries(params)) {
             this[key] = value;
@@ -144,15 +148,16 @@ export default class FlickrExtractor extends FlickrConnector {
         collectExif = ['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool']
         ) {
         let cache = this.useCache ? this.cacheData(data, 'photoinfo', 'readOnly') : undefined;
+        let mediaContext = (data.media === 'video' ? 'videos' : 'photos');
         if (cache) {
             data = cache;
-            this.stats.photos.cached.push(data.id);
+            this.stats[mediaContext].cached ++;
             return data;
         } else {
             try {
                 data = await this.enrichPhotoData(data);
                 if (data.ispublic == 0) {
-                    this.stats.photos.skipped.push(data.id);
+                    this.stats[mediaContext].skipped++;
                 } else {
                     data = await this.getPhotoSizes(data);
                     data = await this.enrichPhotoData(data, 'flickr.photos.getExif');
@@ -166,13 +171,12 @@ export default class FlickrExtractor extends FlickrConnector {
                     if (this.useCache) {
                         this.cacheData(data, 'photoinfo', true);
                     }            
-                    this.stats.photos.processed.push(data.id);
+                    this.stats[mediaContext].processed++;
                     return data;
                 }
             } catch (error) {
-
+                this.stats[mediaContext].failed++;
             }
-            this.stats.photos.failed.push(data.id);
         }
     }
 
@@ -195,14 +199,26 @@ export default class FlickrExtractor extends FlickrConnector {
         let collect = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'primary', 'photos', {'url': 'url._content'}];
         let collected = await this.aggregateData('photosets.getList','photosets','photoset',{});
         let jobs = {total: 0, completed: 0, failed: 0};
+        let excludeSets = this.excludeSets?.split(",");
         for(var i = 0; i < collected.length; i++) {
-            jobs.total += collected[i].count_photos + collected[i].count_videos;
+            let album = collected[i];
+            if (excludeSets?.length > 0 && (excludeSets.includes(album.id) || excludeSets.includes(album.title._content))) {
+                this.log("skipping album #"+album.id+" due to exclusion parameter");
+                this.stats.albums.skipped++;        
+                this.stats.photos.skipped+=album.count_photos;
+                this.stats.videos.skipped+=album.count_videos;
+                collected.splice(i,1);
+                i-=1;
+            } else {
+                jobs.total += album.count_photos + album.count_videos;
+            }
         }
         let consoler = this.consoler;
         const done = function () {
             consoler.log(consoler.progressBar(jobs.completed + jobs.failed, jobs.total, 50, true), 4)
             return (jobs.completed + jobs.failed) >= jobs.total;
         }
+
         //const pb = new ProgressBar(50);
         //pb.start();
 
@@ -212,7 +228,6 @@ export default class FlickrExtractor extends FlickrConnector {
             photoset.photos.forEach(async (photo, photoNum) => {
                 let result = await this.collectPhotoInfo(photo);
                 if (result === undefined) {
-                    this.stats.photos.failed.push(photo.id);
                     jobs.failed++;
                 } else {
                     photoset.photos[photoNum] = result;
@@ -221,7 +236,7 @@ export default class FlickrExtractor extends FlickrConnector {
             });
             collected[i] = this.condenseData(photoset, collect);
             await this.sleep();
-            this.stats.albums.processed.push(photoset.id);
+            this.stats.albums.processed++;
         });
         while (!done()) {
             await this.sleep(50);
@@ -231,9 +246,11 @@ export default class FlickrExtractor extends FlickrConnector {
         this.log("photoset collection ("+jobs.completed+" photos ,"+data.length+" bytes) finished. ", 6);
         this.log("done");
         console.table({
-            albums: {cached: this.stats.albums.cached.length, processed: this.stats.albums.processed.length, skipped: this.stats.albums.skipped.length, failed: this.stats.albums.failed.length},
-            photos: {cached: this.stats.photos.cached.length, processed: this.stats.photos.processed.length, skipped: this.stats.photos.skipped.length ,failed: this.stats.photos.failed.length}
-            });
+            albums: {cached: this.stats.albums.cached, processed: this.stats.albums.processed, skipped: this.stats.albums.skipped, failed: this.stats.albums.failed},
+            photos: {cached: this.stats.photos.cached, processed: this.stats.photos.processed, skipped: this.stats.photos.skipped,failed: this.stats.photos.failed},
+            videos: {cached: this.stats.videos.cached, processed: this.stats.videos.processed, skipped: this.stats.videos.skipped,failed: this.stats.videos.failed}
+
+        });
         if (this.errors) {
             console.error(this.errors);
         }
