@@ -492,7 +492,7 @@ export default class Gallery extends HTMLElement {
                 if (filters?.safety.indexOf(photo.safety) !== -1) {
                     matches = 1;
                 }
-                if (filters?.searchterm) {
+                if (matches && filters?.searchterm) {
                     [matches, score] = FulltextSearch.matchAgainst(filters?.searchterm, photo);
                 }
                 if (matches) {
