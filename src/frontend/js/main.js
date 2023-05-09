@@ -206,14 +206,14 @@ function start() {
 
   gallery.direction = "random";
   gallery.onPureStart = () => {
-    gallery.onIdle(60);
+    gallery.onIdle(180);
   }
   gallery.onPureEnd = () => {
     gallery.onIdleEnd();
   }
 
   gallery.onIdle = (idleTime) => {
-    if (idleTime == 60) {
+    if (idleTime == 180) {
       document.querySelectorAll('.idleHide').forEach((element) => { element.classList.add('hide'); })
       //      } else if (idleTime == 200) {
       //        document.querySelectorAll('menu-sandwich').forEach((el) => {el._onToggle(false);});        
