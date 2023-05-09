@@ -28,7 +28,6 @@ res.json = function (data) {
   console.log(data.length+" entries, "+JSON.stringify(data).length+" bytes");
 }
 var argv = getArgs();
-console.log(argv);
 argv.args.forEach(
   async (method) => 
   {
