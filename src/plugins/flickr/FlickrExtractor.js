@@ -29,6 +29,8 @@ export default class FlickrExtractor extends FlickrConnector {
             fs.unlinkSync(path.join(directory, file));
             files ++;  
             this.log(this.consoler.progressBar(files, total.length, 50), 6);       
+          } else {
+            files ++;
           }
         }
         this.log("cache cleared. unlinked "+files+" files from cache directory.")
@@ -252,6 +254,10 @@ export default class FlickrExtractor extends FlickrConnector {
         //const pb = new ProgressBar(50);
         //pb.start();
 
+        let timeoutThreshold = 20;
+        let timeoutCounter = 0;
+        let fps = 10;
+
         collected.forEach(async (photoset, i) => {
             this.log("collecting photo information for photoset #"+photoset.id, 3);
             photoset.photos = await this.aggregateData('photosets.getPhotos','photoset','photo',{photoset_id: photoset.id});
@@ -266,13 +272,19 @@ export default class FlickrExtractor extends FlickrConnector {
                     photoset.photos[photoNum] = result;
                     jobs.completed ++;
                 }
+                timeoutCounter = 0;
             });
             collected[i] = this.condenseData(photoset, collect);
             await this.sleep();
             this.stats.albums.processed++;
         });
         while (!done()) {
-            await this.sleep(50);
+            timeoutCounter ++;
+            if (timeoutCounter > timeoutThreshold * fps) {
+                this.error('Connection timed out after '+timeoutThreshold+' seconds.', 5);
+                process.exit();
+            }
+            await this.sleep(1000 / (fps || 1));
         }
         /* clean up skipped photos and empty photosets */
         for (let i = 0; i < collected.length ; i++) {
@@ -290,7 +302,7 @@ export default class FlickrExtractor extends FlickrConnector {
         
         let data = JSON.stringify(collected);
         this.log("photoset collection ("+jobs.completed+" photos ,"+data.length+" bytes) finished. ", 6);
-        this.log("done");
+        this.success("[ done ]");
         console.table({
             albums: {cached: this.stats.albums.cached, processed: this.stats.albums.processed, skipped: this.stats.albums.skipped, failed: this.stats.albums.failed},
             photos: {cached: this.stats.photos.cached, processed: this.stats.photos.processed, skipped: this.stats.photos.skipped,failed: this.stats.photos.failed},

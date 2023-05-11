@@ -19,6 +19,10 @@ export default class FlickrConnector extends Connector {
     log(message, line = undefined, payload = undefined) {
         this.consoler.log(message, line, payload);
     }
+    success(message, line = undefined, payload = undefined) {
+        this.consoler.success(message, line, payload);
+    }
+
     error(message, line = undefined, payload = undefined) {
         this.consoler.error(message, line, payload);
     }

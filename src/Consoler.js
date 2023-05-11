@@ -4,6 +4,7 @@ import * as rdl from "readline";
 export default class Consoler {
     messages = [];
     messagesAmount;
+    rows = 0;
 
     static Reset = "\x1b[0m"
     static Bright = "\x1b[1m"
@@ -36,9 +37,15 @@ export default class Consoler {
 
     constructor(messagesAmount = 5) {
         this.messagesAmount = messagesAmount;
-        /* make room for log area */
-        for (let i = 0 ; i < messagesAmount ; i ++) {
-            console.log();
+        console.log();
+    }
+    expand(toRow) {
+        if (toRow > this.rows) {
+            /* make room for log area */
+            for (let i = this.rows ; i < toRow ; i ++) {
+                console.log();
+            }
+            this.rows = toRow;
         }
     }
     progressBar(done, total, size = 50, summary = true, style = {
@@ -77,6 +84,9 @@ export default class Consoler {
     }
     error(message, line = undefined, payload = undefined) {
         this.log(Consoler.BgYellow+Consoler.FgRed+message+Consoler.Reset,line,payload);
+    }
+    success(message, line = undefined, payload = undefined) {
+        this.log(Consoler.BgGreen+Consoler.FgBlack+message+Consoler.Reset, line, payload);
     }
     log(message, line = undefined, payload = undefined) {
         if (line === undefined) {
