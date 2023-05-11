@@ -78,8 +78,6 @@ window.onSubmitSettings = function (event, form) {
   if (changeset['filters.safety']) {
     /* TODO: make gallery reinitialize when filters affect current image selection */
     gallery.applyFilters();
-    gallery.setCurrentAlbumNum(0);
-    gallery.setCurrentImageNum(0);
     gallery.init();
    
   }
