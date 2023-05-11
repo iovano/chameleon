@@ -14,10 +14,10 @@ FC.onAuthentication = function (accessToken, accessTokenSecret) {
   FC.writeCredentialsToFile('.env.local');
 }
 
-app.use(ContentFaker.use);
 
-app.use(express.static('./public', { followSymlinks: true, root: __dirname }))
+app.use(express.static('./public', { followSymlinks: true, root: __dirname, extensions: ['html', 'htm'] }))
 app.use(express.static('/app/public'))
+app.use(ContentFaker.use);
 
 app.get('/auth', (req, res) => FC.authenticate(req, res));
 app.get('/callback', (req, res) => FC.callback(req, res));

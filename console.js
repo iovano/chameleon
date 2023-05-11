@@ -1,4 +1,6 @@
+import ContentFaker from './src/ContentFaker.js';
 import FlickrExtractor from './src/plugins/flickr/FlickrExtractor.js';
+
 const FE = new FlickrExtractor();
 
 function getArgs() {
@@ -34,6 +36,8 @@ argv.args.forEach(
     if (typeof FE[method] === 'function') {
       FE.setParams(argv.params);
       await FE[method]({}, res);
+    } else if (method === 'SSR') {
+      ContentFaker.all();
     } else {
       console.error('Skipping non-existent method "'+method+'".');
     }

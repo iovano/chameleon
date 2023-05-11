@@ -1,15 +1,29 @@
-import { readFileSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
+import Consoler from './Consoler.js';
+
+let albums;
+let meta;
+const template = './src/frontend/index.html';
+const distTarget = './public/';
 
 export default class ContentFaker {
+    static loadData() {
+        if (!albums) {
+            albums = JSON.parse(readFileSync(`./public/data/albums.json`));
+        }
+        if (!meta) {
+            meta = JSON.parse(readFileSync(`./public/data/meta.json`));        
+        }
+    }
     static use(req, res, next) {
+        ContentFaker.loadData();
+        console.log("use ContentFaker");
         if (!res.headersSent) {
             let tokens = req.path.split('/');
             if (req.path === '/' || tokens[1] === 'album') {
                 let album = getAlbumByProperty(req.query.album || decodeURI(tokens[2]));
                 let photo = getAlbumPhotoByProperty(album, req.query.image || decodeURI(tokens[3]));
-                let fileContents = readFileSync(`./public/index.html`, 'utf8');
-                fileContents = fileContents.replace('<!-- :SSR_SPA_HEAD: -->', createHeader(album, photo));
-                fileContents = fileContents.replace('<!-- :SSR_SPA_BODY: -->', createContent(album, photo));    
+                let fileContents = ContentFaker.generate(album, photo);
                 res.set('Content-Type', 'text/html')
                 res.send(fileContents);
                 res.end();
@@ -18,10 +32,39 @@ export default class ContentFaker {
             }
         }
     }
-}
+    static generate(album = undefined, photo = undefined) {
+        let fileContents = readFileSync(template, 'utf8');
+        fileContents = fileContents.replace('<!-- :SSR_SPA_HEAD: -->', createHeader(album, photo));
+        fileContents = fileContents.replace('<!-- :SSR_SPA_BODY: -->', createContent(album, photo));
+        return fileContents;
+    }
+    static all() {
+        ContentFaker.loadData();
+        let consoler = new Consoler(4);
+        consoler.log("initializing server side renderer", 3);  
+        mkdirSync(distTarget, {recursive: true});     
+        writeFileSync(distTarget + 'index.html', ContentFaker.generate());
+        rmSync(distTarget + "album/", {recursive: true, force: true});
+        let photos = 0;
+        for (let i = 0; i < albums.length ; i++) {
+            let album = albums[i];
+            consoler.log("Render: " + album.title, 0);
+            consoler.log("Albums: " + consoler.progressBar(i + 1, albums.length), 1);
+            let path = distTarget + "album/" + sanitize(album.title);
+            mkdirSync(path, {recursive: true});      
+            writeFileSync(path + '.html', ContentFaker.generate(album));
+            for (let p = 0; p < album.photos.length ; p ++) {
+                photos ++;
+                consoler.log("Photos: " + consoler.progressBar(p + 1, album.photos.length), 2);
+                let photo = album.photos[p];
+                writeFileSync(path + "/" + sanitize(photo.title) +'.html', ContentFaker.generate(album, photo));
+            }
+        }
+        consoler.log("Finish: Static html files for " + Consoler.FgGreen + albums.length + " albums" + Consoler.Reset + " and " + Consoler.FgGreen + photos + " photos" + Consoler.Reset + " rendered.", 0);
+        consoler.success("[ done ]", 3);  
 
-const albums = JSON.parse(readFileSync(`./public/data/albums.json`));
-const meta = JSON.parse(readFileSync(`./public/data/meta.json`));
+    }
+}
 
 function sanitize(string) {
     return (string instanceof String || typeof string === 'string') ? string.replace(/[ \/]{1,}/gi,'-') : '';
@@ -43,8 +86,8 @@ function getAlbumPhotoByProperty(album, value, prop = 'title') {
 }
 function createContent(album = undefined, photo = undefined) {
     let html = '<h1>' + meta.title + '</h1>';
-    let primary = getPrimaryImage(album);
     if (album) {
+        let primary = getPrimaryImage(album);
         html += '<h2>' + album.title + '</h2> \n';
         html += '<p>' + (album.description || '') + '</p> \n';
         html += '<a href="'+ getCanonicalURL(album) +'">' + (primary ? ('<img src="' + (primary.size?.[primary.media]?.[2] || '') + '"> \n') : '') + "</a>"; 
