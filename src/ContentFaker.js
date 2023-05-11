@@ -8,7 +8,6 @@ export default class ContentFaker {
                 let album = getAlbumByProperty(req.query.album || decodeURI(tokens[2]));
                 let photo = getAlbumPhotoByProperty(album, req.query.image || decodeURI(tokens[3]));
                 req.query = {album: album.title, image: photo.title};
-                console.log(req.query);
                 let fileContents = readFileSync(`./public/index.html`, 'utf8');
                 fileContents = fileContents.replace('<!-- :SSR_SPA_HEAD: -->', createHeaderFromAlbumPhoto(album, photo));
                 fileContents = fileContents.replace('<!-- :SSR_SPA_BODY: -->', createContentFromAlbumPhoto(album, photo));
@@ -31,7 +30,6 @@ function sanitize(string) {
 
 function getAlbumByProperty(value, prop = 'title') {
     for (let i = 0; i < albums.length; i++) {
-        console.log(albums[i][prop]);
         if (albums[i][prop] === value || sanitize(albums[i][prop]) === value) {
             return albums[i];
         }
