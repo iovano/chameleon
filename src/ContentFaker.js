@@ -107,7 +107,7 @@ function createContent(album = undefined, photo = undefined) {
             let photo = album.photos[p];
             html += '<h3>' + photo.title + '</h3> \n'
             html += '<a href="'+ getCanonicalURL(album,photo) +'">'+ photo.title +'</a> \n';
-            html += photo.size ? '<img src="' + photo.size[photo.media][2] + '"> \n' : '';
+            html += photo.size ? '<img src="' + photo.size[photo.media][1] + '"> \n' : '';
             html += photo.description ? ('<p>' + photo.description + '</p> \n') : '';
         }
     }
@@ -117,7 +117,7 @@ function createContent(album = undefined, photo = undefined) {
         let album = albums[a];
         let primary = getPrimaryImage(album);
         if (primary) {
-            let src = primary.size?.[primary.media]?.[2]; 
+            let src = primary.size?.[primary.media]?.[1]; 
             html += '<li><a href="'+ getCanonicalURL(album) +'">'+ album.title +'</a>'+ (src ? '<img src="'+src+'">' : '') + '</li> \n';    
         }
     }    
@@ -155,9 +155,9 @@ function createHeader(album = undefined, photo = undefined) {
     head += '<meta name="twitter:description" content="' + (album?.description || '') + ' ' + (photo?.description || '') + '"> \n';
     if (photo) {
         head += '<meta name="keywords" content="' + photo.tags + '"> \n';
-        head += '<meta property="og:image" content="' + photo.size[photo.media][3] + '"> \n';
+        head += '<meta property="og:image" content="' + photo.size[photo.media][1] + '"> \n';
         head += '<meta name="twitter:card" content="' + photo.size[photo.media][4] + '">';
-        head += '<meta name="twitter:image" content="' + photo.size[photo.media][3] + '">';
+        head += '<meta name="twitter:image" content="' + photo.size[photo.media][1] + '">';
     }
     return head;
 }
