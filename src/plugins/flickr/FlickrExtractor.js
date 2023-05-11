@@ -144,7 +144,22 @@ export default class FlickrExtractor extends FlickrConnector {
     }
 
     async collectPhotoInfo(data, 
-        mapping = ['id', 'media', {'title': 'title._content'}, {'description': 'description._content'}, {'safety': 'safety_level'}, 'size', {'tags' : 'tags.tag'}, {'url': 'url._content' }, 'camera', 'exif'], 
+        mapping = [
+            'id', 
+            'media', 
+            {'author': 'owner.username'}, 
+            {'authorUrl': 'owner.path_alias'}, 
+            {'title': 'title._content'}, 
+            {'description': 'description._content'}, 
+            {'safety': 'safety_level'}, 
+            'size', 
+            {'tags' : 'tags.tag'}, 
+            {'url': 'url._content' }, 
+            {'dateCreated': 'dates.taken'}, 
+            {'datePosted': 'dateuploaded'}, 
+            {'format': 'originalformat'} ,
+            'camera', 
+            'exif'], 
         collectExif = ['ExposureTime','FNumber','FocalLength','ISO','Flash','LensModel','Lens','CreatorTool']
         ) {
         let cache = this.useCache ? this.cacheData(data, 'photoinfo', 'readOnly') : undefined;
@@ -163,6 +178,9 @@ export default class FlickrExtractor extends FlickrConnector {
                     data = await this.enrichPhotoData(data, 'flickr.photos.getExif');
                     data = await this.buildPhotoUri(data);
                     await this.sleep();  
+//                    console.log(data);
+//                    process.exit();
+
                     data = this.condenseData(data, mapping);
                     data.tags.forEach((tag, idx) => data.tags[idx] = tag._content);      
                     let collectedExif = {};
@@ -172,8 +190,8 @@ export default class FlickrExtractor extends FlickrConnector {
                         this.cacheData(data, 'photoinfo', true);
                     }            
                     this.stats[mediaContext].processed++;
-                    return data;
                 }
+                return data;
             } catch (error) {
                 this.stats[mediaContext].failed++;
             }
@@ -185,7 +203,7 @@ export default class FlickrExtractor extends FlickrConnector {
         this.log("collecting photo information for "+collected.length+ "items");
         collected.forEach(async (data, key) => {
             let result = await this.collectPhotoInfo(data);
-            if (result !== undefined) {
+            if (result !== undefined && result.ispublic != 0) {
                 collected[key] = result;
             }
         });
@@ -196,10 +214,22 @@ export default class FlickrExtractor extends FlickrConnector {
 
     async collectPhotoSets(req, res) {
         this.log("Collecting Photosets from Flickr", 1);
-        let collect = ['id', {'title': 'title._content'}, {'description': 'description._content'}, 'primary', 'photos', {'url': 'url._content'}];
+        let collect = [
+            'id', 
+            {'title': 'title._content'}, 
+            {'description': 'description._content'}, 
+            {author: 'username'}, 
+            {dateCreated: 'date_create'}, 
+            {dateUpdated: 'date_update'}, 
+            'primary', 
+            'photos', 
+            {'url': 'url._content'}
+        ];
         let collected = await this.aggregateData('photosets.getList','photosets','photoset',{});
         let jobs = {total: 0, completed: 0, failed: 0};
         let excludeSets = this.excludeSets?.split(",");
+//        console.log(collected);
+//        process.exit();
         for(var i = 0; i < collected.length; i++) {
             let album = collected[i];
             if (excludeSets?.length > 0 && (excludeSets.includes(album.id) || excludeSets.includes(album.title._content))) {
@@ -229,6 +259,9 @@ export default class FlickrExtractor extends FlickrConnector {
                 let result = await this.collectPhotoInfo(photo);
                 if (result === undefined) {
                     jobs.failed++;
+                } else if (photo.ispublic == 0) {
+                    jobs.completed++;
+                    photoset.photos[photoNum] = undefined;
                 } else {
                     photoset.photos[photoNum] = result;
                     jobs.completed ++;
@@ -240,6 +273,19 @@ export default class FlickrExtractor extends FlickrConnector {
         });
         while (!done()) {
             await this.sleep(50);
+        }
+        /* clean up skipped photos and empty photosets */
+        for (let i = 0; i < collected.length ; i++) {
+            for (let p = 0; p < collected[i].photos.length; p++) {
+                if (collected[i].photos[p] === undefined) {
+                    collected[i].photos.splice(p,1);
+                    p-=1;
+                }
+            }
+            if (collected[i].photos.length === 0) {
+                collected.splice(i,1);
+                i-=1;
+            }
         }
         
         let data = JSON.stringify(collected);
