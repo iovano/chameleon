@@ -11,6 +11,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Image Data
 public/data/*
+
+# SSR Files
+public/index.html
+public/album/*
+
 # exception to the rule
 !public/data/.gitkeep 
 !public/data/example.json
