@@ -43,10 +43,11 @@ function getAlbumPhotoByProperty(album, value, prop = 'title') {
 }
 function createContent(album = undefined, photo = undefined) {
     let html = '<h1>' + meta.title + '</h1>';
+    let primary = getPrimaryImage(album);
     if (album) {
         html += '<h2>' + album.title + '</h2> \n';
         html += '<p>' + (album.description || '') + '</p> \n';
-        html += '<p>' + (album.primary || '') + '</p> \n';
+        html += '<a href="'+ getCanonicalURL(album) +'">' + (primary ? ('<img src="' + (primary.size?.[primary.media]?.[2] || '') + '"> \n') : '') + "</a>"; 
     }
     if (photo) {
         html += '<h3>' + photo.title + '</h3> \n';
@@ -98,12 +99,13 @@ function getPrimaryImage(album) {
     }
 }
 function getCanonicalURL(album = undefined, photo = undefined) {
-    return album ? ('/album/' + album?.title + (photo ? '/' + photo?.title : '')) : '/';
+    return album ? ('/album/' + sanitize(album?.title) + (photo ? '/' + sanitize(photo?.title) : '')) : '/';
 }
 function createHeader(album = undefined, photo = undefined) {
     let url = getCanonicalURL(album, photo);
     let head = '';
-    head += '<title>' + meta.title + (album ? album.title + meta.delimiter : '') + (photo ? photo.title : '') + '</title>';
+    let d = meta.delimiter || ' | ';
+    head += '<title>' + meta.title + (album ? d + album.title : '') + (photo ? d + photo.title : '') + '</title>';
     head += '<meta property="og:title" content="' + (album?.title || '') + ': ' + (photo?.title || '') + '"> \n';
     head += '<meta property="twitter:title" content="' + (album?.title || '') + ': ' + (photo?.title || '') + '"> \n';
     head += '<meta property="og:url" content="' + url + '"> \n';
