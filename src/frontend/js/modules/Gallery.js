@@ -335,17 +335,20 @@ export default class Gallery extends HTMLElement {
         this.meta = {...this.meta, ...metaData};
         this.updateTitle();
     }
+    sanitize(string) {
+        return string.replace(/[ \/]{1,}/gi,'-');
+    }
     updateTitle() {
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
         document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
 
-        if (!this.isFullscreen()) {
+        if (!this.isFullscreen() && albumName && imageName) {
             /* window location change does not have any effect in fullscreen mode */
-            const url = new URL(window.location);
-            url.searchParams.set('album', albumName);
-            url.searchParams.set('image', imageName);
-            history.pushState({}, "", url);    
+            const url = location.protocol+'//'+location.host+'/album/'+this.sanitize(albumName)+'/'+this.sanitize(imageName)+location.search;
+            console.log(url);
+            const urlObject = new URL(url);
+            history.pushState({}, "", urlObject);    
         }        
     }
 
@@ -435,7 +438,7 @@ export default class Gallery extends HTMLElement {
         }
 //      this.dispatchEvent('EnterFrame', this.transitionFrame, this.totalFrames);
     }
-    getImageNumByPropertyValue(imageName, props = ['id', 'title', 'name'], preferredAlbum = undefined) {
+    getImageNumByPropertyValue(imageName, props = ['id', 'title'], preferredAlbum = undefined) {
         if (typeof props === 'string' || props instanceof String) {
             props = [props];
         }
@@ -447,7 +450,7 @@ export default class Gallery extends HTMLElement {
             for (let i = 0; i < photos.length ; i ++) {
                 let photo = photos[i];
                 for (let keyIndex of props.values()) {
-                    if (photo[keyIndex] == imageName) {
+                    if (photo[keyIndex] == imageName || this.sanitize(photo[keyIndex]) == imageName) {
                         return {album: album, image: i};
                     }
                 }
@@ -455,13 +458,13 @@ export default class Gallery extends HTMLElement {
         }
         console.error('image ' + imageName +' not found');
     }
-    getAlbumNumByPropertyValue(albumName, props = ['id', 'title', 'name']) {
+    getAlbumNumByPropertyValue(albumName, props = ['id', 'title']) {
         if (typeof props === 'string' || props instanceof String) {
             props = [props];
         }
         for (let i = 0; i < this.albums.length; i++) {
             for (let keyIndex of props.values()) {
-                if (this.albums[i][keyIndex] == albumName) {
+                if (this.albums[i][keyIndex] == albumName || this.sanitize(this.albums[i][keyIndex]) == albumName) {
                     return i;
                 }
             }

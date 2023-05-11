@@ -87,8 +87,16 @@ window.onSubmitSettings = function (event, form) {
 }
 function start() {
 
+  document.querySelectorAll('.ssrContent').forEach((el) => {el.innerHTML = '';});
   const urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
+
+  let tokens = decodeURI(window.location.pathname)?.split('/');
+  if (tokens[1] === 'album') {
+    /* extract album and photo title from window.location if it starts with /album */
+    params.album = tokens[2];
+    params.image = tokens[3];
+  }
 
   gallery = document.getElementById("gallery");
   if (!gallery) {
@@ -105,7 +113,8 @@ function start() {
   document.body.appendChild(gallery);
   window.gallery = gallery;
 
-  gallery.loadData('./data/albums.json').then(data => {
+  gallery.loadData('/data/albums.json').then(data => {
+    console.log("params", params);
     gallery.setAlbums(data);
     gallery.importPreferences(params);
     gallery.init(params);
@@ -166,7 +175,7 @@ function start() {
         el.init();
       }
     );
-    gallery.loadData('./data/meta.json').then(data => {
+    gallery.loadData('/data/meta.json').then(data => {
       if (data) {
         console.log("meta data loaded", data);
         gallery.setMetaData(data);

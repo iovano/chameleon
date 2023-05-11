@@ -4,15 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Chameleon | Image Gallery Library</title>
-  <script type="module" src="./dist/bundle.min.js"></script>
-  <link href="./dist/bundle.min.css" type="text/css" rel="stylesheet" />
+  <script type="module" src="/dist/bundle.min.js"></script>
+  <link href="/dist/bundle.min.css" type="text/css" rel="stylesheet" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="description" content="Responsive Photo Gallery for Photographers">
   <meta name="author" content="Timor Kodal">
   <meta name="keywords" content="image, photo, video, gallery, slideshow, fullscreen, exif, flickr"/>
+  <!-- :SSR_SPA_HEAD: -->
 </head>
 <body class="darkness" id="fullscreenRoot">
+  <div class="ssrContent">
+    <!-- :SSR_SPA_BODY: -->
+  </div>
   <menu-sandwich 
     permanent="permanent"
     target="div.content"
@@ -52,8 +56,6 @@
       <button class="requestFullscreen">fullscreen</button>
     </div>
   </header>
-  <!-- chameleon-gallery id="gallery"/ -->
-
   <div class="controls">
     <div class="button left navi idleHide" data-target="-1">
       <div class="more icon"></div>

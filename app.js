@@ -2,6 +2,7 @@ import express from 'express';
 import FlickrConnector from './src/plugins/flickr/FlickrConnector.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import ContentFaker from './src/ContentFaker.js';
 
 const app = express();
 const FC = new FlickrConnector();
@@ -13,11 +14,7 @@ FC.onAuthentication = function (accessToken, accessTokenSecret) {
   FC.writeCredentialsToFile('.env.local');
 }
 
-app.get('/', [
-  function(req, res){res.sendFile('./public/index.html', { followSymlinks: true, root: __dirname });},
-  function(req, res){res.sendFile('/app/public/index.html', { followSymlinks: true });},
-  ]
-);
+app.use(ContentFaker.use);
 
 app.use(express.static('./public', { followSymlinks: true, root: __dirname }))
 app.use(express.static('/app/public'))
