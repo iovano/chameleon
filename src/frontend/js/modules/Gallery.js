@@ -338,15 +338,19 @@ export default class Gallery extends HTMLElement {
     sanitize(string) {
         return string.replace(/[ \/]{1,}/gi,'-');
     }
+    getCanonicalURL(includeQuery = true) {
+        let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
+        let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
+        return location.protocol+'//'+location.host+(albumName && imageName ? '/album/'+this.sanitize(albumName)+'/'+this.sanitize(imageName) : '')+(includeQuery ? location.search : '');
+    }
     updateTitle() {
         let albumName = this.getAlbum()?.title || this.getAlbum()?.name;
         let imageName = this.getCurrentImage()?.title || this.getCurrentImage()?.name;
-        document.title = this.meta.title + this.meta.delimiter + albumName + this.meta.delimiter + imageName;
+        document.title = this.meta.title + (albumName && imageName ? this.meta.delimiter + albumName + this.meta.delimiter + imageName : '');
 
         if (!this.isFullscreen() && albumName && imageName) {
             /* window location change does not have any effect in fullscreen mode */
-            const url = location.protocol+'//'+location.host+'/album/'+this.sanitize(albumName)+'/'+this.sanitize(imageName)+location.search;
-            console.log(url);
+            const url = this.getCanonicalURL();
             const urlObject = new URL(url);
             history.pushState({}, "", urlObject);    
         }        
