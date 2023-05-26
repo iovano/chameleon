@@ -73,3 +73,9 @@ div-search:hover input {
 }
 div-search:hover .icon {
 }
+
+@media(max-width: 600px) {
+    div-search .searchResults {
+        display: none;
+    }    
+}
