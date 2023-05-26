@@ -16,10 +16,10 @@ let firstRun = true;
 let interactionRequired = false;
 
 document.querySelector('menu-sandwich').onLoadPage = function (doc, page, data) {
-  window.setFormValues(doc.querySelector('form'));
+  window.setFormValues(doc.querySelector('form.preferences'));
 }
 window.setFormValues = function (form) {
-  form = form || document.querySelector('form');
+  form = form || document.querySelector('form.preferences');
   let prefs = gallery.getPreferences(true);
   if (form) {
     /* set form values of "settings"-page according to current gallery preferences */
@@ -75,8 +75,8 @@ window.onSubmitSettings = function (event, form) {
     gallery.set(key, value);
   }
   history.pushState({}, "", url);
-  if (changeset['filters.safety']) {
-    /* TODO: make gallery reinitialize when filters affect current image selection */
+  if (changeset['filters.safety'] || changeset['filters.searchterm']) {
+    /* TODO: make gallery reinitialize only when filters affect current image selection */
     gallery.applyFilters();
     gallery.init();
    
@@ -133,6 +133,8 @@ function start() {
     gallery.setShuffleMode(true);
   }
   function updateSearchResults(searchterm) {
+    searchterm = searchterm ?? params?.['p.filters.searchterm'];
+    if (searchterm) search.input.value = searchterm;
     let results = gallery.getFilteredResults({searchterm: searchterm});
     search.querySelectorAll('.searchResults').forEach(
       (el) => {
@@ -145,6 +147,7 @@ function start() {
     gallery.setCurrentImageNum(0);
     gallery.init();    
   }
+  window.doSearch = doSearch;
   if (firstRun) {
     document.querySelectorAll('.requestFullscreen').forEach(
       (el) => {
