@@ -3,6 +3,7 @@ import https from 'https';
 import Connector from '../Connector.js';
 import Consoler from '../../Consoler.js';
 import dotenv from 'dotenv';
+import * as fs from 'fs';
 
 export default class FlickrConnector extends Connector {
     requestTokenSecret;
@@ -62,7 +63,7 @@ export default class FlickrConnector extends Connector {
             fileContent += key+' = "'+envVars[key]+'"\n';
           }
         }
-        fs.writeFile(filename, fileContent);        
+        fs.writeFileSync(filename, fileContent);        
     }
     initAuthenticatedFlickr(accessToken = undefined, accessTokenSecret = undefined, userId = undefined) {
         this.accessToken = accessToken || this.accessToken;

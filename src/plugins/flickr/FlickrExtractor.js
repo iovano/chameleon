@@ -1,6 +1,6 @@
 import FlickrConnector from './FlickrConnector.js';
-import * as fs from 'fs';
 import path from 'path';
+import * as fs from 'fs';
 
 export default class FlickrExtractor extends FlickrConnector {
     retries = 3;
