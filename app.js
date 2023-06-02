@@ -14,11 +14,6 @@ FC.onAuthentication = function (accessToken, accessTokenSecret) {
   FC.writeCredentialsToFile('.env.local');
 }
 
-
-app.use(express.static('./public', { followSymlinks: true, root: __dirname, extensions: ['html', 'htm'] }))
-app.use(express.static('/app/public'))
-app.use(ContentFaker.use);
-
 app.get('/auth', (req, res) => FC.authenticate(req, res));
 app.get('/callback', (req, res) => FC.callback(req, res));
 app.get('/me', (req, res) => FC.me(req, res));
@@ -28,6 +23,9 @@ app.get('/cover/:albumId/:size?', (req, res) => FC.showAlbumCover(req, res));
 
 app.get('/flickr/:endpoint', (req, res) => FC.endpoint(req, res));
 
+app.use(express.static('./public', { followSymlinks: true, root: __dirname, extensions: ['html', 'htm'] }))
+app.use(express.static('/app/public'))
+app.use(ContentFaker.use);
 
 app.listen(3000, () => {
   console.log("Server is listening on port 3000");
